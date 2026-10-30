@@ -32,18 +32,18 @@ install_deps() {
     apt-cache show gir1.2-webkit2-4.1 >/dev/null 2>&1 || web="gir1.2-webkit2-4.0"
     $SUDO apt-get update -qq || true
     $SUDO apt-get install -y python3 python3-venv python3-pip python3-gi python3-gi-cairo gir1.2-gtk-3.0 "$web" \
-      ffmpeg libpulse0 xdg-utils xclip libchromaprint-tools \
+      ffmpeg libpulse0 xdg-utils xclip libchromaprint-tools wmctrl x11-utils x11-xserver-utils \
       gstreamer1.0-plugins-good gstreamer1.0-plugins-bad gstreamer1.0-libav
   elif command -v dnf >/dev/null; then
-    $SUDO dnf install -y python3 python3-pip python3-gobject gtk3 webkit2gtk4.1 pulseaudio-libs xdg-utils xclip \
+    $SUDO dnf install -y python3 python3-pip python3-gobject gtk3 webkit2gtk4.1 pulseaudio-libs xdg-utils xclip wmctrl xwininfo xrandr \
       gstreamer1-plugins-good gstreamer1-plugins-bad-free gstreamer1-libav chromaprint-tools || true
     command -v ffmpeg >/dev/null || $SUDO dnf install -y ffmpeg-free || $SUDO dnf install -y ffmpeg || true
   elif command -v pacman >/dev/null; then
     $SUDO pacman -S --needed --noconfirm python python-pip python-gobject gtk3 webkit2gtk-4.1 ffmpeg libpulse \
-      xdg-utils xclip chromaprint gst-plugins-good gst-plugins-bad gst-libav
+      xdg-utils xclip wmctrl xorg-xwininfo xorg-xrandr chromaprint gst-plugins-good gst-plugins-bad gst-libav
   elif command -v zypper >/dev/null; then
     $SUDO zypper --non-interactive install python3 python3-pip python3-gobject python3-gobject-Gdk \
-      typelib-1_0-WebKit2-4_1 ffmpeg libpulse0 xdg-utils xclip chromaprint-fpcalc \
+      typelib-1_0-WebKit2-4_1 ffmpeg libpulse0 xdg-utils xclip wmctrl xwininfo xrandr chromaprint-fpcalc \
       gstreamer-plugins-good gstreamer-plugins-bad gstreamer-plugins-libav || true
   else
     warn "Unbekannte Linux-Version – bitte selbst installieren: Python 3, PyGObject, WebKit2GTK 4.1, ffmpeg, GStreamer-Plugins."

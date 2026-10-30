@@ -21,4 +21,6 @@ Gut zu wissen
     sudo usermod -aG cdrom $USER    (danach ab- und wieder anmelden)
 - „Systemsound“ und „Alles am PC“ nutzen PulseAudio bzw. PipeWire (bei allen aktuellen Desktops dabei).
   Titel und Steuerung kommen von Spotify, Firefox, Chrome, VLC & Co. über MPRIS.
+- Bildschirm aufnehmen klappt in einer Xorg-Sitzung (beim Anmelden „… auf Xorg“ wählen),
+  nicht unter Wayland.
 - Fehlerprotokoll: ~/.config/SongGrabber/songgrabber.log

@@ -1,10 +1,11 @@
-## SongGrabber 1.10.0 – jetzt auch für Linux 🐧
+## SongGrabber 1.11.0 – Bildschirm aufnehmen 🎥
 
-**Windows:** `SongGrabber-Setup-1.10.0.exe` herunterladen und starten (einfach über die alte Version installieren).
-**Linux** (Ubuntu, Mint, Debian, Fedora, Arch/Manjaro, openSUSE): `SongGrabber-1.10.0-linux.tar.gz` herunterladen, entpacken, im Ordner ein Terminal öffnen und `./install.sh` eingeben. Danach steht SongGrabber im Startmenü. *(Das Linux-Paket erscheint hier automatisch ein paar Minuten nach der Veröffentlichung.)*
+**Windows:** `SongGrabber-Setup-1.11.0.exe` herunterladen und starten (einfach über die alte Version installieren).
+**Linux:** `SongGrabber-1.11.0-linux.tar.gz` herunterladen, entpacken, im Ordner `./install.sh` ausführen. *(Erscheint hier automatisch ein paar Minuten nach der Veröffentlichung.)*
 
 ### Neu
-- **SongGrabber für Linux** – mit Startmenü-Eintrag, Papierkorb, Audio-CDs, Systemsound und „Alles am PC“ (Titel, Cover und Steuerung von Spotify, Firefox, Chrome, VLC & Co.)
-- Der Update-Hinweis verlinkt automatisch die passende Datei für Windows bzw. Linux
+- **Bildschirm aufnehmen**: Zoom, Teams, Webinar oder Live-Coaching als MP4-Video – ganzer Bildschirm oder nur ein Fenster, mit Vorschau
+- Klar sichtbar, welcher Ton mit drauf ist: **Ton vom PC** und/oder **dein Mikrofon** – jeweils mit Pegelanzeige
+- Pause, Verwerfen, auf Wunsch zusätzlich als MP3 – beim Schließen geht keine laufende Aufnahme verloren
 
 Windows zeigt beim ersten Start evtl. „Der Computer wurde durch Windows geschützt“ → *Weitere Informationen* → *Trotzdem ausführen*.

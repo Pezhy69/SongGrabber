@@ -8,7 +8,7 @@ import sys
 import threading
 
 APP_NAME = "SongGrabber"
-VERSION = "1.10.0"
+VERSION = "1.11.0"
 # Wo neue Versionen veröffentlicht werden. GitHub: "https://api.github.com/repos/<Name>/SongGrabber/releases/latest"
 # oder eine eigene JSON-Datei {"version": "1.9.0", "url": "https://…", "notes": "…"}. Leer = Prüfung aus.
 UPDATE_URL = "https://api.github.com/repos/Pezhy69/SongGrabber/releases/latest"
@@ -109,6 +109,8 @@ DEFAULTS = {
     "update_last": 0,
     "update_skip": "",
     "xfade": 4,                    # Player: Überblenden in Sekunden (0 = aus)
+    "screen_hint_ok": False,       # Bildschirmaufnahme: Einverständnis-Hinweis gelesen
+    "screen_opts": {},             # Bildschirmaufnahme: zuletzt gewählte Einstellungen
     "norm_play": True,             # Player: Lautstärke der Titel angleichen             # zuletzt vom Setup übernommener Musik-Ordner            # Player: eigene Farben {c0, c1, c2, sun0, sun1, sky}           # Player: Cover & Titel klein oben links (wie ein Senderlogo)                # Player: Lichtshow & Effekte an/aus
     "viz_mode": "synth",           # Player: synth | bars | ring | wave | off
     "viz_theme": "synth",          # Player-Farbwelt

@@ -17,7 +17,7 @@ import sys
 import threading
 import time
 
-from agcore import (bridge, cleanup, loudness, cdrip, encoder, export, files, identify, library, links, lyrics, mediaserver, metadata,
+from agcore import (bridge, cleanup, loudness, screenrec, cdrip, encoder, export, files, identify, library, links, lyrics, mediaserver, metadata,
                     musicbrainz, paths, pipeline, podcasts, radio, recorder, streaming, subs, sysaudio, tags, trim)
 from agcore.jobs import JobManager
 
@@ -40,6 +40,8 @@ class Api:
         self._np = sysaudio.NowPlaying(self._media)
         self._radio_meta = {}
         self._clean = cleanup.Cleanup()
+        self._screen = screenrec.ScreenRec()
+        self._close_ok = False
         self._ly_cache = {}
         self._jobs.listeners.append(self._job_done)
         self._subs = subs.Subscriptions(self._abo_download)
@@ -136,6 +138,17 @@ class Api:
     def choose_image(self):
         r = self._dialog("open", False, ("Bilder (*.jpg;*.jpeg;*.png)",))
         return r[0] if r else ""
+
+    def open_file(self, p):
+        """Datei mit dem Standardprogramm öffnen (z. B. fertige Bildschirmaufnahme abspielen)."""
+        if not p or not os.path.isfile(p):
+            return False
+        if paths.IS_WIN:
+            os.startfile(p)
+        else:
+            from agcore import osint
+            osint.open_path(p)
+        return True
 
     def open_path(self, p):
         if not p:
@@ -323,6 +336,42 @@ class Api:
                         raise
             job.set(1.0, f"Fertig · {ok} von {n}" + (f" · {len(err)} Fehler" if err else ""))
         return self._jobs.add(kind, title, run, f"{len(paths_)} Titel")
+
+    # ------------------------------------------------------------ Bildschirmaufnahme
+    def screen_sources(self):
+        return screenrec.sources()
+
+    def screen_preview(self, src_id):
+        return screenrec.preview(src_id)
+
+    def screen_start(self, opts):
+        self._mon.stop()                      # Pegel-Vorschau gibt die Geräte frei
+        return self._screen.start(opts)
+
+    def screen_pause(self):
+        return self._screen.pause()
+
+    def screen_resume(self):
+        return self._screen.resume()
+
+    def screen_stop(self):
+        return self._screen.stop()
+
+    def screen_discard(self):
+        return self._screen.discard()
+
+    def screen_status(self):
+        return self._screen.status()
+
+    def screen_close(self, keep=True):
+        """Fenster trotz laufender Bildschirmaufnahme schließen (keep=True: vorher speichern)."""
+        if keep:
+            self._screen.stop()
+        else:
+            self._screen.discard()
+        self._close_ok = True
+        threading.Thread(target=lambda: (self._screen.wait(120), self._window.destroy()), daemon=True).start()
+        return True
 
     # ------------------------------------------------------------ Bibliothek aufräumen
     def cleanup_start(self):
@@ -688,7 +737,7 @@ class Api:
 
     def rec_monitor(self):
         """Live-Pegel aller Eingänge (nur solange keine Aufnahme läuft)."""
-        if self._rec.state != "idle":
+        if self._rec.state != "idle" or self._screen.status()["state"] in ("recording", "paused", "finishing"):
             self._mon.stop()
             return {"levels": {}, "privacy": "ok", "paused": True}
         return {"levels": self._mon.poll(), "privacy": recorder.mic_privacy(), "paused": False}
@@ -1009,12 +1058,21 @@ def main():
                                    minimized=args.minimized)
     api._window = window
     window.events.loaded += lambda: _bind_drop(window)
+
+    def _closing():
+        # Läuft eine Bildschirmaufnahme, nicht einfach schließen – erst fragen (sonst wäre das Video weg).
+        if api._screen.status()["state"] in ("recording", "paused") and not api._close_ok:
+            threading.Thread(target=lambda: window.evaluate_js("window.Scr && Scr.closeAsk()"), daemon=True).start()
+            return False
+        return True
+    window.events.closing += _closing
     if args.files or args.url:
         window.events.loaded += lambda: api.external(msg)
     try:
         webview.start(debug="--debug" in sys.argv, private_mode=False,
                       storage_path=os.path.join(paths.data_dir(), "webview"))
     finally:
+        api._screen.shutdown()
         bridge.shutdown(srv)
 
 

@@ -41,6 +41,7 @@ function go(page) {
   document.body.classList.toggle("pp-active", page === "player");
   if (page === "player") { Viz.start(); SysMode.resume(); if (SysMode.on()) SysMode.lyrics(true); else if (!$("#ppLyBody").hidden) { LY.path = ""; loadLyrics(Player.lyricsTrack()); } }
   if (page === "radio") loadRadio();
+  if (page === "screen") Scr.enter();
 }
 $$(".nav-item").forEach(b => b.onclick = () => go(b.dataset.page));
 
@@ -488,6 +489,248 @@ async function monitorLoop() {
   monT = setTimeout(monitorLoop, 90);
 }
 
+/* ---------------------------------------------------------------- Bildschirm aufnehmen */
+const Scr = (() => {
+  let data = null, kind = "screen", src = null, devs = null, st = { state: "idle" }, view = "setup";
+  let prevT = null, prevBusy = false, lvlT = null, pollT = null, discardArm = 0;
+  const active = () => $("#page-screen").classList.contains("active");
+  const sep = () => (S.settings.output_dir || "").includes("\\") ? "\\" : "/";
+  const db2w = v => Math.max(0, Math.min(100, ((v ?? -90) + 60) / 60 * 100));
+  const opts = () => ({ source: src && src.id, sys_audio: $("#scrSys").checked, mic: $("#scrMic").checked, mic_device: $("#scrMicDev").value,
+    fps: +$("#scrFps").value, quality: $("#scrQ").value, cursor: $("#scrCursor").checked, mp3: $("#scrMp3").checked, kind });
+
+  function applyOpts() {
+    const o = S.settings.screen_opts || {};
+    if (o.kind) kind = o.kind;
+    if (o.sys_audio !== undefined) $("#scrSys").checked = !!o.sys_audio;
+    if (o.mic !== undefined) $("#scrMic").checked = !!o.mic;
+    if (o.fps) $("#scrFps").value = String(o.fps);
+    if (o.quality) $("#scrQ").value = o.quality;
+    if (o.cursor !== undefined) $("#scrCursor").checked = !!o.cursor;
+    if (o.mp3 !== undefined) $("#scrMp3").checked = !!o.mp3;
+  }
+  async function remember() {
+    const o = opts(); o.last = o.source; delete o.source;
+    S.settings = await call("save_settings", { screen_opts: o });
+  }
+
+  async function enter() {
+    $("#scrHint").hidden = !!S.settings.screen_hint_ok;
+    try { st = await call("screen_status"); } catch { st = { state: "idle" }; }
+    if (["recording", "paused"].includes(st.state)) { show("live"); renderLive(); startPoll(); return; }
+    if (st.state === "finishing") { show("done"); renderDone(); startPoll(); return; }
+    if (view === "done") { renderDone(); return; }
+    show("setup");
+    if (!data) { applyOpts(); await loadSources(); } else { renderList(); preview(true); }
+    if (!devs) await loadDevs();
+    loops();
+  }
+  function show(v) {
+    view = v;
+    $("#scrSetup").hidden = v !== "setup" || (data && !data.supported);
+    $("#scrLive").hidden = v !== "live";
+    $("#scrDone").hidden = v !== "done";
+    if (v !== "setup") { clearTimeout(prevT); clearTimeout(lvlT); }
+  }
+
+  async function loadSources() {
+    $("#scrList").innerHTML = `<div class="muted">Suche Bildschirme und Fenster …</div>`;
+    data = await call("screen_sources");
+    $("#scrOff").hidden = data.supported;
+    $("#scrOffWhy").textContent = data.reason || "";
+    if (!data.supported) { $("#scrSetup").hidden = true; return; }
+    $("#scrSetup").hidden = view !== "setup";
+    const last = (S.settings.screen_opts || {}).last;
+    const all = [...data.screens, ...data.windows];
+    src = all.find(x => x.id === (src && src.id)) || all.find(x => x.id === last) || null;
+    if (src) kind = src.id.startsWith("win:") ? "win" : "screen";
+    pickDefault();
+    renderList(); preview(true);
+  }
+  function pickDefault() {
+    const items = kind === "screen" ? data.screens : data.windows;
+    if (src && items.some(x => x.id === src.id)) return;
+    src = kind === "screen" ? (items.find(x => x.primary) || items[0] || null)
+      : (items.find(x => !x.minimized && /zoom|teams|webex|meet|skype|discord|slack|jitsi/i.test(x.app + " " + x.title)) || items.find(x => !x.minimized) || items[0] || null);
+  }
+  function renderList() {
+    $$("#scrKind button").forEach(b => b.classList.toggle("active", b.dataset.k === kind));
+    $("#scrKindTip").textContent = kind === "screen"
+      ? "Alles, was auf diesem Bildschirm zu sehen ist – auch Hinweise und andere Fenster."
+      : "Nur dieses eine Fenster. Es darf verschoben werden, aber nicht minimiert sein.";
+    const items = kind === "screen" ? data.screens : data.windows;
+    const box = $("#scrList");
+    if (!items.length) { box.innerHTML = `<div class="muted" style="font-size:12.5px">${kind === "screen" ? "Kein Bildschirm gefunden." : "Keine offenen Fenster gefunden – starte zuerst Zoom, Teams oder das Programm, das du aufnehmen willst, und klicke dann auf „Neu suchen“."}</div>`; summary(); return; }
+    box.innerHTML = items.map(x => kind === "screen"
+      ? `<button class="scr-src ${src && src.id === x.id ? "sel" : ""}" data-id="${esc(x.id)}"><span class="si">${esc(x.id.split(":")[1] * 1 + 1)}</span><span><b>${esc(x.name)}</b><small>${x.primary ? "Hauptbildschirm" : "weiterer Bildschirm"}</small></span><em>${esc(x.size)}</em></button>`
+      : `<button class="scr-src ${src && src.id === x.id ? "sel" : ""} ${x.minimized ? "min" : ""}" data-id="${esc(x.id)}" title="${esc(x.title)}"><span class="si">${esc((x.app || "?").slice(0, 1).toUpperCase())}</span><span><b>${esc(x.title)}</b><small>${esc(x.app)}${x.minimized ? " · minimiert" : ""}</small></span><em>${x.w && x.h ? x.w + " × " + x.h : ""}</em></button>`).join("");
+    $$("#scrList .scr-src").forEach(b => b.onclick = () => {
+      src = items.find(x => x.id === b.dataset.id);
+      $$("#scrList .scr-src").forEach(y => y.classList.toggle("sel", y === b));
+      summary(); preview(true); remember();
+    });
+    summary();
+  }
+
+  async function loadDevs() {
+    try { devs = S.rec.devices || await call("rec_devices"); } catch { devs = []; }
+    const mics = devs.filter(d => !d.loopback);
+    const want = (S.settings.screen_opts || {}).mic_device;
+    $("#scrMicDev").innerHTML = mics.length
+      ? mics.map(d => `<option value="${esc(d.id)}">${esc(d.name)}${d.default ? " (Standard)" : ""}</option>`).join("")
+      : `<option value="">Kein Mikrofon gefunden</option>`;
+    const def = mics.find(d => d.id === want) || mics.find(d => d.default) || mics[0];
+    if (def) $("#scrMicDev").value = def.id;
+    audioRows();
+  }
+  function audioRows() {
+    $("#scrSysRow").classList.toggle("on", $("#scrSys").checked);
+    $("#scrMicRow").classList.toggle("on", $("#scrMic").checked);
+    $("#scrMicDevRow").hidden = !$("#scrMic").checked;
+    summary();
+  }
+
+  function summary() {
+    if (!data) return;
+    const o = opts(), mic = devs && devs.find(d => d.id === o.mic_device);
+    const line = (on, icon, txt) => `<div class="${on ? "on" : "off"}"><svg><use href="#${icon}"/></svg><span>${txt}</span></div>`;
+    const what = !src ? `<div class="warn"><svg><use href="#i-help"/></svg>Bitte oben auswählen, was aufgenommen werden soll.</div>`
+      : line(true, src.id.startsWith("win:") ? "i-window" : "i-screen", src.id.startsWith("win:") ? `Fenster „${esc(src.title)}“` : `${esc(src.name)} (${esc(src.size)})`);
+    let h = `<span class="t">So wird aufgenommen</span>${what}`
+      + line(o.sys_audio, "i-vol", o.sys_audio ? "Ton vom PC" : "Ton vom PC – nein")
+      + line(o.mic, "i-mic", o.mic ? "Dein Mikrofon" + (mic ? ` <span class="muted">· ${esc(mic.name)}</span>` : "") : "Dein Mikrofon – nein");
+    if (!o.sys_audio && !o.mic) h += `<div class="warn"><svg><use href="#i-mute"/></svg>Ohne Ton – es wird nur das Bild aufgenommen.</div>`;
+    else if (o.sys_audio && !o.mic) h += `<div class="warn"><svg><use href="#i-mic"/></svg>Man hört nur die anderen, nicht dich.</div>`;
+    if (src && src.minimized) h += `<div class="warn"><svg><use href="#i-window"/></svg>Dieses Fenster ist minimiert – bitte vorher öffnen.</div>`;
+    $("#scrSum").innerHTML = h;
+    $("#scrGo").disabled = !src;
+    const d = S.settings.output_dir || "";
+    $("#scrWhere").textContent = d ? `Wird als MP4-Video gespeichert in: ${d}${d.endsWith(sep()) ? "" : sep()}Bildschirmaufnahmen` : "";
+  }
+
+  async function preview(now) {
+    clearTimeout(prevT);
+    if (!active() || view !== "setup" || !src) return;
+    if (!prevBusy && !document.hidden) {
+      prevBusy = true;
+      try {
+        const id = src.id, u = await call("screen_preview", id);
+        if (u && src && src.id === id) { const b = $("#scrShot"); b.style.backgroundImage = `url("${u}")`; b.classList.add("has"); }
+      } catch { } finally { prevBusy = false; }
+    }
+    prevT = setTimeout(preview, now ? 2500 : 3000);
+  }
+  async function levels() {
+    clearTimeout(lvlT);
+    if (!active() || view !== "setup") return;
+    try {
+      const r = await call("rec_monitor"), L = r.levels || {};
+      const loop = (devs || []).find(d => d.loopback && d.default) || (devs || []).find(d => d.loopback);
+      const set = (el, id) => { const lv = id && L[id]; el.parentNode.style.setProperty("--w", el.parentNode.offsetWidth + "px"); el.style.width = (lv ? db2w(lv.peak) : 0) + "%"; };
+      set($("#scrSysLv"), loop && loop.id); set($("#scrMicLv"), $("#scrMicDev").value);
+    } catch { }
+    lvlT = setTimeout(levels, 140);
+  }
+  function loops() { preview(true); levels(); }
+
+  /* --- Aufnahme */
+  async function start() {
+    if (!src) return;
+    await safe($("#scrGo"), async () => {
+      remember();
+      st = await call("screen_start", opts());
+      discardArm = 0; show("live"); renderLive(); startPoll();
+      toast("Aufnahme läuft – du kannst SongGrabber jetzt minimieren.", "ok");
+    });
+  }
+  function startPoll() { clearTimeout(pollT); tick(); }
+  async function tick() {
+    try { st = await call("screen_status"); } catch { }
+    const on = ["recording", "paused"].includes(st.state);
+    $("#navScrDot").classList.toggle("on", on || st.state === "finishing");
+    if (on && view !== "live") show("live");
+    if (on) renderLive();
+    else if (st.state === "finishing" || st.state === "done" || st.state === "error") { if (view !== "done") show("done"); renderDone(); }
+    if (on || st.state === "finishing") pollT = setTimeout(tick, on ? 400 : 300);
+    else if (st.state === "done") toastDone();
+  }
+  let doneShown = null;
+  function toastDone() {
+    const p = st.result && st.result.mp4;
+    if (!p || doneShown === p) return;
+    doneShown = p;
+    if (!active()) toast("Bildschirmaufnahme gespeichert: " + p.split(/[\\/]/).pop(), "ok");
+  }
+  function renderLive() {
+    if (!active()) return;
+    const paused = st.state === "paused", o = opts(), lv = st.levels || {};
+    $("#scrLed").className = "led " + (paused ? "paused" : "on");
+    $("#scrLiveState").textContent = paused ? "Pausiert – gerade wird nichts aufgenommen" : "Aufnahme läuft";
+    $("#scrLiveSrc").textContent = st.source ? "· " + st.source : "";
+    $("#scrTimer").textContent = fmtClock(st.elapsed);
+    $("#scrSize").textContent = st.size ? mb(st.size) + " bisher" : "";
+    $("#scrPause").innerHTML = `<svg><use href="#${paused ? "i-play" : "i-pause"}"/></svg>`;
+    $("#scrPause").title = paused ? "Weiter aufnehmen" : "Pause";
+    const meter = (box, key, on) => {
+      const el = $(box), bar = el.querySelector(".bar i"), em = el.querySelector("em"), v = lv[key], err = lv[key + "_error"];
+      el.classList.toggle("off", !on); el.classList.toggle("bad", !!err);
+      bar.parentNode.style.setProperty("--w", bar.parentNode.offsetWidth + "px");
+      bar.style.width = (on && !paused ? db2w(v) : 0) + "%";
+      em.textContent = !on ? "nicht dabei" : err ? "Fehler" : paused ? "Pause" : v === undefined || v < -58 ? "still" : Math.round(v) + " dB";
+      em.title = err || "";
+    };
+    meter("#scrMSys", "sys", st.levels ? "sys" in lv || "sys_error" in lv || (o.sys_audio && !Object.keys(lv).length) : o.sys_audio);
+    meter("#scrMMic", "mic", st.levels ? "mic" in lv || "mic_error" in lv || (o.mic && !Object.keys(lv).length) : o.mic);
+  }
+  function renderDone() {
+    const fin = st.state === "finishing", ok = st.state === "done" && st.result, err = st.state === "error";
+    $("#scrFin").hidden = !fin; $("#scrRes").hidden = !ok; $("#scrErr").hidden = !err;
+    if (fin) $("#scrFinBar").style.width = Math.max(3, (st.progress || 0) * 100) + "%";
+    if (ok) {
+      const r = st.result;
+      $("#scrResT").textContent = "Aufnahme gespeichert";
+      $("#scrResS").textContent = [fmtTime(r.duration) + " min", mb(r.size || 0), r.has_audio ? "mit Ton" : "ohne Ton", r.mp3 ? "plus MP3" : ""].filter(Boolean).join(" · ");
+      $("#scrResP").textContent = r.mp4;
+    }
+    if (err) $("#scrErrT").textContent = st.error || "Unbekannter Fehler.";
+  }
+  async function back() { await call("screen_discard").catch(() => { }); st = { state: "idle" }; show("setup"); enter(); }
+
+  /* --- Bedienung */
+  $$("#scrKind button").forEach(b => b.onclick = () => { if (kind === b.dataset.k) return; kind = b.dataset.k; src = null; pickDefault(); renderList(); preview(true); remember(); });
+  $("#scrRefresh").onclick = () => safe($("#scrRefresh"), loadSources);
+  ["#scrSys", "#scrMic"].forEach(s => $(s).onchange = () => { audioRows(); remember(); });
+  $("#scrMicDev").onchange = () => { summary(); remember(); };
+  ["#scrQ", "#scrFps", "#scrCursor", "#scrMp3"].forEach(s => $(s).onchange = remember);
+  $("#scrGo").onclick = start;
+  $("#scrHintOk").onclick = () => { $("#scrHint").hidden = true; save({ screen_hint_ok: true }); };
+  $("#scrPause").onclick = () => safe($("#scrPause"), async () => { st = await call(st.state === "paused" ? "screen_resume" : "screen_pause"); renderLive(); });
+  $("#scrStop").onclick = () => safe($("#scrStop"), async () => { st = await call("screen_stop"); show("done"); renderDone(); startPoll(); });
+  $("#scrDiscard").onclick = async () => {
+    const b = $("#scrDiscard");
+    if (Date.now() - discardArm > 3500) { discardArm = Date.now(); b.textContent = "Wirklich verwerfen? Nochmal klicken"; setTimeout(() => { if (Date.now() - discardArm >= 3400) b.textContent = "Verwerfen"; }, 3500); return; }
+    discardArm = 0; b.textContent = "Verwerfen"; clearTimeout(pollT);
+    await call("screen_discard"); $("#navScrDot").classList.remove("on"); toast("Aufnahme verworfen."); st = { state: "idle" }; show("setup"); enter();
+  };
+  $("#scrPlay").onclick = () => st.result && call("open_file", st.result.mp4);
+  $("#scrShow").onclick = () => st.result && call("open_path", st.result.mp4);
+  $("#scrNew").onclick = back; $("#scrErrNew").onclick = back;
+  document.addEventListener("visibilitychange", () => { if (!document.hidden && active() && view === "setup") preview(true); });
+
+  function closeAsk() {
+    go("screen");
+    dialog({ title: "Bildschirmaufnahme läuft noch", icon: "i-screen",
+      body: `<p>Soll die Aufnahme vor dem Schließen gespeichert werden?</p>`,
+      buttons: [
+        { label: "Speichern & schließen", cls: "primary", fn: () => { closeDialog(); call("screen_close", true); } },
+        { label: "Verwerfen & schließen", fn: () => { closeDialog(); call("screen_close", false); } },
+        { label: "Weiter aufnehmen" },
+      ] });
+  }
+  return { enter, closeAsk, tick };
+})();
+window.Scr = Scr;
+
 /* ---------------------------------------------------------------- Dateien & DVD */
 $("#btnFilesAdd").onclick = e => safe(e.currentTarget, async () => addFiles(await call("choose_files")));
 $("#btnFolderAdd").onclick = e => safe(e.currentTarget, async () => { const f = await call("choose_folder"); if (f) await addFiles([f]); });
@@ -628,6 +871,7 @@ $("#btnKeepLive").onclick = () => {
 
 /* ---------------------------------------------------------------- Neu in dieser Version (bei jeder Version ergänzen!) */
 const CHANGES = [
+  ["1.11.0", ["<b>Bildschirm aufnehmen</b>: Zoom, Teams, Webinar oder Live-Coaching als MP4-Video – ganzer Bildschirm oder nur ein Fenster, mit Vorschau", "Klar sichtbar, welcher Ton mit drauf ist: <b>Ton vom PC</b> und/oder <b>dein Mikrofon</b> – mit Pegelanzeige", "Pause, Verwerfen, auf Wunsch zusätzlich als MP3 – und beim Schließen geht keine laufende Aufnahme verloren"]],
   ["1.10.0", ["<b>SongGrabber für Linux</b>: Ubuntu, Mint, Debian, Fedora, Arch, openSUSE – mit <code>install.sh</code>, Startmenü-Eintrag, Papierkorb, Audio-CDs, Systemsound und „Alles am PC“ über MPRIS", "Update-Hinweis verlinkt automatisch die passende Datei für Windows bzw. Linux"]],
   ["1.9.1", ["<b>Mini-Player</b> friert nicht mehr ein – Fenster wird zuverlässig klein, bleibt im Vordergrund und kommt genau so zurück", "Knöpfe oben im Player bleiben bei jeder Fenstergröße sichtbar"]],
   ["1.9.0", ["<b>Überblenden</b>: sanfte Übergänge zwischen Titeln (2–12 s) – Alben am Stück bleiben nahtlos", "<b>Lautstärke angleichen</b>: leise und laute Titel klingen gleich laut", "<b>Mini-Player</b>: mit einem Klick als kleine Leiste unten rechts, immer im Vordergrund – mit Songtext-Zeile und Lichtshow", "<b>Bibliothek aufräumen</b>: doppelte Titel, fehlende Cover/Angaben, leere Ordner", "<b>Update-Hinweis</b>: SongGrabber sagt Bescheid, wenn es eine neue Version gibt"]],
@@ -664,7 +908,7 @@ function showWhatsNew(from) {
 function verCmp(a, b) { const x = String(a).split(".").map(Number), y = String(b || "0").split(".").map(Number); for (let i = 0; i < 3; i++) { if ((x[i] || 0) !== (y[i] || 0)) return (x[i] || 0) - (y[i] || 0); } return 0; }
 
 /* ---------------------------------------------------------------- Hilfe */
-const HELP_FOR = { radio: "h-radio", player: "h-player", abos: "h-abos", links: "h-links", cd: "h-cd", rec: "h-rec", files: "h-files", library: "h-library", queue: "h-queue", settings: "h-settings", help: "h-start" };
+const HELP_FOR = { screen: "h-screen", radio: "h-radio", player: "h-player", abos: "h-abos", links: "h-links", cd: "h-cd", rec: "h-rec", files: "h-files", library: "h-library", queue: "h-queue", settings: "h-settings", help: "h-start" };
 (() => {
   const arts = $$("#helpBody article");
   $("#helpToc").innerHTML = arts.map(a => `<a href="#${a.id}" data-id="${a.id}">${esc(a.querySelector("h2").textContent)}</a>`).join("");
@@ -2755,7 +2999,7 @@ const Mock = (() => {
     { id: 2, kind: "link", title: "Daft Punk – Get Lucky", subtitle: "Daft Punk", status: "wartet", progress: 0, stage: "In der Warteschlange", outputs: [], count: 0, error: "" },
     { id: 1, kind: "rec", title: "Pink Floyd – The Wall (Seite A)", subtitle: "21:48 min aufgenommen", status: "fertig", progress: 1, stage: "Fertig · 6 Titel", outputs: ["x"], count: 6, error: "" },
   ];
-  let t0 = 0, rec = "idle", w = [];
+  let t0 = 0, rec = "idle", w = [], scr = { state: "idle" };
   const LIB = [["Rolling in the Deep", "Adele", "21", "Pop", "2011", 228], ["Someone Like You", "Adele", "21", "Pop", "2011", 285], ["Skyfall", "Adele", "Skyfall", "Pop", "2012", 286], ["99 Luftballons", "Nena", "Nena", "Pop", "1983", 232], ["Major Tom", "Peter Schilling", "Fehler im System", "Pop", "1983", 300], ["Bohemian Rhapsody", "Queen", "A Night at the Opera", "Rock", "1975", 355], ["Get Lucky", "Daft Punk", "Random Access Memories", "Electronic", "2013", 369], ["Atemlos durch die Nacht", "Helene Fischer", "Farbenspiel", "Schlager", "2013", 219], ["Wonderwall", "Oasis", "(What's the Story) Morning Glory?", "Rock", "1995", 258]].map(([title, artist, album, genre, year, duration], i) => ({ title, artist, album, genre, year, duration, track: 1, path: "C:\\Musik\\" + artist + " - " + title + ".mp3", mtime: Date.now() / 1000 - i * 86400 * 9, format: "MP3" }));
   return {
     init: () => ({ version: "1.0.0", presets: P, settings, tools: { ffmpeg: true, ffprobe: true, ytdlp: true, ffmpeg_version: "ffmpeg version 7.1 (libmp3lame 3.100)", ytdlp_version: "2026.10.10" }, windows: true }),
@@ -2768,6 +3012,37 @@ const Mock = (() => {
     cd_rip: () => 1, cd_eject: () => true,
     rec_devices: () => [{ id: "a", name: "Line-In (Realtek High Definition Audio)", loopback: false }, { id: "b", name: "Mikrofon (USB Headset)", loopback: false, default: true }, { id: "d", name: "Mikrofonarray (Realtek)", loopback: false }, { id: "c", name: "Lautsprecher (Realtek High Definition Audio)", loopback: true, default: true }, { id: "e", name: "Kopfhörer (USB Headset)", loopback: true }],
     rec_monitor: () => { const t = performance.now() / 1000, talk = Math.sin(t * 2.2) > 0; return { privacy: "ok", levels: { a: { peak: -62 + Math.random() * 3, rms: -70, hold: -58, zero: 0, state: "ok" }, b: { peak: talk ? -14 - Math.random() * 10 : -55, rms: -30, hold: -12, zero: 0, state: "ok" }, d: { peak: -90, rms: -90, hold: -90, zero: 4, state: "ok" }, c: { peak: -9 - Math.random() * 8, rms: -20, hold: -8, zero: 0, state: "ok", loop: true }, e: { peak: -90, rms: -90, hold: -90, zero: 3, state: "ok", loop: true } } }; },
+    screen_sources: () => ({ supported: true, reason: "", screens: [{ id: "screen:0", name: "Bildschirm 1 (Hauptbildschirm)", size: "2560 × 1440", primary: true }, { id: "screen:1", name: "Bildschirm 2", size: "1920 × 1080", primary: false }],
+      windows: [{ id: "win:11", title: "Zoom Meeting", app: "Zoom", w: 1600, h: 900, minimized: false }, { id: "win:12", title: "Wochenmeeting Vertrieb | Microsoft Teams", app: "Microsoft Teams", w: 1480, h: 920, minimized: false },
+        { id: "win:13", title: "Live-Coaching: Zeitmanagement – YouTube – Google Chrome", app: "Google Chrome", w: 1920, h: 1040, minimized: false }, { id: "win:14", title: "Dokumente", app: "Explorer", w: 1100, h: 700, minimized: true }] }),
+    screen_preview: id => {
+      const c = document.createElement("canvas"); c.width = 480; c.height = 300; const g = c.getContext("2d");
+      g.fillStyle = "#1b1d22"; g.fillRect(0, 0, 480, 300);
+      if (id.startsWith("win:1") && id !== "win:13") {
+        const names = ["Anna", "Marco", "Du", "Lea"], cols = ["#3d5a80", "#6d597a", "#2a9d8f", "#b56576"];
+        names.forEach((n, i) => { const x = 8 + (i % 2) * 236, y = 8 + Math.floor(i / 2) * 136; g.fillStyle = cols[i]; g.fillRect(x, y, 228, 128); g.fillStyle = "rgba(255,255,255,.85)"; g.beginPath(); g.arc(x + 114, y + 56, 26, 0, 7); g.fill(); g.fillRect(x + 74, y + 88, 80, 30); g.fillStyle = "rgba(0,0,0,.5)"; g.fillRect(x + 6, y + 104, 54, 18); g.fillStyle = "#fff"; g.font = "12px sans-serif"; g.fillText(n, x + 12, y + 117); });
+        g.fillStyle = "#111"; g.fillRect(0, 280, 480, 20); g.fillStyle = "#e5484d"; g.fillRect(212, 284, 56, 12);
+      } else {
+        g.fillStyle = "#2b2f38"; g.fillRect(0, 0, 480, 22); g.fillStyle = "#0f0f0f"; g.fillRect(20, 36, 300, 170); g.fillStyle = "#f4a261"; g.beginPath(); g.moveTo(150, 95); g.lineTo(190, 121); g.lineTo(150, 147); g.fill();
+        g.fillStyle = "#cfd3da"; g.fillRect(20, 216, 240, 10); g.fillStyle = "#6b7280"; g.fillRect(20, 234, 160, 8); for (let i = 0; i < 4; i++) { g.fillStyle = "#30343d"; g.fillRect(336, 36 + i * 46, 124, 38); }
+      }
+      return c.toDataURL("image/jpeg", .8);
+    },
+    screen_start: o => { scr = { state: "recording", t: performance.now(), acc: 0, o }; return Mock.screen_status(); },
+    screen_pause: () => { scr.acc += (performance.now() - scr.t) / 1000; scr.state = "paused"; return Mock.screen_status(); },
+    screen_resume: () => { scr.t = performance.now(); scr.state = "recording"; return Mock.screen_status(); },
+    screen_stop: () => { if (scr.state === "recording") scr.acc += (performance.now() - scr.t) / 1000; scr.state = "finishing"; scr.f = performance.now(); return Mock.screen_status(); },
+    screen_discard: () => { scr = { state: "idle" }; return { state: "idle" }; },
+    screen_close: () => true, open_file: () => true,
+    screen_status: () => {
+      if (scr.state === "finishing" && performance.now() - scr.f > 2600) scr.state = "done";
+      const el = scr.acc + (scr.state === "recording" ? (performance.now() - scr.t) / 1000 : 0) + (scr.fake || 0), t = performance.now() / 1000, o = scr.o || {}, lv = {};
+      if (o.sys_audio) lv.sys = scr.state === "recording" ? -14 - Math.random() * 12 * (Math.sin(t * 1.7) > 0) : -90;
+      if (o.mic) lv.mic = scr.state === "recording" && Math.sin(t * 2.3) > .3 ? -18 - Math.random() * 9 : -66;
+      return { state: scr.state, elapsed: el, size: el * 92000, levels: lv, error: "", progress: scr.state === "finishing" ? Math.min(.98, (performance.now() - scr.f) / 2600) : 0,
+        source: o.source === "win:11" ? "Zoom Meeting" : o.source === "win:12" ? "Wochenmeeting Vertrieb | Microsoft Teams" : "Bildschirm 1",
+        result: scr.state === "done" ? { mp4: "C:\\Users\\Pezhy\\Music\\SongGrabber\\Bildschirmaufnahmen\\2026-10-31 14-05 Zoom Meeting.mp4", mp3: o.mp3 ? "x.mp3" : "", duration: el, size: el * 92000, has_audio: !!(o.sys_audio || o.mic) } : null };
+    },
     rec_privacy_settings: () => true,
     rec_start: () => { rec = "recording"; t0 = performance.now(); w = []; return {}; },
     rec_stop: () => { rec = "idle"; return {}; }, rec_pause: () => { rec = rec === "paused" ? "recording" : "paused"; }, rec_discard: () => { rec = "idle"; }, rec_gain: () => true,
