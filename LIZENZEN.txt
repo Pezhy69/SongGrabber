@@ -1,0 +1,35 @@
+SongGrabber – kostenlos, by Pezhy
+==================================
+
+SongGrabber nutzt folgende freie Software und Dienste. Herzlichen Dank an alle Beteiligten!
+
+Mitgelieferte Programme (Ordner "bin")
+--------------------------------------
+- FFmpeg (mit LAME-MP3-Encoder) – GPL-3.0-Build von BtbN (github.com/BtbN/FFmpeg-Builds).
+  Quellcode: https://ffmpeg.org · Lizenz: https://www.gnu.org/licenses/gpl-3.0.html
+- yt-dlp – The Unlicense (gemeinfrei) · https://github.com/yt-dlp/yt-dlp
+- fpcalc (Chromaprint) – LGPL-2.1 · https://acoustid.org/chromaprint
+
+Verwendete Bibliotheken
+-----------------------
+- pywebview – BSD-3-Clause · https://pywebview.flowrl.com
+- mutagen – GPL-2.0-or-later · https://github.com/quodlibet/mutagen
+- SoundCard – BSD-3-Clause · https://github.com/bastibe/SoundCard
+- NumPy – BSD-3-Clause · https://numpy.org
+- Python – PSF-Lizenz · https://www.python.org
+
+Weil GPL-Bestandteile enthalten sind, steht auch SongGrabber selbst unter der GPL-3.0:
+Du darfst es frei nutzen, weitergeben und verändern; der Quellcode wird mitgeliefert bzw. auf Anfrage bereitgestellt.
+
+Online-Dienste
+--------------
+- MusicBrainz & Cover Art Archive (CD-Daten, Cover) – Daten CC0
+- iTunes Search API (Album, Genre, Cover, Podcast-Suche) – Apple
+- LRCLIB (Songtexte) – https://lrclib.net
+- AcoustID (Musikerkennung, kostenlos für nicht-kommerzielle Nutzung) – https://acoustid.org
+- radio-browser.info (Senderverzeichnis, frei) – https://www.radio-browser.info
+
+Hinweis
+-------
+Bitte nur Inhalte speichern, für die du die Rechte hast: eigene CDs, freie Inhalte, Privatkopie im erlaubten Rahmen.
+Die Nutzungsbedingungen der jeweiligen Webseiten gelten weiterhin.

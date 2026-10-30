@@ -1,0 +1,2 @@
+ffmpeg.exe, ffprobe.exe und yt-dlp.exe kommen hier hinein.
+build.bat bzw. tools\fetch_tools.py erledigt das automatisch.

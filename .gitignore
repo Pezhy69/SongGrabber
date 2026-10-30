@@ -1,0 +1,13 @@
+# Werkzeuge werden von build.bat geholt (zu groß fürs Projekt)
+bin/*
+!bin/LIESMICH.txt
+# Build-Ergebnisse
+build/
+dist/
+Setup/
+*.spec
+__pycache__/
+*.pyc
+# persönliche Daten der portablen Version
+data/
+portable.txt

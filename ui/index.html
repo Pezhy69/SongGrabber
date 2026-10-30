@@ -1,0 +1,972 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SongGrabber</title>
+<link rel="stylesheet" href="app.css">
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute">
+  <defs>
+    <symbol id="i-link" viewBox="0 0 24 24"><path d="M10 13a5 5 0 0 0 7.07 0l3-3a5 5 0 0 0-7.07-7.07l-1.5 1.5"/><path d="M14 11a5 5 0 0 0-7.07 0l-3 3a5 5 0 0 0 7.07 7.07l1.5-1.5"/></symbol>
+    <symbol id="i-disc" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="2.5"/><path d="M12 5.5a6.5 6.5 0 0 1 6.5 6.5"/></symbol>
+    <symbol id="i-mic" viewBox="0 0 24 24"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5.5 11a6.5 6.5 0 0 0 13 0M12 17.5V21M8.5 21h7"/></symbol>
+    <symbol id="i-file" viewBox="0 0 24 24"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5"/><circle cx="10.5" cy="16" r="1.8"/><path d="M12.3 16V10.5l3 1"/></symbol>
+    <symbol id="i-queue" viewBox="0 0 24 24"><path d="M4 6h16M4 12h10M4 18h7"/><path d="M17 15v6l4-3z"/></symbol>
+    <symbol id="i-gear" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></symbol>
+    <symbol id="i-folder" viewBox="0 0 24 24"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></symbol>
+    <symbol id="i-paste" viewBox="0 0 24 24"><rect x="8" y="3" width="8" height="4" rx="1"/><path d="M16 5h2a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2h2"/></symbol>
+    <symbol id="i-x" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></symbol>
+    <symbol id="i-eject" viewBox="0 0 24 24"><path d="M12 5l7 8H5z"/><path d="M5 18h14"/></symbol>
+    <symbol id="i-refresh" viewBox="0 0 24 24"><path d="M20 11a8 8 0 0 0-14.3-4.9L4 8M4 4v4h4M4 13a8 8 0 0 0 14.3 4.9L20 16M20 20v-4h-4"/></symbol>
+    <symbol id="i-check" viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></symbol>
+    <symbol id="i-radio" viewBox="0 0 24 24"><circle cx="12" cy="12" r="2"/><path d="M16.24 7.76a6 6 0 0 1 0 8.49M7.76 16.24a6 6 0 0 1 0-8.49M19.07 4.93a10 10 0 0 1 0 14.14M4.93 19.07a10 10 0 0 1 0-14.14"/></symbol>
+    <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
+    <symbol id="i-dvd" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="2.5"/><path d="M7 9.5h2.2a2.5 2.5 0 0 1 0 5H7zM13.5 9.5l1.6 5 1.6-5"/></symbol>
+    <symbol id="i-play" viewBox="0 0 24 24"><path d="M7 5l12 7-12 7z"/></symbol>
+    <symbol id="i-pause" viewBox="0 0 24 24"><path d="M8 5v14M16 5v14"/></symbol>
+    <symbol id="i-stop" viewBox="0 0 24 24"><rect x="6" y="6" width="12" height="12" rx="1.5"/></symbol>
+    <symbol id="i-lib" viewBox="0 0 24 24"><path d="M4 4v16M8 4v16"/><rect x="11" y="4" width="4" height="16" rx="1"/><path d="M17.5 5.2l3.3 14.4"/></symbol>
+    <symbol id="i-prev" viewBox="0 0 24 24"><path d="M18 6l-9 6 9 6zM6 6v12"/></symbol>
+    <symbol id="i-next" viewBox="0 0 24 24"><path d="M6 6l9 6-9 6zM18 6v12"/></symbol>
+    <symbol id="i-vol" viewBox="0 0 24 24"><path d="M4 9h4l5-4v14l-5-4H4z"/><path d="M16.5 8.5a5 5 0 0 1 0 7M19 6a8.5 8.5 0 0 1 0 12"/></symbol>
+    <symbol id="i-list" viewBox="0 0 24 24"><path d="M9 6h11M9 12h11M9 18h11"/><circle cx="4.5" cy="6" r="1"/><circle cx="4.5" cy="12" r="1"/><circle cx="4.5" cy="18" r="1"/></symbol>
+    <symbol id="i-copy" viewBox="0 0 24 24"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V6a2 2 0 0 1 2-2h8"/></symbol>
+    <symbol id="i-cut" viewBox="0 0 24 24"><circle cx="6" cy="7" r="2.5"/><circle cx="6" cy="17" r="2.5"/><path d="M8 8.5L20 18M8 15.5L20 6"/></symbol>
+    <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5"/><path d="M20 20l-4.2-4.2"/></symbol>
+    <symbol id="i-shuffle" viewBox="0 0 24 24"><path d="M3 7h3.5c4 0 6 10 10 10H21M3 17h3.5c1.5 0 2.7-1.4 3.8-3.3M13.7 10.3C14.8 8.4 16 7 17.5 7H21M18 4l3 3-3 3M18 14l3 3-3 3"/></symbol>
+    <symbol id="i-wand" viewBox="0 0 24 24"><path d="M5 19L17 7M14 4l1 2 2 1-2 1-1 2-1-2-2-1 2-1zM19 11l.6 1.4L21 13l-1.4.6L19 15l-.6-1.4L17 13l1.4-.6z"/></symbol>
+    <symbol id="i-trash" viewBox="0 0 24 24"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3"/></symbol>
+    <symbol id="i-help" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M9.5 9.2a2.6 2.6 0 0 1 5 .9c0 1.8-2.5 2.3-2.5 3.9M12 17.2v.1"/></symbol>
+    <symbol id="i-stage" viewBox="0 0 24 24"><path d="M12 3a3 3 0 0 1 3 3v4a3 3 0 0 1-6 0V6a3 3 0 0 1 3-3z"/><path d="M5 20l3.5-5M19 20l-3.5-5M8 21h8"/></symbol>
+    <symbol id="i-bell" viewBox="0 0 24 24"><path d="M6 16V11a6 6 0 0 1 12 0v5l1.5 2h-15z"/><path d="M10 20.5a2 2 0 0 0 4 0"/></symbol>
+    <symbol id="i-tag" viewBox="0 0 24 24"><path d="M3 12V4h8l9.5 9.5-8 8z"/><circle cx="7.5" cy="8.5" r="1.4"/></symbol>
+    <symbol id="i-lyrics" viewBox="0 0 24 24"><path d="M4 6h10M4 10h10M4 14h6"/><path d="M17 18V5l4 1.5"/><circle cx="15" cy="18" r="2"/></symbol>
+    <symbol id="i-usb" viewBox="0 0 24 24"><rect x="7" y="9" width="10" height="13" rx="2"/><path d="M9 9V3h6v6M10.5 5.5v1M13.5 5.5v1"/></symbol>
+    <symbol id="i-finger" viewBox="0 0 24 24"><path d="M12 11v3M8.5 9.5a4 4 0 0 1 7 2.5v2a8 8 0 0 1-1 4M6 12a6 6 0 0 1 10.5-4M5.5 16a10 10 0 0 0 .5-4M12 18a12 12 0 0 1-2 3M17.6 10.5c.3.5.4 1 .4 1.5v2"/></symbol>
+    <symbol id="i-chapters" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M8 5v14M14 5v14"/></symbol>
+    <symbol id="i-repeat" viewBox="0 0 24 24"><path d="M17 2l3 3-3 3"/><path d="M4 11V9a4 4 0 0 1 4-4h12M7 22l-3-3 3-3"/><path d="M20 13v2a4 4 0 0 1-4 4H4"/></symbol>
+    <symbol id="i-repeat1" viewBox="0 0 24 24"><path d="M17 2l3 3-3 3"/><path d="M4 11V9a4 4 0 0 1 4-4h12M7 22l-3-3 3-3"/><path d="M20 13v2a4 4 0 0 1-4 4H4"/><path d="M11 10.5l1.5-1v5"/></symbol>
+    <symbol id="i-expand" viewBox="0 0 24 24"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/></symbol>
+    <symbol id="i-phones" viewBox="0 0 24 24"><path d="M3 18v-6a9 9 0 0 1 18 0v6"/><path d="M21 19a2 2 0 0 1-2 2h-1v-6h3zM3 19a2 2 0 0 0 2 2h1v-6H3z"/></symbol>
+    <symbol id="i-eq" viewBox="0 0 24 24"><path d="M4 21v-7M4 10V3M12 21v-9M12 8V3M20 21v-5M20 12V3M1 14h6M9 8h6M17 16h6"/></symbol>
+    <symbol id="i-bulb" viewBox="0 0 24 24"><path d="M9 18h6M10 21h4M12 3a6 6 0 0 0-3.5 10.9c.6.5 1 1.2 1 2.1h5c0-.9.4-1.6 1-2.1A6 6 0 0 0 12 3z"/></symbol>
+    <symbol id="i-palette" viewBox="0 0 24 24"><path d="M12 3a9 9 0 0 0 0 18c1.1 0 1.7-.9 1.4-1.8-.3-.8.2-1.7 1.1-1.7H17a4 4 0 0 0 4-4c0-5-4-8.5-9-8.5z"/><circle cx="7.5" cy="11" r="1.2"/><circle cx="10.5" cy="7.2" r="1.2"/><circle cx="15" cy="7.8" r="1.2"/></symbol>
+    <symbol id="i-mini" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><rect x="11" y="12" width="8" height="6" rx="1" fill="currentColor"/></symbol>
+    <symbol id="i-moon" viewBox="0 0 24 24"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></symbol>
+    <symbol id="i-full" viewBox="0 0 24 24"><path d="M8 3H5a2 2 0 0 0-2 2v3M21 8V5a2 2 0 0 0-2-2h-3M3 16v3a2 2 0 0 0 2 2h3M16 21h3a2 2 0 0 0 2-2v-3"/></symbol>
+    <symbol id="i-mute" viewBox="0 0 24 24"><path d="M4 9h4l5-4v14l-5-4H4z"/><path d="M17 9l5 6M22 9l-5 6"/></symbol>
+    <symbol id="i-sparkle" viewBox="0 0 24 24"><path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8z"/><path d="M19 15l.8 2.2L22 18l-2.2.8L19 21l-.8-2.2L16 18l2.2-.8z"/></symbol>
+    <symbol id="i-podcast" viewBox="0 0 24 24"><circle cx="12" cy="10" r="3"/><path d="M12 13v8M7.5 15.5a7 7 0 1 1 9 0M5 18.5a10.5 10.5 0 1 1 14 0"/></symbol>
+    <symbol id="i-star" viewBox="0 0 24 24"><path d="M12 3l2.8 5.7 6.2.9-4.5 4.4 1 6.2L12 17.3 6.5 20.2l1-6.2L3 9.6l6.2-.9z"/></symbol>
+    <symbol id="i-globe" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18"/></symbol>
+    <symbol id="i-down" viewBox="0 0 24 24"><path d="M12 4v12M6 11l6 6 6-6M5 20h14"/></symbol>
+    <symbol id="i-heart" viewBox="0 0 24 24"><path d="M12 20s-7-4.4-9.2-9A5 5 0 0 1 12 6a5 5 0 0 1 9.2 5C19 15.6 12 20 12 20z"/></symbol>
+    <symbol id="i-pc" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="12" rx="2"/><path d="M8 20h8M12 16v4"/></symbol>
+    <symbol id="i-plug" viewBox="0 0 24 24"><path d="M9 3v5M15 3v5M6 8h12v3a6 6 0 0 1-12 0zM12 17v4"/></symbol>
+  </defs>
+</svg>
+
+<div class="app">
+  <!-- ============ Seitenleiste ============ -->
+  <aside class="side">
+    <div class="brand">
+      <svg class="logo" viewBox="0 0 48 48" aria-hidden="true">
+        <defs><linearGradient id="lg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#FFB547"/><stop offset="1" stop-color="#FF5A2C"/></linearGradient></defs>
+        <circle cx="24" cy="24" r="22" fill="#14171D" stroke="#2A2F3A"/>
+        <circle cx="24" cy="24" r="16" fill="none" stroke="#1F232B" stroke-width="1.2"/>
+        <circle cx="24" cy="24" r="11" fill="none" stroke="#1F232B" stroke-width="1.2"/>
+        <path d="M9 24h4l2.5-7 4 15 4.5-20 4 18 3-10 2 4h6" fill="none" stroke="url(#lg)" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      <div>
+        <div class="brand-name">Song<span>Grabber</span></div>
+        <div class="brand-sub">by Pezhy</div>
+      </div>
+    </div>
+
+    <nav class="nav">
+      <button class="nav-item active" data-page="links"><svg><use href="#i-link"/></svg><span>Links &amp; Streams</span></button>
+      <button class="nav-item" data-page="cd"><svg><use href="#i-disc"/></svg><span>Audio-CD</span></button>
+      <button class="nav-item" data-page="rec"><svg><use href="#i-mic"/></svg><span>Aufnahme</span><i class="rec-dot" id="navRecDot"></i></button>
+      <button class="nav-item" data-page="files"><svg><use href="#i-file"/></svg><span>Dateien &amp; DVD</span></button>
+      <button class="nav-item" data-page="library"><svg><use href="#i-lib"/></svg><span>Bibliothek</span><b class="count" id="libCount"></b></button>
+      <button class="nav-item" data-page="player"><svg><use href="#i-phones"/></svg><span>Player</span><i class="eqbars" id="navEq"><b></b><b></b><b></b></i></button>
+      <button class="nav-item" data-page="radio"><svg><use href="#i-radio"/></svg><span>Radio &amp; Podcasts</span></button>
+      <button class="nav-item" data-page="abos"><svg><use href="#i-bell"/></svg><span>Abos</span><b class="count" id="aboCount"></b></button>
+      <div class="nav-sep"></div>
+      <button class="nav-item" data-page="queue"><svg><use href="#i-queue"/></svg><span>Warteschlange</span><b class="badge" id="queueBadge" hidden>0</b></button>
+      <button class="nav-item" data-page="settings"><svg><use href="#i-gear"/></svg><span>Einstellungen</span></button>
+      <button class="nav-item" data-page="help"><svg><use href="#i-help"/></svg><span>Hilfe</span><kbd class="nav-kbd">F1</kbd></button>
+    </nav>
+
+    <div class="side-foot">
+      <div class="mini-now" id="miniNow" hidden>
+        <div class="mini-title" id="miniTitle">–</div>
+        <div class="bar"><i id="miniBar"></i></div>
+      </div>
+      <div class="tools-state" id="toolsState"><i></i><span>Prüfe Encoder …</span></div>
+    </div>
+  </aside>
+
+  <!-- ============ Hauptbereich ============ -->
+  <main class="main">
+
+    <!-- ---------- Links ---------- -->
+    <section class="page active" id="page-links">
+      <header class="page-head">
+        <div><h1>Links &amp; Streams</h1><p>Musik aus YouTube, SoundCloud, Bandcamp, Mixcloud, Vimeo, Playlists und Internetradio – als MP3, WAV oder FLAC.</p></div>
+      </header>
+
+      <div class="hero">
+        <div class="url-field">
+          <svg><use href="#i-link"/></svg>
+          <input id="urlInput" type="text" spellcheck="false" placeholder="Link einfügen – Video, Playlist, Kanal oder Radio-Stream …">
+          <button class="ghost sm" id="btnPaste" title="Aus Zwischenablage einfügen"><svg><use href="#i-paste"/></svg>Einfügen</button>
+        </div>
+        <button class="primary lg" id="btnAnalyze">Analysieren</button>
+      </div>
+      <div class="chips">
+        <span>YouTube</span><span>YouTube Music</span><span>SoundCloud</span><span>Bandcamp</span><span>Mixcloud</span><span>Vimeo</span><span>Internetradio</span><span>+ über 1.000 Seiten</span>
+      </div>
+
+      <div class="clip-banner" id="clipBanner" hidden>
+        <svg><use href="#i-paste"/></svg>
+        <div class="grow"><b>Link in der Zwischenablage erkannt</b><small id="clipUrl"></small></div>
+        <button class="ghost sm" id="clipNo">Ignorieren</button>
+        <button class="primary sm" id="clipYes">Übernehmen</button>
+      </div>
+
+      <div class="stream-live" id="streamLive" hidden>
+        <div class="pulse"></div>
+        <div class="grow"><b id="streamName">Stream</b><small id="streamInfo">00:00 · 0 MB</small></div>
+        <button class="danger" id="btnStreamStop"><svg><use href="#i-stop"/></svg>Mitschnitt beenden</button>
+      </div>
+
+      <div class="empty" id="linkEmpty">
+        <div class="empty-art"><svg><use href="#i-link"/></svg></div>
+        <h3>Link einfügen und loslegen</h3>
+        <p>Einzelne Titel landen direkt mit Cover und ID3-Tags im Zielordner. Bei Playlists wählst du die Titel aus.</p>
+      </div>
+
+      <div class="card result" id="linkResult" hidden>
+        <div class="result-top">
+          <div class="thumb" id="resThumb"></div>
+          <div class="result-meta">
+            <div class="badges" id="resBadges"></div>
+            <h2 id="resTitle">–</h2>
+            <p class="muted" id="resSub">–</p>
+            <div class="meta-found" id="resMeta" hidden></div>
+            <div class="form-grid three" id="resFields">
+              <label>Interpret<input id="resArtist"></label>
+              <label id="resTrackWrap">Titel<input id="resTrack"></label>
+              <label>Album<input id="resAlbum" placeholder="wird automatisch gesucht"></label>
+              <label>Genre<input id="resGenre" list="genres" placeholder="wird automatisch gesucht"></label>
+              <label id="resYearWrap">Jahr<input id="resYear"></label>
+              <label id="resNoWrap">Titel-Nr.<input id="resNo" placeholder="z. B. 1/11"></label>
+            </div>
+          </div>
+        </div>
+
+        <div class="chap-box" id="chapBox" hidden>
+          <div class="live-head">
+            <div class="live-ico chap"><svg><use href="#i-chapters"/></svg></div>
+            <div class="grow"><b id="chapHead">Kapitel gefunden</b><small id="chapSub">Jedes Kapitel wird ein eigener Titel – mit Nummer, Album und Cover.</small></div>
+            <label class="switch inline-sw"><input type="checkbox" id="chapOn" checked><i></i><span>Aufteilen</span></label>
+          </div>
+          <div class="chap-list" id="chapList"></div>
+        </div>
+
+        <div class="live-box" id="liveBox" hidden>
+          <div class="live-head">
+            <div class="live-ico"><svg><use href="#i-stage"/></svg></div>
+            <div class="grow"><b>Das sieht nach einem Live-Auftritt aus</b><small id="liveWhy"></small></div>
+            <button class="ghost sm" id="btnKeepLive">Live-Version behalten</button>
+          </div>
+          <div class="live-cands" id="liveCands"></div>
+        </div>
+
+        <div class="playlist" id="plWrap" hidden>
+          <div class="pl-head">
+            <label class="check"><input type="checkbox" id="plAll" checked><span></span>Alle auswählen</label>
+            <span class="muted" id="plCount"></span>
+            <div class="grow"></div>
+            <label class="check"><input type="checkbox" id="plAsAlbum"><span></span>Als Album taggen (Titelnummern)</label>
+          </div>
+          <div class="pl-list" id="plList"></div>
+        </div>
+
+        <div class="result-actions">
+          <div class="stream-opts" id="streamOpts" hidden>
+            <label>Name<input id="streamNameIn" placeholder="z. B. Radio Bremen 1"></label>
+            <label>Dauer (Min.)<input id="streamMin" type="number" min="0" value="0" title="0 = bis du stoppst"></label>
+          </div>
+          <div class="grow"></div>
+          <button class="ghost" id="btnStreamStart" hidden><svg><use href="#i-radio"/></svg>Live mitschneiden</button>
+          <button class="ghost" id="btnStreamPlay" title="Sofort anhören, ohne herunterzuladen"><svg><use href="#i-play"/></svg>Abspielen</button>
+          <button class="primary" id="btnDownload">Herunterladen &amp; umwandeln</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ---------- Audio-CD ---------- -->
+    <section class="page" id="page-cd">
+      <header class="page-head">
+        <div><h1>Audio-CD</h1><p>Digital Bit für Bit auslesen, Trackinfos und Cover automatisch von MusicBrainz.</p></div>
+        <div class="head-actions">
+          <select id="cdDrive"></select>
+          <button class="ghost icon" id="btnCdDrives" title="Laufwerke neu suchen"><svg><use href="#i-refresh"/></svg></button>
+          <button class="ghost" id="btnCdImage" title="CD-Abbild (CUE/BIN) wie eine CD lesen – auch ohne Laufwerk"><svg><use href="#i-file"/></svg>CD-Abbild öffnen</button>
+          <button class="ghost" id="btnCdEject"><svg><use href="#i-eject"/></svg>Auswerfen</button>
+          <button class="primary" id="btnCdRead"><svg><use href="#i-disc"/></svg>CD lesen</button>
+        </div>
+      </header>
+
+      <div class="empty" id="cdEmpty">
+        <div class="empty-art spin-slow"><svg><use href="#i-disc"/></svg></div>
+        <h3>CD einlegen und „CD lesen“ klicken</h3>
+        <p>SongGrabber liest das Inhaltsverzeichnis, berechnet die Disc-ID und holt Interpret, Album, Titel und Cover.</p>
+        <p class="muted" style="margin-top:14px">Kein Laufwerk? <button class="link" id="btnCdTest" style="color:var(--accent2)">Test-CD erzeugen und ausprobieren</button> oder ein CD-Abbild (CUE/BIN) öffnen.</p>
+      </div>
+
+      <div class="cd-view" id="cdView" hidden>
+        <div class="card album">
+          <div class="cover" id="cdCover" data-drop="image:cd" title="Klicken oder Bild hierher ziehen, um ein eigenes Cover zu wählen"></div>
+          <div class="album-meta">
+            <div class="badges" id="cdBadges"></div>
+            <div class="form-grid four">
+              <label class="span2">Interpret<input id="cdArtist"></label>
+              <label class="span2">Album<input id="cdAlbum"></label>
+              <label>Jahr<input id="cdYear"></label>
+              <label>Genre<input id="cdGenre" list="genres"></label>
+              <label class="span2" id="cdReleaseWrap" hidden>Veröffentlichung<select id="cdRelease"></select></label>
+            </div>
+          </div>
+        </div>
+
+        <div class="card table-card">
+          <div class="tbl-head cd-cols">
+            <label class="check"><input type="checkbox" id="cdAll" checked><span></span></label>
+            <span>#</span><span>Titel</span><span>Interpret</span><span class="r">Dauer</span>
+          </div>
+          <div id="cdTracks"></div>
+          <div class="tbl-foot">
+            <span class="muted" id="cdSummary">–</span>
+            <div class="grow"></div>
+            <button class="ghost sm" id="btnCdCopyArtist">Album-Interpret für alle Titel</button>
+            <button class="primary" id="btnCdRip">Ausgewählte Titel rippen</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ---------- Aufnahme ---------- -->
+    <section class="page" id="page-rec">
+      <header class="page-head">
+        <div><h1>Aufnahme</h1><p>Schallplatte, Kassette, Systemsound oder Mikrofon – mit Pegelanzeige, Auto-Start und automatischer Titeltrennung.</p></div>
+      </header>
+
+      <div class="mic-warn" id="micWarn" hidden>
+        <svg><use href="#i-mic"/></svg>
+        <div class="grow"><b id="micWarnT">Windows blockiert den Mikrofonzugriff</b><small id="micWarnS">Unter Datenschutz ist „Desktop-Apps Zugriff auf das Mikrofon erlauben“ ausgeschaltet – deshalb kommt kein Ton an.</small></div>
+        <button class="primary sm" id="btnMicPriv">Windows-Einstellung öffnen</button>
+      </div>
+
+      <div class="rec-layout">
+        <div class="card rec-deck">
+          <div class="deck-top">
+            <label class="grow">Quelle<select id="recDevice"></select></label>
+            <button class="ghost icon" id="btnRecDevices" title="Geräte neu laden"><svg><use href="#i-refresh"/></svg></button>
+          </div>
+
+          <div class="deck-display">
+            <div class="deck-status"><i class="led" id="recLed"></i><span id="recState">Bereit</span><span class="clip" id="recClip" hidden>CLIP</span></div>
+            <div class="timer" id="recTimer">00:00:00</div>
+            <canvas id="recWave" height="120"></canvas>
+            <div class="meters">
+              <div class="meter"><b>L</b><canvas id="meterL" height="14"></canvas><span id="meterLv">-∞</span></div>
+              <div class="meter"><b>R</b><canvas id="meterR" height="14"></canvas><span id="meterRv">-∞</span></div>
+              <div class="scale"><span>-60</span><span>-40</span><span>-24</span><span>-12</span><span>-6</span><span>-3</span><span>0 dB</span></div>
+            </div>
+          </div>
+
+          <div class="transport">
+            <button class="round ghost" id="btnRecPause" disabled title="Pause"><svg><use href="#i-pause"/></svg></button>
+            <button class="round rec" id="btnRec" title="Aufnahme starten"><i></i></button>
+            <button class="round ghost" id="btnRecStop" disabled title="Stopp & speichern"><svg><use href="#i-stop"/></svg></button>
+          </div>
+          <div class="transport-sub"><button class="link" id="btnRecDiscard" hidden>Aufnahme verwerfen</button></div>
+
+          <div class="gain">
+            <span>Pegel</span>
+            <input type="range" id="recGain" min="-12" max="24" step="0.5" value="0">
+            <b id="recGainV">0,0 dB</b>
+          </div>
+        </div>
+
+        <div class="rec-side">
+          <div class="card">
+            <h4>Eingänge <span class="h-sub">der aktive leuchtet grün</span></h4>
+            <div class="inputs" id="recInputs"><div class="muted" style="font-size:12.5px">Suche Eingänge …</div></div>
+          </div>
+          <div class="card">
+            <h4>Quelle</h4>
+            <div class="modes" id="recModes">
+              <button data-mode="vinyl" class="mode active"><span class="m-ico">◉</span><b>Schallplatte</b><small>Knackser weg, Titel trennen</small></button>
+              <button data-mode="tape" class="mode"><span class="m-ico">▭</span><b>Kassette</b><small>Titel trennen, Auto-Stopp</small></button>
+              <button data-mode="system" class="mode"><span class="m-ico">♫</span><b>Systemsound</b><small>Alles, was der PC abspielt</small></button>
+              <button data-mode="mic" class="mode"><span class="m-ico">●</span><b>Mikrofon</b><small>Sprache &amp; Instrumente</small></button>
+            </div>
+          </div>
+          <div class="card">
+            <h4>Automatik</h4>
+            <label class="switch"><input type="checkbox" id="recWait"><i></i><span>Start bei Signal</span><small>wartet, bis die Nadel aufsetzt</small></label>
+            <label class="switch"><input type="checkbox" id="recSplit"><i></i><span>Automatisch in Titel teilen</span><small>an Pausen ab <input class="tiny" id="recSplitPause" type="number" step="0.5" min="0.5" value="1.5"> s</small></label>
+            <label class="switch"><input type="checkbox" id="recAutoStop"><i></i><span>Stopp nach Stille</span><small>nach <input class="tiny" id="recStopSec" type="number" min="3" value="15"> s (Seitenende)</small></label>
+            <label class="switch"><input type="checkbox" id="recVinyl"><i></i><span>Knackser &amp; Rumpeln entfernen</span><small>Declicker + Trittschallfilter</small></label>
+            <div class="row2">
+              <label>Schwelle<select id="recThr"><option value="-50">-50 dB (leise)</option><option value="-45" selected>-45 dB</option><option value="-40">-40 dB</option><option value="-35">-35 dB (Rauschen)</option></select></label>
+              <label>Aufnahme<select id="recFmt"><option value="44100/16">44,1 kHz · 16 Bit</option><option value="48000/24" selected>48 kHz · 24 Bit</option><option value="96000/24">96 kHz · 24 Bit</option></select></label>
+            </div>
+          </div>
+          <div class="card">
+            <h4>Tags</h4>
+            <div class="form-grid">
+              <label>Interpret<input id="recArtist"></label>
+              <label>Album / Titel<input id="recAlbum"></label>
+              <label>Jahr<input id="recYear"></label>
+              <label>Genre<input id="recGenre" list="genres"></label>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ---------- Dateien ---------- -->
+    <section class="page" id="page-files">
+      <header class="page-head">
+        <div><h1>Dateien &amp; DVD</h1><p>Audio aus Videos, DVDs und beliebigen Formaten holen – Tags werden übernommen und lassen sich bearbeiten.</p></div>
+        <div class="head-actions">
+          <button class="ghost" id="btnFilesAdd"><svg><use href="#i-plus"/></svg>Dateien</button>
+          <button class="ghost" id="btnFolderAdd"><svg><use href="#i-folder"/></svg>Ordner</button>
+          <button class="ghost" id="btnDvd"><svg><use href="#i-dvd"/></svg>DVD (VIDEO_TS)</button>
+        </div>
+      </header>
+      <div class="empty drop" id="filesEmpty">
+        <div class="empty-art"><svg><use href="#i-file"/></svg></div>
+        <h3>Dateien hinzufügen</h3>
+        <p>Einfach hierher ziehen: MP4, MKV, WEBM, MOV, AVI, VOB, FLAC, WAV, M4A, OGG, OPUS, WMA … – auch ganze Ordner oder einen DVD-Ordner.</p>
+      </div>
+      <div class="card table-card" id="filesView" hidden>
+        <div class="tbl-head file-cols"><span>Datei</span><span>Interpret</span><span>Titel</span><span>Tonspur</span><span class="r">Dauer</span><span></span></div>
+        <div id="filesList"></div>
+        <div class="tbl-foot">
+          <span class="muted" id="filesSummary"></span>
+          <div class="grow"></div>
+          <button class="ghost sm" id="btnFilesClear">Liste leeren</button>
+          <button class="primary" id="btnFilesConvert">Alle umwandeln</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ---------- Bibliothek ---------- -->
+    <section class="page" id="page-library">
+      <header class="page-head">
+        <div><h1>Bibliothek</h1><p>Alles in deinem Zielordner – suchen, abspielen und Playlists automatisch erstellen.</p></div>
+        <div class="head-actions">
+          <button class="ghost" id="btnLibScan"><svg><use href="#i-refresh"/></svg>Neu einlesen</button>
+          <button class="ghost" id="btnLibClean" title="Doppelte Titel, fehlende Cover/Angaben und leere Ordner"><svg><use href="#i-wand"/></svg>Aufräumen</button>
+          <button class="primary" id="btnPlMake"><svg><use href="#i-wand"/></svg>Playlists erstellen</button>
+        </div>
+      </header>
+      <div class="lib-tabs">
+        <div class="seg" id="libTabs"><button data-tab="tracks" class="active">Titel</button><button data-tab="playlists">Playlists</button></div>
+        <div class="search" id="libSearchWrap"><svg><use href="#i-search"/></svg><input id="libSearch" placeholder="Suchen nach Titel, Interpret, Album, Genre …"></div>
+        <select id="libGroup"><option value="">Alle Titel</option><option value="artist">nach Interpret</option><option value="album">nach Album</option><option value="genre">nach Genre</option><option value="decade">nach Jahrzehnt</option></select>
+        <span class="muted" id="libInfo"></span>
+      </div>
+      <div class="card table-card" id="libTracks">
+        <div class="tbl-head lib-cols"><label class="check"><input type="checkbox" id="libAll"><span></span></label><span></span>
+          <span data-sort="title">Titel</span><span data-sort="artist">Interpret</span><span data-sort="album">Album</span><span data-sort="genre">Genre</span><span data-sort="year">Jahr</span><span data-sort="duration" class="r">Dauer</span></div>
+        <div id="libList" class="lib-list"></div>
+        <div class="tbl-foot">
+          <span class="muted" id="libSel">–</span><div class="grow"></div>
+          <button class="ghost sm" id="btnLibPlaySel"><svg><use href="#i-play"/></svg>Auswahl abspielen</button>
+          <button class="ghost sm" id="btnLibShuffle"><svg><use href="#i-shuffle"/></svg>Zufällig abspielen</button>
+          <button class="ghost sm danger-sm" id="btnLibDel" title="Ausgewählte löschen (Entf)"><svg><use href="#i-trash"/></svg>Löschen</button>
+          <button class="ghost sm" id="btnLibExport"><svg><use href="#i-usb"/></svg>Übertragen</button>
+          <button class="primary sm" id="btnLibToPl"><svg><use href="#i-list"/></svg>Auswahl als Playlist</button>
+        </div>
+      </div>
+      <div class="pl-grid" id="libPlaylists" hidden></div>
+    </section>
+
+    <!-- ---------- Warteschlange ---------- -->
+    <section class="page" id="page-queue">
+      <header class="page-head">
+        <div><h1>Warteschlange</h1><p>Alle Aufträge laufen nacheinander im Hintergrund – du kannst währenddessen weiterarbeiten.</p></div>
+        <div class="head-actions">
+          <button class="ghost" id="btnOpenOut"><svg><use href="#i-folder"/></svg>Zielordner öffnen</button>
+          <button class="ghost" id="btnQueueClear">Fertige entfernen</button>
+        </div>
+      </header>
+      <div class="empty" id="queueEmpty">
+        <div class="empty-art"><svg><use href="#i-queue"/></svg></div>
+        <h3>Noch keine Aufträge</h3>
+        <p>Hier erscheinen Downloads, CD-Rips, Aufnahmen und Umwandlungen mit ihrem Fortschritt.</p>
+      </div>
+      <div class="jobs" id="jobs"></div>
+    </section>
+
+    <!-- ---------- Einstellungen ---------- -->
+    <section class="page" id="page-settings">
+      <header class="page-head"><div><h1>Einstellungen</h1><p>Wird automatisch gespeichert.</p></div></header>
+      <div class="settings">
+        <div class="card">
+          <h4>Speicherort &amp; Dateinamen</h4>
+          <label>Zielordner
+            <div class="inline" data-drop="folder:output_dir"><input id="setOut" readonly><button class="ghost sm" data-pick="setOut">Wählen</button></div>
+          </label>
+          <label>Ordnerstruktur
+            <select id="setLayout">
+              <option value="artist_album">Interpret / Album / 01 - Titel (empfohlen)</option>
+              <option value="artist">Interpret / Interpret - Titel</option>
+              <option value="flat">Alles in einem Ordner: Interpret - Titel</option>
+              <option value="genre">Genre / Interpret / Album / 01 - Titel</option>
+              <option value="custom">Eigene Vorlage</option>
+            </select>
+          </label>
+          <label>Einzeltitel<input id="setNameSingle" data-key="name_single"></label>
+          <label>Alben &amp; CDs<input id="setNameAlbum" data-key="name_album"></label>
+          <p class="hint">Platzhalter: <code>{artist}</code> <code>{title}</code> <code>{album}</code> <code>{albumartist}</code> <code>{track:02}</code> <code>{date}</code> <code>{genre}</code> · „/“ erzeugt Unterordner</p>
+          <div class="preview" id="namePreview"></div>
+          <p class="hint">Ohne bekanntes Album landet ein Titel unter <code>Interpret/Singles/</code>.</p>
+          <button class="ghost sm" id="btnReorg" style="margin-top:10px"><svg><use href="#i-folder"/></svg>Vorhandene Dateien jetzt so ordnen</button>
+        </div>
+        <div class="card">
+          <h4>Klang &amp; Tags</h4>
+          <label class="switch"><input type="checkbox" data-key="live_check"><i></i><span>Bei Live-Auftritten nach dem Original fragen</span><small>sucht Studioaufnahme bzw. offizielles Video</small></label>
+          <label class="switch"><input type="checkbox" data-key="metadata_online"><i></i><span>Album, Genre, Jahr &amp; Cover online ergänzen</span><small>iTunes-Katalog, Ersatz: MusicBrainz</small></label>
+          <label class="switch"><input type="checkbox" data-key="prefer_album_cover"><i></i><span>Albumcover statt Video-Vorschaubild</span></label>
+          <label class="switch"><input type="checkbox" data-key="skip_existing"><i></i><span>Vorhandene Titel überspringen</span><small>keine Duplikate bei erneutem Download</small></label>
+          <label class="switch"><input type="checkbox" data-key="auto_playlist_links"><i></i><span>Link-Playlists automatisch als Playlist speichern</span></label>
+          <label class="switch"><input type="checkbox" data-key="clipboard_watch"><i></i><span>Links in der Zwischenablage erkennen</span></label>
+          <label class="switch"><input type="checkbox" data-key="trim_silence"><i></i><span>Stille am Anfang/Ende entfernen</span></label>
+          <label class="switch"><input type="checkbox" data-key="embed_cover"><i></i><span>Cover in MP3/FLAC einbetten</span></label>
+          <label class="switch"><input type="checkbox" data-key="square_cover"><i></i><span>Video-Vorschaubilder quadratisch zuschneiden</span></label>
+          <label class="switch"><input type="checkbox" data-key="playlist_m3u"><i></i><span>Playlist (.m3u8) für Alben anlegen</span></label>
+          <p class="hint">MP3 wird mit LAME in höchster Algorithmus-Qualität kodiert, Tags als ID3v2.3 + ID3v1 (kompatibel mit Autoradios und Windows).</p>
+        </div>
+        <div class="card">
+          <h4>Audio-CD</h4>
+          <label class="switch"><input type="checkbox" data-key="musicbrainz"><i></i><span>Trackinfos &amp; Cover von MusicBrainz</span></label>
+          <label class="switch"><input type="checkbox" data-key="cd_verify"><i></i><span>Prüflesen (jeden Block doppelt lesen, Fehler wiederholen)</span></label>
+          <label class="switch"><input type="checkbox" data-key="cd_eject"><i></i><span>CD nach dem Rippen auswerfen</span></label>
+          <h4 class="mt">Aufnahme</h4>
+          <label class="switch"><input type="checkbox" data-key="keep_raw"><i></i><span>Original-Aufnahme (WAV) zusätzlich behalten</span></label>
+        </div>
+        <div class="card">
+          <h4><svg class="h-ico"><use href="#i-plug"/></svg>Kopplung mit dem Multi Video Downloader</h4>
+          <label class="switch"><input type="checkbox" data-key="watch_enabled"><i></i><span>Übergabe-Ordner überwachen</span><small>alles, was dort landet, wird automatisch umgewandelt</small></label>
+          <label>Übergabe-Ordner
+            <div class="inline" data-drop="folder:watch_dir"><input id="setWatch" readonly><button class="ghost sm" data-pick="setWatch">Wählen</button></div>
+          </label>
+          <label class="switch"><input type="checkbox" data-key="watch_delete_source"><i></i><span>Originaldatei nach dem Umwandeln löschen</span></label>
+          <label>Gemeinsamer Werkzeug-Ordner (optional)
+            <div class="inline" data-drop="folder:tools_dir"><input id="setTools" readonly placeholder="eigener bin-Ordner"><button class="ghost sm" data-pick="setTools">Wählen</button><button class="ghost sm" id="btnToolsReset">Zurücksetzen</button></div>
+          </label>
+          <p class="hint">Damit nutzen beide Programme dieselbe <code>ffmpeg.exe</code> und <code>yt-dlp.exe</code>. Direktaufruf: <code>SongGrabber.exe "datei.mp4"</code> oder <code>--url &lt;Link&gt;</code>.</p>
+        </div>
+        <div class="card">
+          <h4>Songtexte &amp; Musikerkennung</h4>
+          <label class="switch"><input type="checkbox" data-key="lyrics_auto"><i></i><span>Songtexte automatisch einbetten</span><small>von lrclib.net – mitlaufend, wenn verfügbar</small></label>
+          <label class="switch"><input type="checkbox" data-key="lyrics_lrc"><i></i><span>Zusätzlich .lrc-Datei speichern</span><small>für Autoradios und Player, die keine eingebetteten Texte lesen</small></label>
+          <label class="switch"><input type="checkbox" data-key="acoustid_auto"><i></i><span>Aufnahmen automatisch erkennen</span><small>Interpret &amp; Titel per Audio-Fingerabdruck (AcoustID)</small></label>
+          <label>AcoustID-Schlüssel
+            <div class="inline"><input data-key="acoustid_key" placeholder="kostenlos – einmalig anlegen"><button class="ghost sm" id="btnAcoustKey">Schlüssel holen</button></div>
+          </label>
+          <p class="hint" id="acoustHint">Auf acoustid.org mit einem Konto anmelden → „Register an application“ → Name z. B. „SongGrabber“ → den angezeigten <em>API key</em> hier einfügen.</p>
+        </div>
+        <div class="card">
+          <h4>Werkzeuge</h4>
+          <div class="tool-row"><i id="tFf"></i><div class="grow"><b>ffmpeg + LAME</b><small id="tFfV">–</small></div></div>
+          <div class="tool-row"><i id="tYt"></i><div class="grow"><b>yt-dlp</b><small id="tYtV">–</small></div><button class="ghost sm" id="btnYtUpdate"><svg><use href="#i-refresh"/></svg>Aktualisieren</button></div>
+          <p class="hint">Wenn ein Link nicht mehr funktioniert, hilft meist „Aktualisieren“ – Webseiten ändern sich häufig.</p>
+          <h4 class="mt">Probleme melden</h4>
+          <div class="inline"><button class="ghost sm" id="btnDiag"><svg><use href="#i-copy"/></svg>Fehlerbericht kopieren</button><button class="ghost sm" id="btnLog"><svg><use href="#i-file"/></svg>Protokoll öffnen</button></div>
+          <p class="hint">Kopiert Version, Werkzeuge, Geräte und die letzten Meldungen – einfach in WhatsApp oder eine E-Mail einfügen.</p>
+        </div>
+        <div class="card about">
+          <h4>Über</h4>
+          <p><b>SongGrabber</b> <span id="aboutVer"></span> · by Pezhy · kostenlos</p>
+          <p><button class="link" id="btnLicenses">Lizenzen &amp; verwendete Dienste</button> · <button class="link" id="btnUpdate">Nach Updates suchen</button></p>
+          <label class="switch"><input type="checkbox" data-key="update_check"><i></i><span>Beim Start nach Updates suchen</span><small>höchstens einmal am Tag – es wird nichts automatisch installiert</small></label>
+          <p class="hint">Bitte nur Inhalte speichern, für die du die Rechte hast (eigene CDs, freie Inhalte, Privatkopie im erlaubten Rahmen).</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ---------- Player ---------- -->
+    <section class="page pp" id="page-player">
+      <canvas id="vizCanvas"></canvas>
+      <div class="pp-vignette"></div>
+      <div class="pp-top">
+        <h1 class="pp-h">Player <button class="help-btn" title="Hilfe zum Player (F1)" onclick="openHelp('h-player')">?</button></h1>
+        <div class="seg pp-seg" id="vizModes">
+          <button data-v="synth" class="active" title="Synthwave-Landschaft">Synthwave</button><button data-v="bars" title="Neon-Spektrum">Spektrum</button><button data-v="ring" title="Kreis um das Cover">Kreis</button><button data-v="wave" title="Wellen für Bass, Mitten und Höhen">Welle</button><button data-v="tesla" title="Tesla-Spule mit Blitzen im Takt">Tesla</button><button data-v="off" title="Nur Cover">Ruhig</button>
+        </div>
+        <div class="pp-themes" id="vizThemes" title="Farbwelt"></div>
+        <button class="pp-tool pp-colbtn" id="ppColorsBtn" title="Eigene Farben für die Lichtshow wählen"><i class="col-dot" id="colDot"></i><span>Farben</span></button>
+        <div class="seg pp-seg pp-src" id="ppSource" title="Was soll die Lichtshow zeigen?"><button data-s="app" class="active"><svg><use href="#i-phones"/></svg>SongGrabber</button><button data-s="system" title="Lichtshow, Titel und Steuerung für Spotify, YouTube im Browser & alles, was am PC läuft"><svg><use href="#i-pc"/></svg>Alles am PC</button></div>
+        <div class="grow"></div>
+        <button class="pp-tool on" id="ppFx" title="Lichtshow &amp; Effekte an/aus (B) – aus: ruhiges Bild, spart Leistung"><svg><use href="#i-bulb"/></svg><span id="ppFxTxt">Lichter an</span></button>
+        <button class="pp-tool" id="ppEqBtn" title="Equalizer"><svg><use href="#i-eq"/></svg><span>EQ</span></button>
+        <button class="pp-tool" id="ppSleepBtn" title="Schlaf-Timer"><svg><use href="#i-moon"/></svg><span id="ppSleepTxt">Timer</span></button>
+        <button class="pp-tool" id="ppMini" title="Mini-Player – kleines Fenster, immer im Vordergrund"><svg><use href="#i-mini"/></svg></button>
+        <button class="pp-tool" id="ppFull" title="Vollbild (F11)"><svg><use href="#i-full"/></svg></button>
+      </div>
+
+      <div class="pp-main">
+        <div class="pp-stage">
+          <div class="pp-empty" id="ppEmpty">
+            <div class="empty-art"><svg><use href="#i-phones"/></svg></div>
+            <h3>Noch nichts in der Wiedergabe</h3>
+            <p>Musik aus der Bibliothek abspielen, Dateien öffnen oder eine Playlist laden.</p>
+            <div class="row"><button class="primary" id="ppGoLib"><svg><use href="#i-lib"/></svg>Zur Bibliothek</button><button class="ghost" id="ppOpenFiles"><svg><use href="#i-plus"/></svg>Dateien öffnen</button><button class="ghost" id="ppShuffleAll"><svg><use href="#i-shuffle"/></svg>Alles zufällig</button></div>
+            <div class="row"><button class="ghost" id="ppOnline"><svg><use href="#i-search"/></svg>Online suchen</button><button class="ghost" id="ppRadio"><svg><use href="#i-radio"/></svg>Radio hören</button><button class="ghost" id="ppPcMode"><svg><use href="#i-pc"/></svg>Lichtshow für Spotify &amp; Co.</button></div>
+          </div>
+          <div class="pp-sys" id="ppSys" hidden>
+            <div class="pp-cover" id="sysCover"><div class="pp-cover-img none" id="sysCoverImg"></div></div>
+            <div class="pp-meta"><span class="tag acc" id="sysApp">Alles am PC</span><h2 id="sysTitle">Spiel etwas ab …</h2><p id="sysArtist">Spotify, YouTube im Browser, Spiele – die Lichtshow tanzt mit</p><small id="sysAlbum"></small></div>
+            <div class="pp-ctrl">
+              <button class="pp-btn" id="sysPrev" title="Zurück"><svg><use href="#i-prev"/></svg></button>
+              <button class="pp-btn play" id="sysPlay" title="Abspielen/Pause"><svg><use href="#i-play"/></svg></button>
+              <button class="pp-btn" id="sysNext" title="Weiter"><svg><use href="#i-next"/></svg></button>
+            </div>
+            <small class="pp-hint" id="sysHint">Steuert die App, die gerade Musik abspielt. Lautstärke regelst du in der App oder in Windows.</small>
+          </div>
+          <div class="pp-now" id="ppNow" hidden>
+            <div class="pp-cover" id="ppCover"><div class="pp-cover-img" id="ppCoverImg"></div></div>
+            <div class="pp-meta"><h2 id="ppTitle">–</h2><p id="ppArtist">–</p><small id="ppAlbum"></small></div>
+            <div class="pp-seek"><span id="ppCur">0:00</span><input type="range" id="ppSeek" min="0" max="1000" value="0"><span id="ppDur">0:00</span></div>
+            <div class="pp-live" id="ppLive" hidden><i class="pulse"></i>LIVE <span id="ppLiveTxt"></span><button class="ghost sm" id="ppRecRadio" title="Diesen Sender aufnehmen"><svg><use href="#i-mic"/></svg>Mitschneiden</button></div>
+            <div class="pp-ctrl">
+              <button class="pp-btn" id="ppShuffle" title="Zufällige Reihenfolge (S)"><svg><use href="#i-shuffle"/></svg></button>
+              <button class="pp-btn" id="ppPrev" title="Zurück (P)"><svg><use href="#i-prev"/></svg></button>
+              <button class="pp-btn play" id="ppPlay" title="Abspielen/Pause (Leertaste)"><svg><use href="#i-play"/></svg></button>
+              <button class="pp-btn" id="ppNext" title="Weiter (N)"><svg><use href="#i-next"/></svg></button>
+              <button class="pp-btn" id="ppRepeat" title="Wiederholen: aus (R)"><svg><use href="#i-repeat"/></svg></button>
+            </div>
+            <div class="pp-sub">
+              <button class="pp-btn sm" id="ppMute" title="Stumm (M)"><svg><use href="#i-vol"/></svg></button>
+              <input type="range" id="ppVol" min="0" max="100" value="80" title="Lautstärke (↑/↓)">
+              <select id="ppSpeed" title="Tempo"><option value="0.75">0,75×</option><option value="1" selected>1×</option><option value="1.25">1,25×</option><option value="1.5">1,5×</option></select>
+            </div>
+          </div>
+        </div>
+
+        <aside class="pp-side">
+          <div class="pp-tabs"><button data-t="queue" class="active">Warteschlange <b id="ppQn"></b></button><button data-t="lyrics">Songtext</button></div>
+          <div class="pp-qhead" id="ppQHead">
+            <span class="muted" id="ppQInfo"></span><div class="grow"></div>
+            <button class="ghost sm" id="ppAdd" title="Titel hinzufügen"><svg><use href="#i-plus"/></svg>Hinzufügen</button>
+            <button class="ghost sm" id="ppSave" title="Als Playlist speichern"><svg><use href="#i-list"/></svg>Speichern</button>
+            <button class="ghost sm" id="ppClear" title="Warteschlange leeren"><svg><use href="#i-trash"/></svg></button>
+          </div>
+          <div class="pp-queue" id="ppQueue"></div>
+          <div class="ly-head" id="lyHead" hidden><b id="lyHeadT">Songtext</b><span id="lyState"></span><div class="grow"></div>
+            <span class="ly-adj" id="lyAdj" hidden><button class="ghost sm" id="lyEarlier" title="Text kommt zu spät → früher anzeigen">−0,5 s</button><button class="ghost sm" id="lyLater" title="Text kommt zu früh → später anzeigen">+0,5 s</button></span></div>
+          <div class="ly-body pp-ly" id="ppLyBody" hidden></div>
+        </aside>
+      </div>
+
+      <div class="pp-pop pp-colpop" id="ppColors" hidden>
+        <div class="pp-pop-h"><b>Eigene Farben</b><div class="grow"></div><button class="ghost sm" id="colRandom" title="Zufällige, passende Farben"><svg><use href="#i-shuffle"/></svg>Zufällig</button></div>
+        <div class="col-hue"><b>Grundton</b><input type="range" id="colHue" min="0" max="359" step="1" title="Dreht alle Farben gemeinsam – sie passen weiter zusammen"><span id="colHueDot"></span></div>
+        <p class="hint" style="margin:-4px 0 10px">Ändert alles auf einmal: Himmel, Sonne, Gitter und Leuchten bleiben aufeinander abgestimmt.</p>
+        <div class="col-presets"><span class="muted">Ausgehend von</span><div id="colPresets"></div></div>
+        <div class="col-sub muted">Einzelne Farben feinjustieren</div>
+        <div class="col-grid">
+          <label><input type="color" data-ck="c0"><span>Hauptfarbe<small>Gitter, Balken, Leuchten</small></span></label>
+          <label><input type="color" data-ck="c1"><span>Zweite Farbe<small>Verläufe, Kreis, Knöpfe</small></span></label>
+          <label><input type="color" data-ck="c2"><span>Akzent<small>Horizont, Spitzen, Welle</small></span></label>
+          <label><input type="color" data-ck="sun0"><span>Sonne oben<small>nur Synthwave</small></span></label>
+          <label><input type="color" data-ck="sun1"><span>Sonne unten<small>nur Synthwave</small></span></label>
+          <label><input type="color" data-ck="sky"><span>Himmel<small>Hintergrund</small></span></label>
+        </div>
+        <p class="hint">Gilt für alle Lichtshows – Synthwave, Spektrum, Kreis, Welle und Ruhig – und wird gemerkt.</p>
+      </div>
+      <div class="pp-pop" id="ppEq" hidden>
+        <div class="pp-pop-h"><b>Equalizer</b><select id="eqPreset"></select><label class="switch inline-sw"><input type="checkbox" id="eqOn" checked><i></i></label></div>
+        <div class="eq-bands" id="eqBands"></div>
+        <p class="hint" id="eqHint">Ziehen zum Anpassen · Doppelklick setzt ein Band auf 0 dB</p>
+        <div class="pb-opts">
+          <label class="pb-x"><svg><use href="#i-shuffle"/></svg><span>Überblenden<small>sanfter Übergang zum nächsten Titel</small></span>
+            <select id="xfSel"><option value="0">aus</option><option value="2">2 s</option><option value="4">4 s</option><option value="6">6 s</option><option value="8">8 s</option><option value="12">12 s</option></select></label>
+          <label class="switch inline-sw pb-n"><input type="checkbox" id="normPlay"><i></i><span>Lautstärke angleichen<small>leise und laute Titel klingen gleich laut</small></span></label>
+        </div>
+      </div>
+      <div class="pp-pop sleep" id="ppSleep" hidden>
+        <div class="pp-pop-h"><b>Schlaf-Timer</b></div>
+        <div class="sleep-opts"><button data-m="0">Aus</button><button data-m="15">15 Min.</button><button data-m="30">30 Min.</button><button data-m="45">45 Min.</button><button data-m="60">1 Std.</button><button data-m="-1">Nach diesem Titel</button></div>
+        <p class="hint">Blendet am Ende sanft aus und pausiert.</p>
+      </div>
+    </section>
+
+    <!-- ---------- Radio & Podcasts ---------- -->
+    <section class="page" id="page-radio">
+      <header class="page-head">
+        <div><h1>Radio &amp; Podcasts</h1><p>Über 30.000 Internetradios weltweit und alle großen Podcasts – mit Lichtshow, Equalizer, Songtext und Mitschnitt.</p></div>
+        <div class="seg" id="rpTabs"><button data-t="radio" class="active">Radio</button><button data-t="podcasts">Podcasts</button></div>
+      </header>
+
+      <div id="rpRadio">
+        <div class="rp-bar">
+          <div class="search grow"><svg><use href="#i-search"/></svg><input id="radioQ" placeholder="Sender suchen – z. B. „1LIVE“, „Jazz“, „Bayern 3“ …"></div>
+          <select id="radioCountry"><option value="DE">Deutschland</option><option value="AT">Österreich</option><option value="CH">Schweiz</option><option value="">Alle Länder</option><option value="US">USA</option><option value="GB">Großbritannien</option><option value="FR">Frankreich</option><option value="IT">Italien</option><option value="ES">Spanien</option><option value="NL">Niederlande</option><option value="TR">Türkei</option><option value="IR">Iran</option></select>
+        </div>
+        <div class="chips rp-tags" id="radioTags"></div>
+        <div id="radioFavWrap" hidden><h4 class="rp-h"><svg><use href="#i-star"/></svg>Favoriten</h4><div class="st-grid" id="radioFavs"></div></div>
+        <div id="radioRecentWrap" hidden><h4 class="rp-h"><svg><use href="#i-refresh"/></svg>Zuletzt gehört</h4><div class="st-grid" id="radioRecent"></div></div>
+        <h4 class="rp-h" id="radioResHead"><svg><use href="#i-globe"/></svg>Beliebt</h4>
+        <div class="st-grid" id="radioList"><div class="muted">Lade Sender …</div></div>
+      </div>
+
+      <div id="rpPod" hidden>
+        <div class="rp-bar">
+          <div class="search grow"><svg><use href="#i-search"/></svg><input id="podQ" placeholder="Podcast suchen – z. B. „Gemischtes Hack“, „Tagesschau“, „Fest &amp; Flauschig“ …"></div>
+          <button class="ghost" id="btnPodFeed" title="RSS-Feed direkt hinzufügen"><svg><use href="#i-link"/></svg>Feed-Adresse</button>
+        </div>
+        <div id="podSearchWrap" hidden><h4 class="rp-h"><svg><use href="#i-search"/></svg>Suchergebnisse</h4><div class="pod-grid" id="podResults"></div></div>
+        <h4 class="rp-h"><svg><use href="#i-podcast"/></svg>Meine Podcasts</h4>
+        <div class="pod-grid" id="podSubs"></div>
+        <div class="pod-show" id="podShow" hidden></div>
+      </div>
+    </section>
+
+    <!-- ---------- Abos ---------- -->
+    <section class="page" id="page-abos">
+      <header class="page-head"><div><h1>Abos</h1><p>Kanäle und Playlists beobachten – neue Titel werden automatisch als Audio geladen, solange SongGrabber läuft.</p></div>
+        <div class="head-actions"><button class="ghost" id="btnAboAll"><svg><use href="#i-refresh"/></svg>Alle jetzt prüfen</button></div></header>
+      <div class="card abo-add">
+        <div class="hero" style="margin:0">
+          <div class="url-field"><svg><use href="#i-bell"/></svg><input id="aboUrl" spellcheck="false" placeholder="Kanal oder Playlist – z. B. https://www.youtube.com/@LALELU-Traumwelt"></div>
+          <button class="primary lg" id="btnAboAdd">Abonnieren</button>
+        </div>
+        <div class="abo-opts">
+          <label>Name<input id="aboName" placeholder="automatisch"></label>
+          <label>Beim Abonnieren laden<select id="aboBack"><option value="0">nur neue Titel ab jetzt</option><option value="3">die letzten 3 Titel</option><option value="10">die letzten 10 Titel</option></select></label>
+          <label class="switch"><input type="checkbox" id="aboSkipLive" checked><i></i><span>Live-Auftritte überspringen</span></label>
+        </div>
+      </div>
+      <div class="abo-list" id="aboList"></div>
+      <div class="card abo-foot">
+        <label>Prüfen alle<select id="aboHours"><option value="1">1 Stunde</option><option value="3">3 Stunden</option><option value="6">6 Stunden</option><option value="12">12 Stunden</option><option value="24">24 Stunden</option></select></label>
+        <label class="switch"><input type="checkbox" id="aboAutostart"><i></i><span>Mit Windows starten (minimiert)</span><small>damit Abos auch ohne Zutun geprüft werden</small></label>
+      </div>
+    </section>
+
+    <!-- ---------- Hilfe ---------- -->
+    <section class="page" id="page-help">
+      <header class="page-head"><div><h1>Hilfe</h1><p>Kurze Anleitung zu allen Bereichen. Tipp: <kbd>F1</kbd> öffnet die Hilfe passend zur aktuellen Seite.</p></div>
+        <div class="head-actions"><button class="ghost" id="btnWelcome">Erste Schritte zeigen</button></div></header>
+      <div class="help">
+        <nav class="help-toc" id="helpToc"></nav>
+        <div class="help-body" id="helpBody">
+
+<article id="h-new"><h2>Neu in Version <span id="newVer"></span></h2><div id="newList"></div>
+<p class="note">Ältere Versionen: <button class="link" id="btnAllChanges">alle Änderungen anzeigen</button></p></article>
+
+<article id="h-start"><h2>Erste Schritte</h2>
+<ol class="steps"><li><b>Format wählen</b>: unten links <em>MP3</em> (klein, läuft überall), <em>WAV</em> (unkomprimiert) oder <em>FLAC</em> (verlustfrei, kleiner als WAV). Für fast alles reicht <em>MP3 · VBR V0</em>.</li>
+<li><b>Quelle wählen</b>: links in der Leiste <em>Links &amp; Streams</em>, <em>Audio-CD</em>, <em>Aufnahme</em> oder <em>Dateien &amp; DVD</em>.</li>
+<li><b>Starten</b>: Der Auftrag landet in der <em>Warteschlange</em> und läuft im Hintergrund. Du kannst sofort weiterarbeiten.</li>
+<li><b>Hereinziehen (Drag &amp; Drop)</b>: Dateien, Ordner und Links kannst du aus dem Explorer oder Browser ins Fenster ziehen. Ein Hinweis zeigt, was beim Loslassen passiert:
+  <em>Dateien &amp; DVD</em> → umwandeln (auch Ordner und DVD-Ordner) · <em>Player</em> → abspielen bzw. anhängen (Musik, Ordner, Playlists, YouTube-Links) · <em>Audio-CD</em> → .cue-Abbild einlesen · <em>Links &amp; Streams</em> → Link öffnen (auch .url- und .txt-Dateien mit Links) · <em>Abos</em> → Kanal-Link übernehmen · <em>Bibliothek</em> → umwandeln und einsortieren.
+  Bilder lassen sich auf ein <b>Cover</b> ziehen (CD, Tags bearbeiten), Ordner auf die Ordner-Felder in den <em>Einstellungen</em> und auf den Zielordner unten rechts. Überall sonst landen Audio und Video unter <em>Dateien &amp; DVD</em>.</li>
+<li><b>Anhören</b>: Fertige Titel landen in der <em>Bibliothek</em>. Ein Doppelklick spielt sie im <em>Player</em> ab, mit Lichtshow, Equalizer und Songtext.</li></ol>
+<p>Gespeichert wird im <b>Zielordner</b> (unten rechts) als <code>Interpret / Album / 01 - Titel.mp3</code>. Die Hilfe öffnest du jederzeit mit <kbd>F1</kbd> oder dem <b>?</b> neben jeder Überschrift; sie springt dann direkt zum passenden Abschnitt.</p></article>
+
+<article id="h-output"><h2>Format, Qualität &amp; Zielordner (untere Leiste)</h2>
+<ul><li><b>MP3 / WAV / FLAC</b> wählt das Format, das Feld daneben die Qualität. Die Einstellung gilt für alle neuen Aufträge.</li>
+<li><b>Lautstärke</b>: <em>unverändert</em> lässt den Titel wie er ist. <em>Normalisieren auf -1 dB</em> hebt leise Titel an, ohne den Klang zu verändern. <em>Lautheit angleichen (-14 LUFS)</em> sorgt dafür, dass alle Titel gleich laut klingen, ideal für gemischte Playlists.</li>
+<li><b>Ordner-Symbol</b>: Zielordner ändern (oder einen Ordner darauf ziehen). <b>▷</b> daneben öffnet ihn im Explorer.</li>
+<li><b>Speicherort beim Installieren</b>: Das Setup fragt, wo deine Musik landen soll. Vorgeschlagen ist der Ordner <em>Musik\SongGrabber</em>. Für ein Archiv eignet sich gut eine zweite Festplatte, z. B. <code>D:\Musik</code>. Bei einem Update schlägt das Setup deinen aktuellen Ordner vor und ändert nichts, wenn du einfach auf <em>Weiter</em> klickst.</li></ul>
+<table class="fmt"><tr><th>Format</th><th>Wofür</th><th>Größe pro Minute</th></tr>
+<tr><td>MP3 VBR V0</td><td>Alltag, Handy, Auto: kaum von der CD zu unterscheiden</td><td>≈ 1,8 MB</td></tr>
+<tr><td>MP3 320 kbps</td><td>maximale MP3-Qualität</td><td>≈ 2,4 MB</td></tr>
+<tr><td>MP3 128–192 kbps</td><td>wenig Speicherplatz, Hörbücher</td><td>≈ 1–1,4 MB</td></tr>
+<tr><td>FLAC 16/24 Bit</td><td>Archiv, verlustfrei</td><td>≈ 5–7 MB</td></tr>
+<tr><td>WAV</td><td>Bearbeitung im Audio-Programm</td><td>≈ 10 MB</td></tr></table></article>
+
+<article id="h-links"><h2>Links &amp; Streams</h2>
+<ul><li><b>Link holen</b>: Kopierst du einen Link von YouTube, SoundCloud, Bandcamp &amp; Co., bietet SongGrabber ihn beim Wechsel ins Fenster an (<em>Übernehmen</em>). Alternativ geht <em>Einfügen</em>, <b>Rechtsklick ins Feld</b> (Einfügen &amp; analysieren, Kopieren, Im Browser öffnen, Feld leeren) oder du ziehst den Link aus der Browser-Adresszeile ins Fenster.</li>
+<li><b>Analysieren</b> zeigt Interpret und Titel und sucht automatisch Album, Genre, Jahr, Titelnummer und das echte Albumcover. Alle Felder lassen sich vor dem Download ändern. <em>Herunterladen &amp; umwandeln</em> startet den Auftrag.</li>
+<li><b>Abspielen ohne Download</b>: <em>Abspielen</em> spielt den Titel (oder die angehakten Titel einer Playlist) sofort im Player, mit Lichtshow, Equalizer und Songtext, ohne etwas zu speichern. Gefällt er dir, holst du ihn später per Rechtsklick in der Warteschlange mit <em>Herunterladen</em>.</li>
+<li><b>Live-Auftritte</b> werden erkannt. SongGrabber schlägt dann die Studioaufnahme oder das offizielle Video vor: <em>Original nehmen</em> wechselt dorthin, <em>Live-Version behalten</em> bleibt beim Konzert und kennzeichnet den Titel als „(Live)“.</li>
+<li><b>Komplette Alben</b> (Videos mit Kapiteln, z. B. „Full Album“): Mit <em>Aufteilen</em> wird jedes Kapitel ein eigener, nummerierter Titel mit Album und Cover. Die Titelnamen lassen sich in der Liste ändern.</li>
+<li><b>Playlists</b>: Titel anhaken (<em>Alle auswählen</em>) und herunterladen. <em>Als Album taggen</em> nummeriert die Titel durch. Danach legt SongGrabber automatisch eine Playlist an.</li>
+<li><b>Internetradio / Livestreams</b>: <em>Live mitschneiden</em>, optional mit Name und Dauer in Minuten (0 = bis du stoppst). Ein roter Balken zeigt die laufende Aufnahme, <em>Mitschnitt beenden</em> speichert sie.</li></ul>
+<p class="note">Lädt ein Link nicht mehr? <em>Einstellungen → Werkzeuge → yt-dlp aktualisieren</em>. Webseiten ändern sich häufig.</p></article>
+
+<article id="h-cd"><h2>Audio-CD</h2>
+<ul><li>CD einlegen, Laufwerk wählen, <b>CD lesen</b>. Interpret, Album, Titel und Cover kommen von MusicBrainz. Ist die CD dort unbekannt, übernimmt SongGrabber den CD-Text, falls vorhanden.</li>
+<li>Gibt es mehrere Ausgaben (Länder, Neuauflagen), wähle unter <em>Veröffentlichung</em> die passende.</li>
+<li>Titel und Interpreten lassen sich direkt in der Liste ändern. <em>Album-Interpret für alle Titel</em> füllt die Interpret-Spalte. Ein <b>Klick aufs Cover</b> setzt ein eigenes Bild; du kannst ein Bild auch direkt darauf ziehen. Ein <code>.cue</code>-Abbild kannst du einfach auf die Seite ziehen.</li>
+<li>Haken setzen oder entfernen, dann <em>Ausgewählte Titel rippen</em>. Unten siehst du Gesamtdauer und ungefähre Größe.</li>
+<li><b>Auswerfen</b> öffnet das Laufwerk. Der Pfeil-Knopf sucht Laufwerke neu.</li>
+<li><b>Prüflesen</b> (Einstellungen) liest jeden Block doppelt und wiederholt bei Kratzern. Das ist langsamer, aber sicher. Am Ende meldet SongGrabber, ob Lesefehler korrigiert wurden.</li>
+<li><b>Ohne CD-Laufwerk</b>: <em>CD-Abbild öffnen</em> liest CUE-Abbilder (mit BIN, WAV, FLAC oder MP3) genau wie eine eingelegte CD. <em>Test-CD erzeugen</em> legt eine Beispiel-CD zum Ausprobieren an.</li></ul>
+<p class="note">CDs mit Kopierschutz („Copy Controlled“) dürfen in Deutschland nicht umgangen werden und werden nicht unterstützt.</p></article>
+
+<article id="h-rec"><h2>Aufnahme (Schallplatte, Kassette, Systemsound, Mikrofon)</h2>
+<ul><li><b>Anschließen</b>: Plattenspieler oder Kassettendeck an <em>Line-In</em>. Plattenspieler ohne eingebauten Vorverstärker brauchen einen Phono-Vorverstärker.</li>
+<li><b>Welcher Eingang ist der richtige?</b> Rechts unter <em>Eingänge</em> laufen alle Pegel live mit. Sprich oder spiel etwas ab: Der aktive Eingang leuchtet grün („Signal ✓“), ein Klick wählt ihn aus. <em>stumm</em> heißt, das Gerät liefert gar nichts (stummgeschaltet, nicht angeschlossen oder von Windows blockiert). <em>nicht verfügbar</em> heißt, ein anderes Programm belegt es.</li>
+<li><b>Systemsound</b> nimmt alles auf, was der PC abspielt. Die Ausgabegeräte (🔊) stehen ebenfalls unter <em>Eingänge</em>: Das Gerät, über das gerade Ton läuft (z. B. dein Headset), zeigt „Ton läuft ✓“. Genau dieses wählst du aus.</li>
+<li><b>Art wählen</b>: <em>Schallplatte</em>, <em>Kassette</em>, <em>Systemsound</em> oder <em>Mikrofon</em> stellt die Automatik passend ein.</li>
+<li><b>Pegel</b>: Stell den Regler so ein, dass die lauten Stellen im gelben Bereich (-6 bis -3 dB) bleiben. Erscheint <em>CLIP</em>, senkst du den Pegel.</li>
+<li><b>Automatik</b>: <em>Start bei Signal</em> wartet, bis die Nadel aufsetzt. <em>Automatisch in Titel teilen</em> schneidet an Pausen ab der eingestellten Länge. <em>Stopp nach Stille</em> beendet am Seitenende. <em>Knackser &amp; Rumpeln entfernen</em> filtert Plattengeräusche. <em>Schwelle</em> legt fest, was als Stille gilt; bei Rauschen wählst du einen höheren Wert.</li>
+<li><b>Aufnahmequalität</b>: 44,1 kHz/16 Bit (CD), 48 kHz/24 Bit (Standard) oder 96 kHz/24 Bit (Hi-Res). Die Ausgabe richtet sich nach dem Format unten links.</li>
+<li><b>Bedienung</b>: Der rote Knopf startet, <em>Pause</em> unterbricht, <em>Stopp</em> speichert, <em>Aufnahme verwerfen</em> löscht alles. Was du unter <em>Tags</em> einträgst (Interpret, Album, Jahr, Genre), wird für die Dateien übernommen.</li>
+<li><b>Automatisch erkennen</b>: Mit einem kostenlosen AcoustID-Schlüssel (Einstellungen) bestimmt SongGrabber nach dem Teilen Interpret, Titel und Album jedes Liedes per Audio-Fingerabdruck.</li></ul></article>
+
+<article id="h-files"><h2>Dateien &amp; DVD</h2>
+<ul><li><b>Dateien</b> oder ganze <b>Ordner</b> hinzufügen. Aus Videos (MP4, MKV, WEBM, MOV, AVI …) wird nur der Ton genommen.</li>
+<li>In der Liste lassen sich Interpret und Titel ändern. Bei mehreren Tonspuren (z. B. Sprachen) wählst du die gewünschte. Das <b>×</b> entfernt einen Eintrag, <em>Liste leeren</em> alle.</li>
+<li><b>DVD</b>: den Ordner <code>VIDEO_TS</code> der DVD auswählen oder hereinziehen. Jeder Film-Titel erscheint als eigener Eintrag.</li>
+<li><b>Hereinziehen</b>: Dateien und Ordner einfach aus dem Explorer auf diese Seite ziehen.</li>
+<li><em>Alle umwandeln</em> startet die Aufträge.</li>
+<li>Schneller geht es im Windows-Explorer: Rechtsklick auf Dateien → <b>Mit SongGrabber umwandeln</b> (im Setup wählbar).</li></ul></article>
+
+<article id="h-library"><h2>Bibliothek</h2>
+<ul><li>Zeigt alle Titel im Zielordner. <b>Suchen</b> findet nach Titel, Interpret, Album, Genre oder Jahr. Ein Klick auf eine <b>Spaltenüberschrift</b> sortiert. <em>nach Interpret / Album / Genre / Jahrzehnt</em> gruppiert, mit <em>Abspielen</em> je Gruppe.</li>
+<li><b>Doppelklick</b> oder ▶ spielt ab. Haken setzen und <em>Auswahl abspielen</em>, <em>Zufällig abspielen</em>, <em>Übertragen</em> oder <em>Auswahl als Playlist</em>.</li>
+<li><b>Rechtsklick</b> auf einen Titel: <em>Abspielen</em>, <em>Als Nächstes abspielen</em>, <em>An Wiedergabeliste anhängen</em>, <em>Tags bearbeiten</em>, <em>Songtext suchen &amp; einbetten</em>, <em>Titel erkennen</em>, <em>Anfang/Ende kürzen</em>, <em>Übertragen</em>, <em>Löschen</em>, <em>Mehr von diesem Interpreten</em>, <em>Im Ordner anzeigen</em>, <em>Pfad kopieren</em>.</li>
+<li><b>Tags bearbeiten</b>: Titel, Interpret, Album, Nummer, Jahr, Genre, Cover und Songtext ändern, auch für viele Titel auf einmal. Felder mit „verschiedene Werte“ bleiben dabei unverändert. <em>Online ergänzen</em> sucht fehlende Angaben. Mit <em>Datei passend umbenennen</em> wird die Datei neu einsortiert.</li>
+<li><b>Kürzen</b>: SongGrabber schlägt Schnittpunkte vor (Stille, Rauschen, Applaus, Ausblendung). Gesprochene Ansagen erkennt es nur teilweise; prüfe deshalb mit <em>Anfang/Ende anhören</em> und zieh die Griffe bei Bedarf. Geschnitten wird verlustfrei, auf Wunsch mit sanftem Ein- und Ausblenden.</li>
+<li><b>Löschen</b>: Titel anhaken und <em>Löschen</em> klicken, <kbd>Entf</kbd> drücken oder Rechtsklick → <em>Löschen</em>. Die Dateien landen im Windows-Papierkorb.</li>
+<li><b>Aufräumen</b> (oben): prüft die ganze Bibliothek und zeigt drei Listen – nichts passiert ohne deine Bestätigung.
+  <em>Doppelte Titel</em>: gleiche Lieder (gleicher Interpret und Titel, gleiche Länge) mit Vorschlag, welche Fassung bleibt (FLAC/WAV vor MP3, höhere Bitrate, mit Cover); mit ▶ reinhören, Häkchen ändern, dann in den Papierkorb. Mindestens eine Fassung bleibt immer.
+  <em>Fehlende Angaben</em>: zählt Titel ohne Cover, Album, Genre oder Jahr; <em>Online ergänzen</em> füllt nur die Lücken und sortiert die Titel danach richtig ein.
+  <em>Leere Ordner</em>: Ordner ohne Musik (höchstens mit Resten wie folder.jpg) werden entfernt.</li>
+<li><b>Übertragen</b> auf USB-Stick, SD-Karte oder Handy. <em>Autoradio-sicher</em> wandelt in MP3 192 kbps / 44,1 kHz, verkleinert Cover und nummeriert die Titel.</li>
+<li><b>Playlists</b> (Reiter oben): <em>Playlists erstellen</em> legt sie pro Interpret, Album, Genre oder Jahrzehnt an, aus <em>Neu hinzugefügt</em>, als <em>Zufallsmix</em> oder aus deiner Auswahl. Jede Playlist lässt sich abspielen, zufällig abspielen, übertragen, im Ordner zeigen oder löschen (die Musik bleibt erhalten).</li>
+<li><em>Neu einlesen</em> aktualisiert die Liste, falls du Dateien außerhalb von SongGrabber verändert hast.</li></ul></article>
+
+<article id="h-player"><h2>Player</h2>
+<ul><li><b>Öffnen</b>: Menüpunkt <em>Player</em> oder ein Klick auf Cover/Titel in der Leiste unten. Beim Abspielen leuchten im Menü kleine Balken.</li>
+<li><b>Was läuft</b>: eigene Titel, YouTube &amp; Co. (online, ohne Download), Radiosender und Podcasts, gemischt in einer Warteschlange. Online-Titel sind mit ONLINE, RADIO bzw. PODCAST gekennzeichnet. <em>Hinzufügen → Online suchen (YouTube)</em> findet Lieder direkt im Player: ▶ spielt sofort, <em>+1</em> spielt als Nächstes, <b>+</b> hängt an, ⬇ lädt herunter. <em>Link abspielen</em> nimmt einen kopierten Link.</li>
+<li><b>Alles am PC</b> (Schalter oben, neben <em>SongGrabber</em>): Die Lichtshow tanzt zu allem, was der PC abspielt, z. B. Spotify, YouTube im Browser, Apple Music oder Spiele. SongGrabber zeigt Titel, Interpret, Cover und die App an und steuert sie mit Zurück, Abspielen/Pause und Weiter. Den Ton dafür liest SongGrabber nur mit, solange diese Ansicht offen ist; gespeichert wird nichts.</li>
+<li><b>Songtext bei Alles am PC</b>: Rechts erscheint automatisch der Songtext zum Lied, das gerade in Spotify, YouTube im Browser &amp; Co. läuft. Zusätze wie „(Official Music Video)“ oder „Remastered“ werden dabei ignoriert. Meldet die App ihre Abspielposition an Windows (z. B. YouTube in Chrome/Edge), läuft der Text genau mit („läuft mit“). Sonst rechnet SongGrabber ab dem Liedwechsel („geschätzt“).</li>
+<li><b>Songtext genau einstellen</b>: Passt der Text nicht genau, klickst du einfach die Zeile an, die gerade gesungen wird. Ab dort läuft er passend weiter. Mit <em>−0,5 s</em> / <em>+0,5 s</em> verschiebst du ihn fein.</li>
+<li><b>Bedienung</b>: Zurück, Abspielen/Pause, Weiter, <b>Zufall</b> (spielt alles einmal in neuer Reihenfolge) und <b>Wiederholen</b> (aus → alle → diesen Titel). Darunter Lautstärke, Stumm und Tempo (0,75× bis 1,5×). Die Zeitleiste lässt sich ziehen.</li>
+<li><b>Lichtshow</b>: <em>Synthwave</em> (Retro-Sonne, Neon-Gitter), <em>Spektrum</em>, <em>Kreis</em> (um das Cover), <em>Welle</em> (vier leuchtende Wellen für Bass, tiefe Mitten, Mitten und Höhen plus die echte Schwingung, automatisch ausgesteuert), <em>Tesla</em> (Tesla-Spule: Bass zündet große Blitze, Höhen lassen es knistern) oder <em>Ruhig</em>. Alle reagieren live auf Bass und Beat. Die Farbpunkte daneben wählen die Farbwelt; der bunte Punkt übernimmt die Farben des aktuellen Covers.</li>
+<li><b>Eigene Farben</b> (Knopf <em>Farben</em> neben den Farbpunkten): Mit dem Regler <b>Grundton</b> drehst du alle Farben gemeinsam, z. B. von Pink-Lila nach Grün-Blau, und alles bleibt aufeinander abgestimmt. Darunter lassen sich Hauptfarbe, zweite Farbe, Akzent, Sonne und Himmel auch einzeln wählen. Die Lichtshow ändert sich sofort mit. <em>Ausgehend von</em> startet mit einer fertigen Farbwelt, <em>Zufällig</em> würfelt passende Farben. Gilt für alle Lichtshows und wird gemerkt.</li>
+<li><b>Cover &amp; Titel klein</b>: Beim Start stehen Cover und Titel klein oben links, wie ein Senderlogo im Fernsehen. Ein Klick darauf (oder Taste <kbd>I</kbd>) zeigt sie groß in der Mitte, ein Klick auf das große Cover macht sie wieder klein. Wird gemerkt.</li>
+<li><b>Lichter aus</b> (Glühbirne oben rechts oder Taste <kbd>B</kbd>): schaltet Lichtshow, Pulsieren und alle Effekte ab – nur Musik mit ruhigem, stehendem Bild. Ideal, wenn der Player auf dem zweiten Bildschirm offen bleibt; spart Rechenleistung. Wird gemerkt.</li>
+<li><b>Warteschlange</b> (rechts): Doppelklick spielt, Ziehen sortiert um, ✕ entfernt. Rechtsklick bietet <em>Als Nächstes abspielen</em>, <em>Tags bearbeiten</em> und <em>Im Ordner anzeigen</em>. <em>Hinzufügen</em> holt Dateien, Ordner, eine Playlist oder die ganze Bibliothek. <em>Speichern</em> sichert die Warteschlange als Playlist, der Papierkorb leert sie.</li>
+<li><b>Songtext</b> (Reiter rechts): Bei Texten mit Zeitmarken läuft er mit und leuchtet; ein Klick auf eine Zeile springt dorthin. Fehlt der Text, holt ihn <em>Online suchen</em>.</li>
+<li><b>Equalizer</b> (EQ): 10 Bänder von 32 Hz bis 16 kHz, Voreinstellungen wie <em>Bass-Boost</em>, <em>Stimme / Hörbuch</em> oder <em>Nachtmodus</em>. Ziehen passt an, Doppelklick setzt auf 0 dB, der Schalter vergleicht mit dem Original.</li>
+<li><b>Überblenden</b> (im EQ-Fenster): Der nächste Titel blendet sanft ein, während der alte ausklingt – 2 bis 12 Sekunden oder aus. Alben, die am Stück laufen (gleiches Album, Titel 1 → 2 → 3), werden nicht überblendet, damit Live- und Konzeptalben nahtlos bleiben. Radio und Podcasts werden nie überblendet.</li>
+<li><b>Lautstärke angleichen</b> (im EQ-Fenster): Leise und laute Titel klingen gleich laut. SongGrabber misst jeden Titel einmal im Hintergrund (oder nutzt vorhandene ReplayGain-Angaben) und merkt sich das Ergebnis; nichts wird an deinen Dateien verändert.</li>
+<li><b>Mini-Player</b> (Symbol neben <em>Großen Player öffnen</em> unten oder oben im Player): Das Fenster wird zur kleinen Leiste unten rechts – immer im Vordergrund, mit Cover, Titel, der gerade gesungenen Songtext-Zeile, Steuerung und kleiner Lichtshow. Pfeil oder Doppelklick holt das große Fenster zurück. Ziehst du das Fenster sehr klein, erscheint die Mini-Ansicht automatisch.</li>
+<li><b>Schlaf-Timer</b>: Nach 15–60 Minuten oder am Ende des Titels blendet SongGrabber sanft aus und pausiert.</li>
+<li><b>Vollbild</b>: das Symbol oben rechts oder <kbd>F11</kbd>.</li>
+<li><b>Merkt sich alles</b>: Warteschlange, Position, Zufall, Wiederholen, Equalizer und Lichtshow sind beim nächsten Start wieder da.</li>
+<li><b>Windows</b>: Medientasten der Tastatur und die Wiedergabe-Anzeige von Windows funktionieren. Wenn im Setup <em>Als Musik-Player anbieten</em> gewählt ist, kannst du MP3, FLAC, WAV, M4A, OGG und Playlists per Doppelklick bzw. „Öffnen mit → SongGrabber“ abspielen. Als Standard festlegen geht unter <em>Windows-Einstellungen → Apps → Standard-Apps → SongGrabber</em>.</li></ul></article>
+
+<article id="h-radio"><h2>Radio &amp; Podcasts</h2>
+<ul><li><b>Radio</b>: über 30.000 Internetradios aus aller Welt (Senderverzeichnis radio-browser.info). <em>Sender suchen</em> nach Name oder Stil, Land wählen oder auf ein Genre wie <em>rock</em>, <em>jazz</em> oder <em>80s</em> klicken.</li>
+<li>Ein Klick auf einen Sender spielt ihn ab. Mit <em>Weiter</em>/<em>Zurück</em> im Player wechselst du zum nächsten Sender der Liste. Der ★ speichert ihn unter <em>Favoriten</em>; <em>Zuletzt gehört</em> merkt sich die letzten Sender.</li>
+<li>Im Player steht <b>LIVE</b> mit dem gerade gesendeten Lied. Interpret, Titel und, wenn gefunden, Cover und Songtext erscheinen automatisch. Ab dem nächsten Liedwechsel läuft der Songtext ungefähr mit, denn der Sender meldet nur, wann ein neues Lied beginnt. Beim ersten Lied nach dem Einschalten (oder wenn es ein paar Sekunden daneben liegt) klickst du die Zeile an, die gerade gesungen wird.</li>
+<li><b>Mitschneiden</b> (im Player unter LIVE, im Menü ⋯ eines Senders oder per Rechtsklick) nimmt den Sender im Hintergrund auf, auf Wunsch für eine bestimmte Zahl Minuten. Beenden geht unter <em>Links &amp; Streams</em>; gespeichert wird im eingestellten Format.</li>
+<li><b>Podcasts</b>: oben auf <em>Podcasts</em> umschalten, eine Sendung suchen und öffnen. <em>Abonnieren</em> legt sie unter <em>Meine Podcasts</em> ab. <em>Feed-Adresse</em> fügt einen Podcast per RSS-Link hinzu.</li>
+<li>Bei jeder Folge: ▶ abspielen, <b>+</b> an die Warteschlange hängen, ⬇ herunterladen (landet mit Cover unter <code>Podcasts</code> im Zielordner). SongGrabber merkt sich, wie weit du gehört hast, und setzt dort fort; gehörte Folgen sind markiert.</li></ul></article>
+
+<article id="h-abos"><h2>Abos</h2>
+<ul><li>Link eines YouTube-Kanals (z. B. <code>youtube.com/@Name</code>) oder einer Playlist einfügen und <b>Abonnieren</b>. Optional vergibst du einen Namen und lädst gleich die letzten 3 oder 10 Titel.</li>
+<li>SongGrabber prüft regelmäßig (<em>Prüfen alle</em> 1–24 Stunden) und lädt neue Titel automatisch als Audio, mit Tags, Cover und Songtext. <em>Live-Auftritte überspringen</em> lässt Konzertmitschnitte weg.</li>
+<li>Je Abo: Schalter zum Pausieren, <em>Jetzt prüfen</em> und Entfernen. Bereits geladene Titel bleiben dabei erhalten.</li>
+<li>Geprüft wird, solange SongGrabber läuft. Mit <em>Mit Windows starten</em> läuft es minimiert im Hintergrund.</li></ul></article>
+
+<article id="h-queue"><h2>Warteschlange (Aufträge)</h2>
+<ul><li>Downloads, CD-Rips, Aufnahmen, Umwandlungen und Übertragungen laufen nacheinander mit Fortschrittsanzeige. Unten links in der Leiste siehst du den laufenden Auftrag.</li>
+<li><em>Abbrechen</em> geht jederzeit. Bei fertigen Aufträgen: <em>Abspielen</em> und <em>Anzeigen</em> (im Explorer), auch per Rechtsklick.</li>
+<li>Bei einem Fehler steht der Grund direkt am Auftrag. <em>Fertige entfernen</em> räumt die Liste auf, <em>Zielordner öffnen</em> zeigt die Musik.</li>
+<li>Titel, die schon im Zielordner liegen, werden übersprungen (abschaltbar).</li></ul></article>
+
+<article id="h-settings"><h2>Einstellungen: was jeder Schalter bewirkt</h2>
+<p>Alles wird sofort gespeichert.</p>
+<dl class="keys">
+<dt data-help-key="output_dir">Zielordner</dt><dd>Wohin die Musik gespeichert wird.</dd>
+<dt data-help-key="name_single name_album">Ordnerstruktur, Einzeltitel, Alben &amp; CDs</dt><dd>Wie Ordner und Dateien heißen. Empfohlen: <em>Interpret / Album / 01 - Titel</em>. Eigene Vorlagen gehen mit Platzhaltern wie <code>{artist}</code>, <code>{title}</code>, <code>{album}</code>, <code>{track:02}</code>; „/“ erzeugt Unterordner. Die Vorschau zeigt das Ergebnis. <em>Vorhandene Dateien jetzt so ordnen</em> sortiert bestehende Titel um und passt Playlists an.</dd>
+<dt data-help-key="live_check">Bei Live-Auftritten nach dem Original fragen</dt><dd>Schlägt bei Konzertvideos die Studioversion vor.</dd>
+<dt data-help-key="metadata_online">Album, Genre, Jahr &amp; Cover online ergänzen</dt><dd>Sucht fehlende Angaben im iTunes-Katalog, ersatzweise bei MusicBrainz.</dd>
+<dt data-help-key="prefer_album_cover">Albumcover statt Video-Vorschaubild</dt><dd>Bettet das echte Albumcover ein statt eines Standbilds aus dem Video.</dd>
+<dt data-help-key="skip_existing">Vorhandene Titel überspringen</dt><dd>Lädt nichts doppelt, wenn derselbe Titel schon im Zielordner liegt.</dd>
+<dt data-help-key="auto_playlist_links">Link-Playlists automatisch als Playlist speichern</dt><dd>Legt nach einer heruntergeladenen YouTube-Playlist eine passende .m3u8 an.</dd>
+<dt data-help-key="clipboard_watch">Links in der Zwischenablage erkennen</dt><dd>Bietet kopierte Links beim Wechsel ins Fenster an.</dd>
+<dt data-help-key="trim_silence">Stille am Anfang/Ende entfernen</dt><dd>Schneidet stille Sekunden beim Umwandeln automatisch ab.</dd>
+<dt data-help-key="embed_cover">Cover in MP3/FLAC einbetten</dt><dd>Das Cover steckt in der Datei; Handy, Auto und Player zeigen es an.</dd>
+<dt data-help-key="square_cover">Video-Vorschaubilder quadratisch zuschneiden</dt><dd>Macht aus 16:9-Standbildern ein quadratisches Cover.</dd>
+<dt data-help-key="playlist_m3u">Playlist (.m3u8) für Alben anlegen</dt><dd>Legt bei CDs und Alben eine Playlist in den Albumordner.</dd>
+<dt data-help-key="musicbrainz">Trackinfos &amp; Cover von MusicBrainz</dt><dd>Holt beim Lesen einer CD Interpret, Titel und Cover.</dd>
+<dt data-help-key="cd_verify">Prüflesen</dt><dd>Liest jeden CD-Block doppelt und wiederholt bei Fehlern.</dd>
+<dt data-help-key="cd_eject">CD nach dem Rippen auswerfen</dt><dd>Öffnet das Laufwerk, wenn alle Titel fertig sind.</dd>
+<dt data-help-key="keep_raw">Original-Aufnahme (WAV) zusätzlich behalten</dt><dd>Speichert die ungeteilte Rohaufnahme mit, z. B. zum späteren Nachbearbeiten.</dd>
+<dt data-help-key="update_check">Beim Start nach Updates suchen</dt><dd>Sieht höchstens einmal am Tag nach, ob es eine neuere Version gibt, und zeigt dann einen Hinweis mit Download-Link. Installiert wird nur, wenn du das neue Setup selbst startest. <em>Nach Updates suchen</em> (unter Über) prüft sofort.</dd>
+<dt data-help-key="lyrics_auto">Songtexte automatisch einbetten</dt><dd>Lädt Songtexte von lrclib.net, mitlaufend, wenn verfügbar.</dd>
+<dt data-help-key="lyrics_lrc">Zusätzlich .lrc-Datei speichern</dt><dd>Für Autoradios und Player, die keine eingebetteten Texte lesen.</dd>
+<dt data-help-key="acoustid_auto acoustid_key">Aufnahmen automatisch erkennen, AcoustID-Schlüssel</dt><dd>Erkennt Titel per Audio-Fingerabdruck. Der kostenlose Schlüssel kommt von acoustid.org (<em>Schlüssel holen</em>).</dd>
+<dt data-help-key="watch_enabled watch_dir watch_delete_source">Übergabe-Ordner überwachen</dt><dd>Alles, was dort landet (z. B. vom Multi Video Downloader), wird automatisch umgewandelt, auf Wunsch mit Löschen des Originals.</dd>
+<dt data-help-key="tools_dir">Gemeinsamer Werkzeug-Ordner</dt><dd>Nutzt die <code>ffmpeg.exe</code>/<code>yt-dlp.exe</code> eines anderen Programms. <em>Zurücksetzen</em> nimmt wieder die eigenen.</dd>
+<dt data-help-key="tools">Werkzeuge</dt><dd>Zeigt, ob der Encoder (ffmpeg/LAME) und yt-dlp bereit sind. <em>Aktualisieren</em> holt die neueste yt-dlp-Version. <em>Fehlerbericht kopieren</em> und <em>Protokoll öffnen</em> helfen bei Problemen.</dd>
+</dl></article>
+
+<article id="h-keys"><h2>Tastenkürzel</h2>
+<table class="fmt"><tr><th>Taste</th><th>Wirkung</th></tr>
+<tr><td><kbd>F1</kbd></td><td>Hilfe zur aktuellen Seite</td></tr>
+<tr><td><kbd>Leertaste</kbd></td><td>Abspielen / Pause</td></tr>
+<tr><td><kbd>Strg</kbd>+<kbd>←</kbd> / <kbd>→</kbd></td><td>vorheriger / nächster Titel</td></tr>
+<tr><td><kbd>←</kbd> / <kbd>→</kbd></td><td>5 Sekunden zurück / vor (Player-Seite)</td></tr>
+<tr><td><kbd>↑</kbd> / <kbd>↓</kbd></td><td>lauter / leiser (Player-Seite)</td></tr>
+<tr><td><kbd>N</kbd> / <kbd>P</kbd></td><td>nächster / vorheriger Titel (Player-Seite)</td></tr>
+<tr><td><kbd>S</kbd> · <kbd>R</kbd> · <kbd>M</kbd></td><td>Zufall · Wiederholen · Stumm (Player-Seite)</td></tr>
+<tr><td><kbd>V</kbd> · <kbd>B</kbd> · <kbd>I</kbd> · <kbd>L</kbd> · <kbd>F11</kbd></td><td>Lichtshow wechseln · Lichter an/aus · Cover groß/klein · Songtext · Vollbild (Player-Seite)</td></tr>
+<tr><td><kbd>Entf</kbd></td><td>markierte Titel löschen (Bibliothek)</td></tr>
+<tr><td><kbd>Enter</kbd></td><td>Link analysieren / Abo hinzufügen</td></tr>
+<tr><td><kbd>Esc</kbd></td><td>Dialog oder Menü schließen</td></tr></table></article>
+
+<article id="h-advanced"><h2>Für Fortgeschrittene</h2>
+<ul><li><b>Kopplung mit dem Multi Video Downloader</b>: Übergabe-Ordner (siehe Einstellungen) oder Direktaufruf. Läuft SongGrabber schon, landet der Auftrag im offenen Fenster.</li>
+<li><b>Kommandozeile</b>: <code>SongGrabber.exe "datei.mp4"</code> wandelt um, <code>--url &lt;Link&gt;</code> lädt herunter, <code>--play "titel.mp3"</code> spielt ab. <code>--headless --preset mp3_320 --out "D:\Musik" --report r.json datei.mp4</code> arbeitet ohne Fenster (Exitcode 0 = alles ok).</li>
+<li><b>Portabel</b>: Liegt neben der <code>SongGrabber.exe</code> eine Datei <code>portable.txt</code>, speichert SongGrabber Einstellungen im Unterordner <code>data</code> statt in <code>%APPDATA%\SongGrabber</code>.</li></ul></article>
+
+<article id="h-faq"><h2>Probleme &amp; Fragen</h2>
+<dl><dt>Ein Link lädt nicht.</dt><dd>yt-dlp aktualisieren (Einstellungen → Werkzeuge). Private, altersbeschränkte oder kostenpflichtige Inhalte gehen nicht.</dd>
+<dt>Album oder Genre fehlen.</dt><dd>Interpret und Titel prüfen: Die Suche braucht beides korrekt geschrieben. Danach im Tag-Editor <em>Online ergänzen</em> oder die Felder von Hand füllen.</dd>
+<dt>Die Aufnahme ist stumm.</dt><dd>1) Unter <em>Eingänge</em> schauen, welcher beim Sprechen ausschlägt, und den anklicken. 2) Steht überall „stumm“, blockiert meist Windows: <em>Einstellungen → Datenschutz → Mikrofon → „Desktop-Apps Zugriff auf das Mikrofon erlauben“</em> einschalten (SongGrabber zeigt dafür einen Knopf), danach SongGrabber neu starten. 3) In Windows unter <em>Sound → Aufnahme</em> prüfen, ob das Gerät aktiviert und nicht stummgeschaltet ist.</dd>
+<dt>Systemsound wird nicht aufgenommen.</dt><dd>Unter <em>Eingänge</em> das 🔊-Gerät wählen, das „Ton läuft ✓“ zeigt. Oft läuft der Ton über ein Headset statt über die Lautsprecher.</dd>
+<dt>Der Player spielt nicht oder die Lichtshow bewegt sich nicht.</dt><dd>Einmal ins Fenster klicken: Windows gibt die Klanganalyse erst nach einer Bedienung frei. Läuft die Lichtshow ruckelig, hilft der Modus <em>Ruhig</em> oder <em>Lichter aus</em> (Taste <kbd>B</kbd>).</dd>
+<dt>Doppelklick auf eine MP3 öffnet nicht SongGrabber.</dt><dd>Rechtsklick → <em>Öffnen mit</em> → <em>SongGrabber</em> → <em>Immer</em>. Dafür muss im Setup <em>Als Musik-Player anbieten</em> gewählt sein.</dd>
+<dt>Ein Radiosender spielt nicht.</dt><dd>Manche Sender sind zeitweise offline oder ändern ihre Adresse. Einfach einen anderen Sender mit gleichem Namen aus der Suche probieren.</dd>
+<dt>Mein Netzlaufwerk / NAS wird beim Installieren nicht angezeigt.</dt><dd>Installierst du „für alle Benutzer“, läuft das Setup mit Administratorrechten – und solche Programme sehen die Netzlaufwerke deines Benutzerkontos nicht (Windows-Eigenheit). Tippe den Pfad einfach ein, z. B. <code>M:\Musik</code> oder <code>\\NAS\Musik</code>; das Setup bietet dann die Netzwerkadresse an. Oder installiere „nur für mich“ – dann ist alles sichtbar. SongGrabber selbst sieht deine Netzlaufwerke immer.</dd>
+<dt>„Zielordner nicht erreichbar“</dt><dd>Der Musik-Ordner liegt auf einem Netzlaufwerk, NAS oder einer USB-Platte, die gerade nicht verbunden ist. Gerät einschalten bzw. verbinden – oder unten rechts einen anderen Zielordner wählen.</dd>
+<dt>Beim Radio steht noch der alte Titel.</dt><dd>SongGrabber zeigt immer den Titel, den der Sender gerade meldet. Manche Sender melden den Wechsel spät oder gar nicht (z. B. während Moderation). Läuft ein Titel deutlich länger als das Lied, hält SongGrabber den Songtext an, bis der Sender einen neuen Titel meldet.</dd>
+<dt>Der Songtext läuft nicht passend mit.</dt><dd>Bei eigenen Dateien und YouTube im Player stimmt er genau. Bei Radio und „Alles am PC“ ohne Positionsmeldung der App ist er geschätzt: Zeile anklicken, die gerade gesungen wird, oder mit −0,5 s / +0,5 s nachstellen. Sender schreiben ihre Titel sehr unterschiedlich („Interpret - Titel“, „»Titel« von Interpret“ …). SongGrabber versucht alle üblichen Schreibweisen und sucht zur Not im Freitext. Wird trotzdem kein Text gefunden, gibt es für das Lied bei lrclib.net (noch) keinen. Bei Nachrichten, Werbung und Moderation sucht SongGrabber gar nicht erst.</dd>
+<dt>„Alles am PC“ zeigt keinen Titel.</dt><dd>Nicht jede App meldet ihre Titel an Windows. Die Lichtshow funktioniert trotzdem; die Knöpfe steuern dann über die Medientasten.</dd>
+<dt>Windows warnt beim Installieren.</dt><dd>Das Setup ist nicht signiert: <em>Weitere Informationen → Trotzdem ausführen</em>.</dd>
+<dt>„Titel erkennen“ findet nichts.</dt><dd>Seltene oder sehr alte Aufnahmen sind bei AcoustID evtl. nicht erfasst. Live-Aufnahmen klingen anders als das Original und werden oft nicht erkannt.</dd>
+<dt>Das Autoradio zeigt keine Titel oder Cover.</dt><dd>Beim Übertragen <em>Autoradio-sicher</em> wählen; das verkleinert auch das Cover auf 500 px.</dd>
+<dt>Etwas funktioniert nicht – wie melde ich es?</dt><dd><em>Einstellungen → Werkzeuge → Fehlerbericht kopieren</em> und den Text weiterschicken. Er enthält Version, Werkzeuge, Gerätenamen und die letzten Meldungen (Dateipfade können den Windows-Benutzernamen enthalten).</dd>
+<dt>Wo liegen meine Einstellungen?</dt><dd>Installiert: <code>%APPDATA%\SongGrabber</code> · Portabel: Unterordner <code>data</code>.</dd></dl>
+<p class="note">Bitte nur Inhalte speichern, für die du die Rechte hast: eigene CDs, freie Inhalte, Privatkopie im erlaubten Rahmen.</p></article>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ Player ============ -->
+    <div class="player" id="player" hidden>
+      <div class="p-art" id="pArt" title="Player öffnen"></div>
+      <div class="p-meta" id="pMeta" title="Player öffnen"><b id="pTitle">–</b><small id="pArtist">–</small></div>
+      <div class="p-ctrl">
+        <button class="p-btn" id="pPrev" title="Zurück"><svg><use href="#i-prev"/></svg></button>
+        <button class="p-btn main" id="pPlay" title="Abspielen/Pause (Leertaste)"><svg><use href="#i-pause"/></svg></button>
+        <button class="p-btn" id="pNext" title="Weiter"><svg><use href="#i-next"/></svg></button>
+      </div>
+      <div class="p-seek"><span id="pCur">0:00</span><input type="range" id="pSeek" min="0" max="1000" value="0"><span id="pDur">0:00</span></div>
+      <button class="p-btn" id="pShuffle" title="Zufällige Reihenfolge"><svg><use href="#i-shuffle"/></svg></button>
+      <div class="p-vol"><svg><use href="#i-vol"/></svg><input type="range" id="pVol" min="0" max="100" value="80"></div>
+      <button class="p-btn" id="pLyricsBtn" title="Songtext"><svg><use href="#i-lyrics"/></svg></button>
+      <button class="p-btn" id="pQueueBtn" title="Wiedergabeliste"><svg><use href="#i-list"/></svg><b id="pQn"></b></button>
+      <button class="p-btn" id="pMini" title="Mini-Player – kleines Fenster, immer im Vordergrund"><svg><use href="#i-mini"/></svg></button>
+      <button class="p-btn" id="pOpen" title="Großen Player öffnen"><svg><use href="#i-expand"/></svg></button>
+      <button class="p-btn" id="pClose" title="Wiedergabe beenden"><svg><use href="#i-x"/></svg></button>
+      <div class="p-queue" id="pQueue" hidden></div>
+      <div class="p-lyrics" id="pLyrics" hidden><div class="ly-head"><b>Songtext</b><small id="pLySrc"></small></div><div class="ly-body" id="pLyBody"></div></div>
+    </div>
+    <audio id="audio" preload="auto" crossorigin="anonymous"></audio>
+    <audio id="audio2" preload="auto" crossorigin="anonymous"></audio>
+
+    <!-- ============ Ausgabe-Leiste ============ -->
+    <footer class="outbar">
+      <div class="seg" id="fmtSeg">
+        <button data-fmt="MP3" class="active">MP3</button><button data-fmt="WAV">WAV</button><button data-fmt="FLAC">FLAC</button>
+      </div>
+      <select id="presetSel" title="Qualität"></select>
+      <select id="normSel" title="Lautstärke">
+        <option value="off">Lautstärke: unverändert</option>
+        <option value="peak">Normalisieren auf -1 dB</option>
+        <option value="loud">Lautheit angleichen (-14 LUFS)</option>
+      </select>
+      <div class="grow"></div>
+      <button class="folder-pill" id="btnOutPick" data-drop="folder:output_dir" title="Zielordner ändern (oder Ordner hierher ziehen)"><svg><use href="#i-folder"/></svg><span id="outPath">–</span></button>
+      <button class="ghost icon" id="btnOutOpen" title="Zielordner öffnen"><svg><use href="#i-play"/></svg></button>
+    </footer>
+  </main>
+</div>
+
+<datalist id="genres">
+  <option>Pop</option><option>Rock</option><option>Hip-Hop</option><option>Electronic</option><option>Dance</option>
+  <option>Klassik</option><option>Jazz</option><option>Schlager</option><option>Soundtrack</option><option>Kinderlieder</option>
+  <option>Hörspiel</option><option>Hörbuch</option><option>Metal</option><option>R&amp;B</option><option>Volksmusik</option>
+</datalist>
+
+<div class="ctx" id="ctx" hidden></div>
+<div class="modal-bg" id="dlg" hidden><div class="modal" id="dlgBox"></div></div>
+
+<div class="modal-bg" id="modal" hidden>
+  <div class="modal">
+    <header><h3><svg><use href="#i-wand"/></svg>Playlists erstellen</h3><button class="x" id="mClose"><svg><use href="#i-x"/></svg></button></header>
+    <div class="pl-modes" id="plModes">
+      <button data-m="artist" class="active"><b>Pro Interpret</b><small>eine Playlist je Künstler</small></button>
+      <button data-m="album"><b>Pro Album</b><small>in Titelreihenfolge</small></button>
+      <button data-m="genre"><b>Pro Genre</b><small>Pop, Rock, Schlager …</small></button>
+      <button data-m="decade"><b>Pro Jahrzehnt</b><small>80er, 90er, 2000er …</small></button>
+      <button data-m="recent"><b>Neu hinzugefügt</b><small>der letzten Tage</small></button>
+      <button data-m="random"><b>Zufallsmix</b><small>optional nach Genre/Interpret</small></button>
+      <button data-m="selection"><b>Aus Auswahl</b><small>markierte Titel</small></button>
+    </div>
+    <div class="pl-opts">
+      <label data-for="artist album genre decade">Mindestens Titel pro Playlist<input type="number" id="mMin" min="1" value="3"></label>
+      <label data-for="artist album genre decade">Namens-Präfix<input id="mPrefix" placeholder="optional, z. B. „Mix – “"></label>
+      <label data-for="recent">Zeitraum (Tage)<input type="number" id="mDays" min="1" value="30"></label>
+      <label data-for="random">Anzahl Titel<input type="number" id="mCount" min="1" value="50"></label>
+      <label data-for="random">Nur Genre<input id="mGenre" list="genres" placeholder="alle"></label>
+      <label data-for="random">Nur Interpret<input id="mArtist" placeholder="alle"></label>
+      <label data-for="recent random selection">Name<input id="mName" placeholder="automatisch"></label>
+    </div>
+    <p class="hint" id="mHint"></p>
+    <footer><div class="grow muted" id="mPreview"></div><button class="ghost" id="mCancel">Abbrechen</button><button class="primary" id="mGo">Erstellen</button></footer>
+  </div>
+</div>
+
+<div class="modal-bg" id="welcome" hidden>
+  <div class="modal welcome">
+    <div class="w-hero"><img src="logo.png" alt="SongGrabber"><div><h3>Willkommen bei SongGrabber</h3><p>In drei Schritten zu deiner Musik:</p></div></div>
+    <div class="w-steps">
+      <div><b>1</b><h4>Quelle wählen</h4><p>Link einfügen, CD lesen, Schallplatte aufnehmen oder Datei hinzufügen.</p></div>
+      <div><b>2</b><h4>Format wählen</h4><p>Unten links: MP3, WAV oder FLAC. Album, Genre und Cover kommen automatisch.</p></div>
+      <div><b>3</b><h4>Anhören</h4><p>Fertige Titel in der Warteschlange oder Bibliothek abspielen – und Playlists erstellen.</p></div>
+    </div>
+    <footer><div class="grow muted">Hilfe jederzeit mit <kbd>F1</kbd></div><button class="ghost" id="wHelp">Hilfe öffnen</button><button class="primary" id="wGo">Los geht's</button></footer>
+  </div>
+</div>
+
+    <div class="mini" id="mini">
+  <canvas id="miniViz"></canvas>
+  <div class="mi-cover" id="miCover"></div>
+  <div class="mi-meta"><b id="miTitle">–</b><span id="miArtist"></span><small id="miLyric"></small></div>
+  <div class="mi-ctrl">
+    <button id="miPrev" title="Zurück"><svg><use href="#i-prev"/></svg></button>
+    <button id="miPlay" class="play" title="Abspielen/Pause"><svg><use href="#i-play"/></svg></button>
+    <button id="miNext" title="Weiter"><svg><use href="#i-next"/></svg></button>
+  </div>
+  <button class="mi-back" id="miBack" title="Zurück zum großen Fenster (oder Doppelklick)"><svg><use href="#i-expand"/></svg></button>
+  <div class="mi-prog"><i id="miProg"></i></div>
+</div>
+<div class="toasts" id="toasts"></div>
+<script src="app.js"></script>
+</body>
+</html>
