@@ -363,6 +363,16 @@ class Api:
     def screen_status(self):
         return self._screen.status()
 
+    def screen_bar(self, on):
+        """Während der Bildschirmaufnahme: SongGrabber als schmale Leiste oben rechts (immer im Vordergrund).
+        Unter Windows ist die Leiste im Video unsichtbar. Rückgabe: hidden = in der Aufnahme ausgeblendet."""
+        hidden = False
+        if paths.IS_WIN:
+            from agcore import winwin
+            hidden = winwin.exclude_from_capture(bool(on)) and bool(on)
+        ok = self.mini(bool(on), W=440, H=130, top=True)
+        return {"ok": ok, "hidden": hidden}
+
     def screen_close(self, keep=True):
         """Fenster trotz laufender Bildschirmaufnahme schließen (keep=True: vorher speichern)."""
         if keep:
@@ -594,25 +604,24 @@ class Api:
         p = pipeline.write_m3u([x for x in paths_ if os.path.isfile(x)], name, folder=paths.playlist_dir())
         return os.path.splitext(os.path.basename(p))[0] if p else name
 
-    def mini(self, on, keep=False):
+    def mini(self, on, keep=False, W=460, H=150, top=False):
         """Mini-Player: kleines Fenster unten rechts, immer im Vordergrund – und wieder zurück.
         keep=True: Mini wurde durch Vergrößern von Hand verlassen → Größe lassen, nur Vordergrund aufheben."""
         try:
             if paths.IS_WIN:
                 from agcore import winwin
-                return winwin.forget() if (keep and not on) else winwin.mini(bool(on))
+                return winwin.forget() if (keep and not on) else winwin.mini(bool(on), W, H, top=top)
             w = self._window                    # Linux (GTK): Fensterbefehle sind hier sicher
             if not w:
                 return False
             if on:
                 if not getattr(self, "_normal", None):
                     self._normal = (w.width, w.height, w.x, w.y)
-                W, H = 460, 150
                 w.resize(W, H)
                 import webview
                 sc = (webview.screens or [None])[0]
                 if sc:
-                    w.move(sc.x + sc.width - W - 16, sc.y + sc.height - H - 56)
+                    w.move(sc.x + sc.width - W - 16, sc.y + 40 if top else sc.y + sc.height - H - 56)
                 w.on_top = True
             else:
                 w.on_top = False

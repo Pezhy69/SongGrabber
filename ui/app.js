@@ -492,12 +492,12 @@ async function monitorLoop() {
 /* ---------------------------------------------------------------- Bildschirm aufnehmen */
 const Scr = (() => {
   let data = null, kind = "screen", src = null, devs = null, st = { state: "idle" }, view = "setup";
-  let prevT = null, prevBusy = false, lvlT = null, pollT = null, discardArm = 0;
+  let prevT = null, prevBusy = false, lvlT = null, pollT = null, discardArm = 0, barOn = false;
   const active = () => $("#page-screen").classList.contains("active");
   const sep = () => (S.settings.output_dir || "").includes("\\") ? "\\" : "/";
   const db2w = v => Math.max(0, Math.min(100, ((v ?? -90) + 60) / 60 * 100));
   const opts = () => ({ source: src && src.id, sys_audio: $("#scrSys").checked, mic: $("#scrMic").checked, mic_device: $("#scrMicDev").value,
-    fps: +$("#scrFps").value, quality: $("#scrQ").value, cursor: $("#scrCursor").checked, mp3: $("#scrMp3").checked, kind });
+    fps: +$("#scrFps").value, quality: $("#scrQ").value, cursor: $("#scrCursor").checked, mp3: $("#scrMp3").checked, small: $("#scrSmall").checked, kind });
 
   function applyOpts() {
     const o = S.settings.screen_opts || {};
@@ -508,6 +508,7 @@ const Scr = (() => {
     if (o.quality) $("#scrQ").value = o.quality;
     if (o.cursor !== undefined) $("#scrCursor").checked = !!o.cursor;
     if (o.mp3 !== undefined) $("#scrMp3").checked = !!o.mp3;
+    if (o.small !== undefined) $("#scrSmall").checked = !!o.small;
   }
   async function remember() {
     const o = opts(); o.last = o.source; delete o.source;
@@ -640,7 +641,8 @@ const Scr = (() => {
       remember();
       st = await call("screen_start", opts());
       discardArm = 0; show("live"); renderLive(); startPoll();
-      toast("Aufnahme läuft – du kannst SongGrabber jetzt minimieren.", "ok");
+      if ($("#scrSmall").checked) bar(true);
+      else toast("Aufnahme läuft – du kannst SongGrabber jetzt minimieren.", "ok");
     });
   }
   function startPoll() { clearTimeout(pollT); tick(); }
@@ -649,8 +651,11 @@ const Scr = (() => {
     const on = ["recording", "paused"].includes(st.state);
     $("#navScrDot").classList.toggle("on", on || st.state === "finishing");
     if (on && view !== "live") show("live");
-    if (on) renderLive();
-    else if (st.state === "finishing" || st.state === "done" || st.state === "error") { if (view !== "done") show("done"); renderDone(); }
+    if (on) { renderLive(); renderBar(); }
+    else {
+      if (barOn) { bar(false); go("screen"); }
+      if (st.state === "finishing" || st.state === "done" || st.state === "error") { if (view !== "done") show("done"); renderDone(); }
+    }
     if (on || st.state === "finishing") pollT = setTimeout(tick, on ? 400 : 300);
     else if (st.state === "done") toastDone();
   }
@@ -682,6 +687,33 @@ const Scr = (() => {
     meter("#scrMSys", "sys", st.levels ? "sys" in lv || "sys_error" in lv || (o.sys_audio && !Object.keys(lv).length) : o.sys_audio);
     meter("#scrMMic", "mic", st.levels ? "mic" in lv || "mic_error" in lv || (o.mic && !Object.keys(lv).length) : o.mic);
   }
+  /* --- kleine Leiste während der Aufnahme */
+  async function bar(v) {
+    if (v === barOn) return;
+    barOn = v;
+    if (v && Mini.on()) await Mini.set(false);
+    document.body.classList.toggle("is-scrbar", v);
+    if (v) renderBar();
+    try {
+      const r = await call("screen_bar", v);
+      if (v) $("#sbNote").textContent = r && r.hidden ? "Diese Leiste ist im Video nicht zu sehen"
+        : (st.source && kind === "win" ? "Aufgenommen wird nur: " + st.source : "Hinweis: Diese Leiste ist im Video zu sehen");
+    } catch { }
+  }
+  function renderBar() {
+    if (!barOn) return;
+    const paused = st.state === "paused", lv = st.levels || {}, o = opts();
+    $("#scrBar").classList.toggle("paused", paused);
+    $("#sbTime").textContent = fmtClock(st.elapsed);
+    $("#sbState").textContent = paused ? "Pausiert – nichts wird aufgenommen" : "Aufnahme läuft" + (st.source ? " · " + st.source : "");
+    $("#sbPause").innerHTML = `<svg><use href="#${paused ? "i-play" : "i-pause"}"/></svg>`;
+    $("#sbPause").title = paused ? "Weiter aufnehmen" : "Pause";
+    [["#sbSys", "sys", o.sys_audio], ["#sbMic", "mic", o.mic]].forEach(([id, k, on]) => {
+      const el = $(id); el.classList.toggle("off", !on); el.style.height = Math.max(2, (paused ? 0 : db2w(lv[k])) * .26) + "px";
+      el.title = on ? (k === "sys" ? "Ton vom PC" : "Mikrofon") : (k === "sys" ? "Ton vom PC: aus" : "Mikrofon: aus");
+    });
+  }
+
   function renderDone() {
     const fin = st.state === "finishing", ok = st.state === "done" && st.result, err = st.state === "error";
     $("#scrFin").hidden = !fin; $("#scrRes").hidden = !ok; $("#scrErr").hidden = !err;
@@ -704,20 +736,26 @@ const Scr = (() => {
   ["#scrQ", "#scrFps", "#scrCursor", "#scrMp3"].forEach(s => $(s).onchange = remember);
   $("#scrGo").onclick = start;
   $("#scrHintOk").onclick = () => { $("#scrHint").hidden = true; save({ screen_hint_ok: true }); };
-  $("#scrPause").onclick = () => safe($("#scrPause"), async () => { st = await call(st.state === "paused" ? "screen_resume" : "screen_pause"); renderLive(); });
-  $("#scrStop").onclick = () => safe($("#scrStop"), async () => { st = await call("screen_stop"); show("done"); renderDone(); startPoll(); });
+  $("#scrPause").onclick = () => safe($("#scrPause"), async () => { st = await call(st.state === "paused" ? "screen_resume" : "screen_pause"); renderLive(); renderBar(); });
+  $("#sbPause").onclick = () => $("#scrPause").click();
+  $("#sbStop").onclick = () => $("#scrStop").click();
+  $("#scrToBar").onclick = () => bar(true);
+  $("#sbBig").onclick = () => { bar(false); go("screen"); };
+  $("#scrBar").addEventListener("dblclick", e => { if (!e.target.closest("button")) $("#sbBig").click(); });
+  $("#scrStop").onclick = () => safe($("#scrStop"), async () => { st = await call("screen_stop"); if (barOn) { await bar(false); go("screen"); } show("done"); renderDone(); startPoll(); });
   $("#scrDiscard").onclick = async () => {
     const b = $("#scrDiscard");
     if (Date.now() - discardArm > 3500) { discardArm = Date.now(); b.textContent = "Wirklich verwerfen? Nochmal klicken"; setTimeout(() => { if (Date.now() - discardArm >= 3400) b.textContent = "Verwerfen"; }, 3500); return; }
     discardArm = 0; b.textContent = "Verwerfen"; clearTimeout(pollT);
-    await call("screen_discard"); $("#navScrDot").classList.remove("on"); toast("Aufnahme verworfen."); st = { state: "idle" }; show("setup"); enter();
+    await call("screen_discard"); if (barOn) bar(false); $("#navScrDot").classList.remove("on"); toast("Aufnahme verworfen."); st = { state: "idle" }; show("setup"); enter();
   };
   $("#scrPlay").onclick = () => st.result && call("open_file", st.result.mp4);
   $("#scrShow").onclick = () => st.result && call("open_path", st.result.mp4);
   $("#scrNew").onclick = back; $("#scrErrNew").onclick = back;
   document.addEventListener("visibilitychange", () => { if (!document.hidden && active() && view === "setup") preview(true); });
 
-  function closeAsk() {
+  async function closeAsk() {
+    if (barOn) await bar(false);
     go("screen");
     dialog({ title: "Bildschirmaufnahme läuft noch", icon: "i-screen",
       body: `<p>Soll die Aufnahme vor dem Schließen gespeichert werden?</p>`,
@@ -871,7 +909,7 @@ $("#btnKeepLive").onclick = () => {
 
 /* ---------------------------------------------------------------- Neu in dieser Version (bei jeder Version ergänzen!) */
 const CHANGES = [
-  ["1.11.0", ["<b>Bildschirm aufnehmen</b>: Zoom, Teams, Webinar oder Live-Coaching als MP4-Video – ganzer Bildschirm oder nur ein Fenster, mit Vorschau", "Klar sichtbar, welcher Ton mit drauf ist: <b>Ton vom PC</b> und/oder <b>dein Mikrofon</b> – mit Pegelanzeige", "Pause, Verwerfen, auf Wunsch zusätzlich als MP3 – und beim Schließen geht keine laufende Aufnahme verloren"]],
+  ["1.11.0", ["<b>Bildschirm aufnehmen</b>: Zoom, Teams, Webinar oder Live-Coaching als MP4-Video – ganzer Bildschirm oder nur ein Fenster, mit Vorschau", "Klar sichtbar, welcher Ton mit drauf ist: <b>Ton vom PC</b> und/oder <b>dein Mikrofon</b> – mit Pegelanzeige", "<b>Kleine Aufnahme-Leiste</b> oben rechts mit Uhr, Pause und Stopp – unter Windows im Video unsichtbar", "Pause, Verwerfen, auf Wunsch zusätzlich als MP3 – und beim Schließen geht keine laufende Aufnahme verloren"]],
   ["1.10.0", ["<b>SongGrabber für Linux</b>: Ubuntu, Mint, Debian, Fedora, Arch, openSUSE – mit <code>install.sh</code>, Startmenü-Eintrag, Papierkorb, Audio-CDs, Systemsound und „Alles am PC“ über MPRIS", "Update-Hinweis verlinkt automatisch die passende Datei für Windows bzw. Linux"]],
   ["1.9.1", ["<b>Mini-Player</b> friert nicht mehr ein – Fenster wird zuverlässig klein, bleibt im Vordergrund und kommt genau so zurück", "Knöpfe oben im Player bleiben bei jeder Fenstergröße sichtbar"]],
   ["1.9.0", ["<b>Überblenden</b>: sanfte Übergänge zwischen Titeln (2–12 s) – Alben am Stück bleiben nahtlos", "<b>Lautstärke angleichen</b>: leise und laute Titel klingen gleich laut", "<b>Mini-Player</b>: mit einem Klick als kleine Leiste unten rechts, immer im Vordergrund – mit Songtext-Zeile und Lichtshow", "<b>Bibliothek aufräumen</b>: doppelte Titel, fehlende Cover/Angaben, leere Ordner", "<b>Update-Hinweis</b>: SongGrabber sagt Bescheid, wenn es eine neue Version gibt"]],
@@ -2130,7 +2168,7 @@ const Mini = (() => {
   }
   let busy = 0;
   window.addEventListener("resize", () => {             // sehr kleines Fenster → automatisch Mini-Ansicht
-    if (Date.now() < busy) return;                      // gerade selbst umgeschaltet
+    if (Date.now() < busy || document.body.classList.contains("is-scrbar")) return;   // gerade selbst umgeschaltet / Aufnahme-Leiste
     const tiny = innerWidth < 860 || innerHeight < 520;
     if (tiny && !on) show(true, true);
     else if (!tiny && on) {                              // von Hand vergrößert/maximiert → Mini verlassen
@@ -3033,7 +3071,7 @@ const Mock = (() => {
     screen_resume: () => { scr.t = performance.now(); scr.state = "recording"; return Mock.screen_status(); },
     screen_stop: () => { if (scr.state === "recording") scr.acc += (performance.now() - scr.t) / 1000; scr.state = "finishing"; scr.f = performance.now(); return Mock.screen_status(); },
     screen_discard: () => { scr = { state: "idle" }; return { state: "idle" }; },
-    screen_close: () => true, open_file: () => true,
+    screen_close: () => true, open_file: () => true, screen_bar: () => ({ ok: true, hidden: true }),
     screen_status: () => {
       if (scr.state === "finishing" && performance.now() - scr.f > 2600) scr.state = "done";
       const el = scr.acc + (scr.state === "recording" ? (performance.now() - scr.t) / 1000 : 0) + (scr.fake || 0), t = performance.now() / 1000, o = scr.o || {}, lv = {};

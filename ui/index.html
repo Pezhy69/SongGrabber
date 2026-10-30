@@ -412,6 +412,7 @@
               </select></label>
             </div>
             <label class="switch"><input type="checkbox" id="scrCursor" checked><i></i><span>Mauszeiger zeigen</span><small>hilfreich bei Anleitungen</small></label>
+            <label class="switch"><input type="checkbox" id="scrSmall" checked><i></i><span>Während der Aufnahme nur eine kleine Leiste zeigen</span><small>oben rechts, mit Uhr, Pause und Stopp – so ist SongGrabber nicht im Weg</small></label>
             <label class="switch"><input type="checkbox" id="scrMp3"><i></i><span>Zusätzlich nur den Ton als MP3</span><small>zum Nachhören unterwegs</small></label>
           </div>
         </div>
@@ -439,7 +440,7 @@
           <button class="round ghost" id="scrPause" title="Pause"><svg><use href="#i-pause"/></svg></button>
           <button class="round stop" id="scrStop" title="Stopp &amp; speichern"><svg><use href="#i-stop"/></svg></button>
         </div>
-        <div class="scr-live-sub"><span id="scrLiveTip">Du kannst SongGrabber jetzt minimieren – die Aufnahme läuft weiter.</span><button class="link" id="scrDiscard">Verwerfen</button></div>
+        <div class="scr-live-sub"><button class="ghost sm" id="scrToBar"><svg><use href="#i-mini"/></svg>Als kleine Leiste</button><span id="scrLiveTip" class="grow">oder SongGrabber minimieren – die Aufnahme läuft weiter.</span><button class="link" id="scrDiscard">Verwerfen</button></div>
       </div>
 
       <!-- Fertigstellen / Ergebnis -->
@@ -842,7 +843,7 @@
 <li><b>Welcher Ton soll mit drauf?</b> <em>Ton vom PC</em> = was die anderen sagen, Videos, Musik. <em>Mein Mikrofon</em> = was du sagst. Bei jedem steht klar <b>„wird aufgenommen“</b> oder <b>„wird nicht aufgenommen“</b>, der Balken zeigt, ob Ton ankommt. Ohne Mikrofon hört man in der Aufnahme nur die anderen.</li>
 <li><b>Qualität</b>: <em>Normal</em> und 30 Bilder/s passen fast immer; für lange Meetings spart <em>Platz sparen</em> mit 15 Bilder/s viel Speicher. <em>Zusätzlich nur den Ton als MP3</em> legt eine Hördatei daneben.</li></ol>
 <ul><li>Unter <b>So wird aufgenommen</b> steht vor dem Start noch einmal in Klartext, was ins Video kommt.</li>
-<li>Während der Aufnahme: <b>Pause</b> (die Pause fehlt später im Video), <b>Stopp</b> speichert, <b>Verwerfen</b> löscht alles. SongGrabber darf minimiert sein; der rote Punkt in der Seitenleiste zeigt, dass aufgenommen wird. Beim Schließen fragt SongGrabber, ob gespeichert werden soll.</li>
+<li>Während der Aufnahme: <b>Pause</b> (die Pause fehlt später im Video), <b>Stopp</b> speichert, <b>Verwerfen</b> löscht alles. Ist <em>Während der Aufnahme nur eine kleine Leiste zeigen</em> an (Standard), wird SongGrabber nach dem Start zu einer schmalen Leiste oben rechts mit Uhr, Pegel, Pause und Stopp – praktisch auf dem Laptop mit nur einem Bildschirm. Unter Windows 10/11 ist diese Leiste <b>im Video nicht zu sehen</b>. Der Pfeil-Knopf holt das große Fenster zurück. SongGrabber darf auch ganz minimiert sein; der rote Punkt in der Seitenleiste zeigt, dass aufgenommen wird. Beim Schließen fragt SongGrabber, ob gespeichert werden soll.</li>
 <li><b>Einverständnis</b>: Bitte nur aufnehmen, wenn alle Beteiligten einverstanden sind – am besten zu Beginn kurz fragen.</li>
 <li><b>Linux</b>: funktioniert in einer Xorg-Sitzung (beim Anmelden „… auf Xorg“ wählen). Unter Wayland erlaubt Linux Fremdprogrammen keine Bildschirmaufnahme.</li></ul></article>
 
@@ -1089,6 +1090,15 @@
   </div>
 </div>
 
+    <div class="scrbar" id="scrBar">
+      <i class="led on" id="sbLed"></i>
+      <div class="sb-meta"><b id="sbTime">00:00:00</b><span id="sbState">Aufnahme läuft</span></div>
+      <div class="sb-lv" title="Pegel: Ton vom PC / Mikrofon"><i id="sbSys"></i><i id="sbMic"></i></div>
+      <button class="sb-btn" id="sbPause" title="Pause"><svg><use href="#i-pause"/></svg></button>
+      <button class="sb-btn stop" id="sbStop" title="Stopp &amp; speichern"><svg><use href="#i-stop"/></svg></button>
+      <button class="sb-btn" id="sbBig" title="Großes Fenster"><svg><use href="#i-expand"/></svg></button>
+      <small class="sb-note" id="sbNote">Diese Leiste ist im Video nicht zu sehen</small>
+    </div>
     <div class="mini" id="mini">
   <canvas id="miniViz"></canvas>
   <div class="mi-cover" id="miCover"></div>

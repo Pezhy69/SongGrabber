@@ -6,6 +6,7 @@
 ### Neu
 - **Bildschirm aufnehmen**: Zoom, Teams, Webinar oder Live-Coaching als MP4-Video – ganzer Bildschirm oder nur ein Fenster, mit Vorschau
 - Klar sichtbar, welcher Ton mit drauf ist: **Ton vom PC** und/oder **dein Mikrofon** – jeweils mit Pegelanzeige
+- **Kleine Aufnahme-Leiste** oben rechts mit Uhr, Pause und Stopp – unter Windows im Video unsichtbar, ideal für Laptops mit einem Bildschirm
 - Pause, Verwerfen, auf Wunsch zusätzlich als MP3 – beim Schließen geht keine laufende Aufnahme verloren
 
 Windows zeigt beim ersten Start evtl. „Der Computer wurde durch Windows geschützt“ → *Weitere Informationen* → *Trotzdem ausführen*.

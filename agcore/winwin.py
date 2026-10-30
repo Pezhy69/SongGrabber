@@ -76,8 +76,8 @@ def _dpi(h):
         return 96
 
 
-def mini(on, width=460, height=150, margin=16):
-    """Hauptfenster als kleine Leiste unten rechts (immer im Vordergrund) bzw. zurück."""
+def mini(on, width=460, height=150, margin=16, top=False):
+    """Hauptfenster als kleine Leiste unten rechts (top=True: oben rechts), immer im Vordergrund – bzw. zurück."""
     global _saved
     u, _ = _api()
     h = main_window()
@@ -100,7 +100,7 @@ def mini(on, width=460, height=150, margin=16):
         u.GetMonitorInfoW(mon, ctypes.byref(mi))
         wa = mi.rcWork
         x = wa.right - w - int(margin * k)
-        y = wa.bottom - ht - int(margin * k)
+        y = wa.top + int(margin * k) if top else wa.bottom - ht - int(margin * k)
         u.SetWindowPos(h, TOPMOST, x, y, w, ht, SWP_SHOWWINDOW)
     else:
         u.SetWindowPos(h, NOTOPMOST, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE | SWP_SHOWWINDOW)
@@ -123,3 +123,17 @@ def forget():
     except Exception:
         pass
     return True
+
+
+def exclude_from_capture(on):
+    """Fenster in Bildschirmaufnahmen unsichtbar machen (Windows 10 2004+), wie es Teams/Zoom mit ihren
+    Steuerleisten machen. Auf dem Bildschirm bleibt es ganz normal sichtbar."""
+    try:
+        h = main_window()
+        if not h:
+            return False
+        u = ctypes.windll.user32
+        u.SetWindowDisplayAffinity.argtypes = [ctypes.c_void_p, ctypes.c_uint]
+        return bool(u.SetWindowDisplayAffinity(h, 0x11 if on else 0))   # WDA_EXCLUDEFROMCAPTURE / WDA_NONE
+    except Exception:
+        return False
