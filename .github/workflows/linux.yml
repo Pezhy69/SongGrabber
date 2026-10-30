@@ -1,0 +1,61 @@
+name: Linux-Paket
+
+# Läuft automatisch, sobald ein Release veröffentlicht wird (z. B. v1.10.0 mit der Windows-Setup-Datei):
+# baut das Linux-Paket, installiert es zur Probe, wandelt eine Testdatei um und hängt es ans Release.
+# Von Hand starten: Reiter „Actions“ → „Linux-Paket“ → „Run workflow“ (Ergebnis dann unter „Artifacts“).
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  linux:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Version prüfen
+        id: v
+        run: |
+          VER=$(python3 -c "import re;print(re.search(r'VERSION = \"(.+?)\"', open('agcore/paths.py').read()).group(1))")
+          echo "version=$VER" >> "$GITHUB_OUTPUT"
+          TAG="${{ github.event.release.tag_name }}"
+          if [ -n "$TAG" ] && [ "${TAG#v}" != "$VER" ]; then
+            echo "::warning::Release-Tag $TAG passt nicht zur Programmversion $VER"
+          fi
+
+      - name: Paket bauen
+        run: bash packaging/linux/build.sh
+
+      - name: Probe-Installation auf frischem Ubuntu
+        run: |
+          mkdir -p "$RUNNER_TEMP/probe" && cd "$RUNNER_TEMP/probe"
+          tar xzf "$GITHUB_WORKSPACE/dist/SongGrabber-${{ steps.v.outputs.version }}-linux.tar.gz"
+          cd "SongGrabber-${{ steps.v.outputs.version }}-linux"
+          ./install.sh --yes
+
+      - name: Probe – Umwandeln ohne Fenster, Bibliotheken, Oberfläche
+        run: |
+          ffmpeg -y -loglevel error -f lavfi -i "sine=f=440:d=6" -metadata artist="Testband" -metadata title="Probe" "$RUNNER_TEMP/probe.wav"
+          "$HOME/.local/bin/songgrabber" --headless --preset mp3_320 --out "$RUNNER_TEMP/out" --report "$RUNNER_TEMP/r.json" "$RUNNER_TEMP/probe.wav"
+          test -f "$RUNNER_TEMP/out/Testband/Singles/Probe.mp3"
+          APP="$HOME/.local/share/SongGrabber"
+          "$APP/venv/bin/python" -c "import webview, mutagen, numpy, jeepney, send2trash; import gi; gi.require_version('Gtk','3.0'); gi.require_version('WebKit2','4.1'); from gi.repository import Gtk, WebKit2; print('Fenster-Bibliotheken ok')"
+          "$APP/venv/bin/yt-dlp" --version
+          test -f "$HOME/.local/share/applications/songgrabber.desktop"
+
+      - name: An das Release hängen
+        if: github.event_name == 'release'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release upload "${{ github.event.release.tag_name }}" dist/SongGrabber-*-linux.tar.gz --clobber
+
+      - name: Als Download ablegen (bei Handstart)
+        if: github.event_name != 'release'
+        uses: actions/upload-artifact@v4
+        with:
+          name: SongGrabber-${{ steps.v.outputs.version }}-linux
+          path: dist/SongGrabber-*-linux.tar.gz

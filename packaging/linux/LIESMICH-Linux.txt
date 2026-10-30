@@ -1,0 +1,24 @@
+SongGrabber für Linux
+=====================
+
+Installieren (Ubuntu, Linux Mint, Debian, Fedora, Arch/Manjaro, openSUSE):
+
+  1. Dieses Paket entpacken (Rechtsklick → „Hier entpacken“).
+  2. Im entpackten Ordner ein Terminal öffnen (Rechtsklick → „Im Terminal öffnen“).
+  3. Eingeben:   ./install.sh
+     Für die nötigen Systempakete (Python, WebKit, ffmpeg) fragt es einmal nach deinem Passwort.
+
+Danach steht SongGrabber im Startmenü. Im Terminal startet es mit:  songgrabber
+
+Update: neues Paket herunterladen und wieder ./install.sh ausführen –
+Einstellungen, Bibliothek und Musik bleiben erhalten.
+
+Entfernen:  ~/.local/share/SongGrabber/uninstall.sh
+
+Gut zu wissen
+- Einstellungen liegen in ~/.config/SongGrabber, die Musik standardmäßig in ~/Musik/SongGrabber.
+- Audio-CDs: Dein Benutzer muss in der Gruppe „cdrom“ (Ubuntu/Debian) bzw. „optical“ (Arch) sein:
+    sudo usermod -aG cdrom $USER    (danach ab- und wieder anmelden)
+- „Systemsound“ und „Alles am PC“ nutzen PulseAudio bzw. PipeWire (bei allen aktuellen Desktops dabei).
+  Titel und Steuerung kommen von Spotify, Firefox, Chrome, VLC & Co. über MPRIS.
+- Fehlerprotokoll: ~/.config/SongGrabber/songgrabber.log

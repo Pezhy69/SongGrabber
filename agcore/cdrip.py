@@ -1,4 +1,4 @@
-"""Audio-CD: Inhaltsverzeichnis lesen, Disc-ID berechnen, Tracks digital auslesen (Windows)."""
+"""Audio-CD: Inhaltsverzeichnis lesen, Disc-ID berechnen, Tracks digital auslesen (Windows und Linux)."""
 import base64
 import ctypes
 import hashlib
@@ -94,9 +94,94 @@ class Drive:
         return self.ioctl(IOCTL_STORAGE_EJECT_MEDIA)[0]
 
 
+# ---------------------------------------------------------------- Linux (/dev/sr0, Kernel-Befehle aus cdrom.h)
+CDROMREADTOCHDR, CDROMREADTOCENTRY, CDROMREADAUDIO, CDROMEJECT = 0x5305, 0x5306, 0x530E, 0x5309
+CDROM_LBA, CDROM_LEADOUT = 0x01, 0xAA
+
+
+class _TocHdr(ctypes.Structure):
+    _fields_ = [("trk0", ctypes.c_ubyte), ("trk1", ctypes.c_ubyte)]
+
+
+class _TocEntry(ctypes.Structure):
+    _fields_ = [("track", ctypes.c_ubyte), ("adr_ctrl", ctypes.c_ubyte), ("format", ctypes.c_ubyte),
+                ("lba", ctypes.c_int), ("datamode", ctypes.c_ubyte)]
+
+
+class _ReadAudio(ctypes.Structure):
+    _fields_ = [("lba", ctypes.c_int), ("addr_format", ctypes.c_ubyte), ("nframes", ctypes.c_int),
+                ("buf", ctypes.c_void_p)]
+
+
+class LinuxDrive:
+    def __init__(self, dev):
+        self.dev = dev
+        try:
+            self.fd = os.open(dev, os.O_RDONLY | os.O_NONBLOCK)
+        except OSError as e:
+            raise RuntimeError(f"Laufwerk {dev} kann nicht geöffnet werden ({e.strerror}). "
+                               "Ist dein Benutzer in der Gruppe „cdrom“ bzw. „optical“?")
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, *a):
+        os.close(self.fd)
+
+    def _ioctl(self, req, arg):
+        import fcntl
+        return fcntl.ioctl(self.fd, req, arg, True)
+
+    def toc(self):
+        h = _TocHdr()
+        try:
+            self._ioctl(CDROMREADTOCHDR, h)
+        except OSError:
+            raise RuntimeError("Keine Audio-CD gefunden – bitte CD einlegen.")
+        entries = []
+        for n in list(range(h.trk0, h.trk1 + 1)) + [CDROM_LEADOUT]:
+            e = _TocEntry(track=n, format=CDROM_LBA)
+            self._ioctl(CDROMREADTOCENTRY, e)
+            entries.append({"number": n if n != CDROM_LEADOUT else h.trk1 + 1, "lba": e.lba,
+                            "data": bool((e.adr_ctrl >> 4) & 0x04)})
+        return entries
+
+    def read(self, lba, count):
+        buf = ctypes.create_string_buffer(count * SECTOR)
+        ra = _ReadAudio(lba=lba, addr_format=CDROM_LBA, nframes=count, buf=ctypes.cast(buf, ctypes.c_void_p))
+        try:
+            self._ioctl(CDROMREADAUDIO, ra)
+        except OSError:
+            return None
+        return buf.raw
+
+    def eject(self):
+        try:
+            self._ioctl(CDROMEJECT, 0)
+            return True
+        except Exception:
+            return False
+
+
+def _linux_drives():
+    out = []
+    for n in sorted(os.listdir("/sys/block")) if os.path.isdir("/sys/block") else []:
+        if not n.startswith("sr"):
+            continue
+        model = ""
+        for f in ("vendor", "model"):
+            try:
+                with open(f"/sys/block/{n}/device/{f}") as fh:
+                    model += fh.read().strip() + " "
+            except OSError:
+                pass
+        out.append({"letter": f"/dev/{n}", "label": model.strip()})
+    return out
+
+
 def drives():
     if not paths.IS_WIN:
-        return []
+        return _linux_drives()
     k = ctypes.WinDLL("kernel32")
     mask = k.GetLogicalDrives()
     out = []
@@ -146,7 +231,9 @@ def disc_id(first, last, leadout, offsets):
 def open_source(source):
     """Laufwerksbuchstabe → echtes Laufwerk, Pfad zu .cue → CD-Abbild."""
     from . import cdimage
-    return cdimage.ImageReader(source) if cdimage.is_image(source) else Drive(source)
+    if cdimage.is_image(source):
+        return cdimage.ImageReader(source)
+    return Drive(source) if paths.IS_WIN else LinuxDrive(source)
 
 
 def read_disc(letter, lookup=True):

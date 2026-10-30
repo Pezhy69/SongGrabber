@@ -14,6 +14,7 @@ read = lambda p: open(os.path.join(ROOT, p), encoding="utf-8-sig").read()  # noq
 
 # Funktionen, die in der Hilfe beschrieben sein müssen (Begriff, wie er in der Hilfe steht)
 FEATURES = [
+    "install.sh", "MPRIS",
     "Überblenden", "Lautstärke angleichen", "Mini-Player", "Aufräumen", "Doppelte Titel", "Leere Ordner", "Nach Updates suchen",
     "Speicherort beim Installieren",
     "Tesla", "Grundton",

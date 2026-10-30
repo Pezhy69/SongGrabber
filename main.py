@@ -102,14 +102,16 @@ class Api:
         paths.save_settings({"update_last": time.time()})
         ver = str(d.get("tag_name") or d.get("version") or "").lstrip("vV ").strip()
         url = d.get("url") if "tag_name" not in d else d.get("html_url")
-        for a in d.get("assets") or []:                      # GitHub: direkt das Setup verlinken
-            if str(a.get("name", "")).lower().endswith(".exe"):
+        want = ".exe" if paths.IS_WIN else "-linux.tar.gz"   # GitHub: direkt die passende Datei verlinken
+        for a in d.get("assets") or []:
+            if str(a.get("name", "")).lower().endswith(want):
                 url = a.get("browser_download_url") or url
                 break
 
         def vt(v):
             return tuple(int(x) for x in re.findall(r"\d+", v)[:4])
         return {"enabled": True, "newer": bool(ver) and vt(ver) > vt(paths.VERSION), "version": ver, "url": url or "",
+                "platform": "windows" if paths.IS_WIN else "linux",
                 "notes": str(d.get("body") or d.get("notes") or "")[:2000], "current": paths.VERSION}
 
     def save_settings(self, s):
@@ -145,11 +147,15 @@ class Api:
                 paths.popen(["explorer", "/select,", os.path.normpath(p)])
             else:
                 os.startfile(p)
+        elif os.path.exists(p):
+            from agcore import osint
+            osint.open_path(p, reveal=os.path.isfile(p))
         return True
 
     def get_clipboard(self):
         if not paths.IS_WIN:
-            return ""
+            from agcore import osint
+            return osint.clipboard_get()
         u = ctypes.windll.user32
         k = ctypes.windll.kernel32
         k.GlobalLock.restype = ctypes.c_void_p
@@ -221,7 +227,7 @@ class Api:
         done, errors = library.delete_files(paths_)
         for p in done:
             self._lib.remove(p)
-        return {"deleted": len(done), "errors": errors, "recycle": paths.IS_WIN}
+        return {"deleted": len(done), "errors": errors, "recycle": True}
 
     def lib_reorganize(self, apply=False):
         r = library.reorganize(bool(apply))
@@ -546,9 +552,26 @@ class Api:
             if paths.IS_WIN:
                 from agcore import winwin
                 return winwin.forget() if (keep and not on) else winwin.mini(bool(on))
-            w = self._window
-            if w:
-                w.on_top = bool(on)
+            w = self._window                    # Linux (GTK): Fensterbefehle sind hier sicher
+            if not w:
+                return False
+            if on:
+                if not getattr(self, "_normal", None):
+                    self._normal = (w.width, w.height, w.x, w.y)
+                W, H = 460, 150
+                w.resize(W, H)
+                import webview
+                sc = (webview.screens or [None])[0]
+                if sc:
+                    w.move(sc.x + sc.width - W - 16, sc.y + sc.height - H - 56)
+                w.on_top = True
+            else:
+                w.on_top = False
+                n = getattr(self, "_normal", None)
+                if n and not keep:
+                    w.resize(n[0], n[1])
+                    w.move(n[2], n[3])
+                self._normal = None
             return True
         except Exception as e:
             paths.log.warning("Mini-Player: %s", e)
@@ -586,7 +609,8 @@ class Api:
 
     def set_clipboard(self, text):
         if not paths.IS_WIN:
-            return False
+            from agcore import osint
+            return osint.clipboard_set(text)
         import subprocess
         p = paths.popen(["clip"], stdin=subprocess.PIPE)
         p.communicate(b"\xff\xfe" + text.encode("utf-16-le"))
@@ -792,6 +816,9 @@ class Api:
             if os.path.exists(p):
                 if paths.IS_WIN:
                     os.startfile(p)
+                else:
+                    from agcore import osint
+                    osint.open_path(p)
                 return True
         return False
 
@@ -940,7 +967,8 @@ def run_headless(args):
 def _single_instance():
     """Gibt das Mutex-Handle zurück oder None, wenn SongGrabber schon startet/läuft."""
     if not paths.IS_WIN:
-        return True
+        from agcore import osint
+        return True if osint.single_instance() else None
     k = ctypes.windll.kernel32
     k.CreateMutexW.restype = ctypes.c_void_p
     h = k.CreateMutexW(None, False, "SongGrabber_by_Pezhy")

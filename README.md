@@ -3,13 +3,20 @@
 > Früher „AudioGrabber“. Beim ersten Start werden Einstellungen, Bibliothek und Abos aus `%APPDATA%\AudioGrabber` übernommen; das Setup entfernt eine alte AudioGrabber-Installation automatisch.
 
 ## ⬇ Download
-**[Neueste Version herunterladen](https://github.com/Pezhy69/SongGrabber/releases/latest)** → `SongGrabber-Setup-<Version>.exe` starten. Kostenlos, ohne Werbung, ohne Konto.
+**[Neueste Version herunterladen](https://github.com/Pezhy69/SongGrabber/releases/latest)** – kostenlos, ohne Werbung, ohne Konto.
+- **Windows 10/11:** `SongGrabber-Setup-<Version>.exe` starten.
+- **Linux** (Ubuntu, Mint, Debian, Fedora, Arch, openSUSE): `SongGrabber-<Version>-linux.tar.gz` entpacken, im Ordner `./install.sh` ausführen. Danach steht SongGrabber im Startmenü.
 
 Audio von **Audio-CD, Links/Streams, Schallplatte/Kassette/Systemsound und Dateien/DVD** als
 **MP3 (LAME), WAV oder FLAC** – mit ID3-Tags, Cover und schöner Oberfläche. Läuft komplett autark
 als portabler Ordner (nichts installieren) und lässt sich mit dem **Multi Video Downloader** koppeln.
 
-## Installieren wie ein normales Programm
+## Linux
+`install.sh` installiert die Systempakete (Python 3, PyGObject, WebKit2GTK 4.1, ffmpeg, GStreamer-Plugins, Chromaprint) über apt/dnf/pacman/zypper, legt SongGrabber in `~/.local/share/SongGrabber` mit eigener Python-Umgebung an (pywebview, mutagen, soundcard, numpy, yt-dlp, jeepney, send2trash) und erzeugt Startmenü-Eintrag und Befehl `songgrabber`.
+Einstellungen: `~/.config/SongGrabber`. Systemsound/„Alles am PC“ über PulseAudio/PipeWire und MPRIS, Audio-CDs über `/dev/sr*` (Gruppe `cdrom`).
+**Automatik:** `.github/workflows/linux.yml` baut bei jedem veröffentlichten Release das Paket (`packaging/linux/build.sh`), installiert es zur Probe auf frischem Ubuntu, wandelt eine Testdatei um und hängt `SongGrabber-<Version>-linux.tar.gz` ans Release.
+
+## Installieren wie ein normales Programm (Windows)
 `build.bat` erzeugt zusätzlich **`Setup\SongGrabber-Setup-<Version>.exe`** (Inno Setup wird bei Bedarf
 automatisch über winget installiert). Das Setup bietet:
 - Installation „nur für mich“ (ohne Admin-Rechte) oder „für alle Benutzer“ (C:\Programme)

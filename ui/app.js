@@ -230,7 +230,7 @@ $("#btnStreamStop").onclick = () => call("stream_stop");
 async function loadDrives() {
   await safe($("#btnCdDrives"), async () => {
     const d = await call("cd_drives");
-    $("#cdDrive").innerHTML = d.length ? d.map(x => `<option value="${x.letter}">Laufwerk ${x.letter}:${x.label ? " · " + esc(x.label) : ""}</option>`).join("") : `<option value="">Kein CD/DVD-Laufwerk gefunden</option>`;
+    $("#cdDrive").innerHTML = d.length ? d.map(x => `<option value="${esc(x.letter)}">${x.letter.startsWith("/") ? `${esc(x.label || "CD/DVD-Laufwerk")} (${esc(x.letter)})` : `Laufwerk ${x.letter}:${x.label ? " · " + esc(x.label) : ""}`}</option>`).join("") : `<option value="">Kein CD/DVD-Laufwerk gefunden</option>`;
   });
 }
 $("#btnCdDrives").onclick = loadDrives;
@@ -628,6 +628,7 @@ $("#btnKeepLive").onclick = () => {
 
 /* ---------------------------------------------------------------- Neu in dieser Version (bei jeder Version ergänzen!) */
 const CHANGES = [
+  ["1.10.0", ["<b>SongGrabber für Linux</b>: Ubuntu, Mint, Debian, Fedora, Arch, openSUSE – mit <code>install.sh</code>, Startmenü-Eintrag, Papierkorb, Audio-CDs, Systemsound und „Alles am PC“ über MPRIS", "Update-Hinweis verlinkt automatisch die passende Datei für Windows bzw. Linux"]],
   ["1.9.1", ["<b>Mini-Player</b> friert nicht mehr ein – Fenster wird zuverlässig klein, bleibt im Vordergrund und kommt genau so zurück", "Knöpfe oben im Player bleiben bei jeder Fenstergröße sichtbar"]],
   ["1.9.0", ["<b>Überblenden</b>: sanfte Übergänge zwischen Titeln (2–12 s) – Alben am Stück bleiben nahtlos", "<b>Lautstärke angleichen</b>: leise und laute Titel klingen gleich laut", "<b>Mini-Player</b>: mit einem Klick als kleine Leiste unten rechts, immer im Vordergrund – mit Songtext-Zeile und Lichtshow", "<b>Bibliothek aufräumen</b>: doppelte Titel, fehlende Cover/Angaben, leere Ordner", "<b>Update-Hinweis</b>: SongGrabber sagt Bescheid, wenn es eine neue Version gibt"]],
   ["1.8.2", ["Netzlaufwerk/NAS als Musik-Ordner: Setup bietet die Netzwerkadresse an, klare Meldung wenn das NAS aus ist", "<b>Setup fragt nach dem Musik-Ordner</b> – z. B. D:\\Musik für dein Archiv, Standard mit einem Klick", "<b>Neue Lichtshow „Tesla“</b>: Tesla-Spule mit Blitzen im Takt", "<b>Welle</b> neu: vier Wellen für Bass, Mitten und Höhen, automatisch ausgesteuert – kein Zittern mehr", "<b>Grundton</b>-Regler: alle Farben auf einmal ändern, alles bleibt abgestimmt", "<b>Eigene Farben</b> für die Lichtshow: Knopf „Farben“ neben den Farbpunkten – mit Vorlagen und „Zufällig“", "Radio-Songtext: Reiter „Songtext“ sucht jetzt immer nach dem gesendeten Lied, nicht nach dem Sender", "<b>Radio: Titel wechseln jetzt zuverlässig</b> – bisher blieb oft der erste Titel stehen", "<b>Radio-Songtexte viel öfter gefunden</b>: versteht jetzt „»Titel« von Interpret“, „Titel - Interpret“, „Interpret mit »Titel«“ u. a. und sucht notfalls im Freitext", "Livesender in der Leiste unten: sauberer LIVE-Hinweis mit laufendem Titel statt Zeitleiste", "<b>Drag &amp; Drop überall, wo es Sinn macht</b>: Dateien, Ordner, DVD-Ordner, .cue-Abbilder, Playlists, Links, Cover-Bilder und Ordner für die Einstellungen einfach hereinziehen", "<b>Cover &amp; Titel klein oben links</b> wie ein Senderlogo – Klick darauf (oder Taste I) zeigt sie wieder groß in der Mitte", "<b>Songtext bei „Alles am PC“</b>: zu Spotify, YouTube im Browser &amp; Co. erscheint der passende Text – mitlaufend, wenn die App ihre Position meldet", "<b>Radio-Songtext läuft mit</b> ab dem Liedwechsel", "Zeile anklicken, die gerade gesungen wird, oder −0,5 s / +0,5 s – so passt der Text immer"]],
@@ -1848,7 +1849,7 @@ async function checkUpdate(manual) {
   if (!manual && S.settings.update_skip === r.version) return;
   const notes = esc(r.notes || "").replace(/^#+\s*/gm, "").replace(/\*\*(.+?)\*\*/g, "<b>$1</b>").replace(/\n/g, "<br>");
   dialog({ title: `Neue Version ${r.version} verfügbar`, icon: "i-down",
-    body: `<p>Du hast <b>${esc(r.current)}</b>. Die neue Version <b>${esc(r.version)}</b> kannst du einfach über die alte installieren – Einstellungen, Bibliothek und Musik bleiben erhalten.</p>${notes ? `<div class="upd-notes">${notes}</div>` : ""}`,
+    body: `<p>Du hast <b>${esc(r.current)}</b>. Die neue Version <b>${esc(r.version)}</b> kannst du einfach über die alte installieren${r.platform === "linux" ? " (Paket entpacken und <code>./install.sh</code> starten)" : ""} – Einstellungen, Bibliothek und Musik bleiben erhalten.</p>${notes ? `<div class="upd-notes">${notes}</div>` : ""}`,
     buttons: [{ label: "Diese Version überspringen", fn: () => { closeDialog(); call("save_settings", { update_skip: r.version }); S.settings.update_skip = r.version; } },
               { label: "Später" },
               { label: "Herunterladen", cls: "primary", fn: () => { closeDialog(); call("open_url", r.url); } }] });
@@ -2391,7 +2392,7 @@ $("#btnAboAdd").onclick = e => safe(e.currentTarget, async () => {
 $("#aboUrl").addEventListener("keydown", e => { if (e.key === "Enter") $("#btnAboAdd").click(); });
 $("#btnAboAll").onclick = e => safe(e.currentTarget, async () => { const n = await call("abos_check", null); toast(n ? `${n} neue Titel gefunden` : "Keine neuen Titel", n ? "ok" : ""); loadAbos(); });
 $("#aboHours").onchange = e => save({ abo_hours: +e.target.value });
-$("#aboAutostart").onchange = e => call("autostart_set", e.target.checked).then(v => toast(v ? "Startet ab jetzt mit Windows (minimiert)" : "Autostart aus", "ok"));
+$("#aboAutostart").onchange = e => call("autostart_set", e.target.checked).then(v => toast(v ? "Startet ab jetzt mit dem Computer (minimiert)" : "Autostart aus", "ok"));
 
 /* ---------------------------------------------------------------- Songtext (Mini-Player + Player-Seite) */
 const LY = { lines: [], synced: false, path: "", idx: -1, clock: null, ckind: "audio", offset: 0, state: "" };
@@ -2735,7 +2736,6 @@ async function boot() {
   fillPresets(presetFmt(S.settings.preset), S.settings.preset);
   $("#aboutVer").textContent = "Version " + i.version;
   renderSettings(); poll();
-  if (!i.windows) $("#cdDrive").innerHTML = `<option value="">CD nur unter Windows</option>`;
   $("#urlInput").focus();
   const seen = S.settings.seen_version;
   if (!S.settings.welcome_done) $("#welcome").hidden = false;

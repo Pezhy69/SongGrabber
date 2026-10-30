@@ -2,6 +2,7 @@
 import glob
 import json
 import os
+import sys
 import re
 import shutil
 import subprocess
@@ -412,6 +413,13 @@ class StreamRecorder:
 def update_ytdlp():
     """Unter C:\\Programme fehlt das Schreibrecht – dann wird eine Kopie im Benutzerordner aktualisiert."""
     exe = _ytdlp()
+    venv_bin = os.path.dirname(sys.executable)
+    if not paths.IS_WIN and exe and os.path.dirname(os.path.abspath(exe)) == venv_bin:   # Linux: per pip installiert
+        r = paths.run([sys.executable, "-m", "pip", "install", "-U", "--quiet", "yt-dlp"], timeout=300)
+        if r.returncode != 0:
+            return (r.stderr.decode("utf-8", "replace").strip().splitlines() or ["Fehler"])[-1]
+        v = paths.run([exe, "--version"], timeout=30).stdout.decode().strip()
+        return f"yt-dlp ist aktuell ({v})"
     if not paths.writable(os.path.dirname(exe)):
         own = os.path.join(paths.data_dir(), "bin")
         os.makedirs(own, exist_ok=True)

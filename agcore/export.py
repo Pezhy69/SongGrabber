@@ -15,7 +15,8 @@ MODES = {
 def drives():
     """Wechseldatenträger (USB-Sticks, SD-Karten) + per USB verbundene Handys mit Laufwerksbuchstaben."""
     if not paths.IS_WIN:
-        return []
+        from . import osint
+        return osint.drives()
     k = ctypes.windll.kernel32
     out = []
     mask = k.GetLogicalDrives()

@@ -843,6 +843,14 @@
 <li><b>Kommandozeile</b>: <code>SongGrabber.exe "datei.mp4"</code> wandelt um, <code>--url &lt;Link&gt;</code> lädt herunter, <code>--play "titel.mp3"</code> spielt ab. <code>--headless --preset mp3_320 --out "D:\Musik" --report r.json datei.mp4</code> arbeitet ohne Fenster (Exitcode 0 = alles ok).</li>
 <li><b>Portabel</b>: Liegt neben der <code>SongGrabber.exe</code> eine Datei <code>portable.txt</code>, speichert SongGrabber Einstellungen im Unterordner <code>data</code> statt in <code>%APPDATA%\SongGrabber</code>.</li></ul></article>
 
+<article id="h-linux"><h2>SongGrabber unter Linux</h2>
+<ul><li><b>Installieren</b>: Paket <code>SongGrabber-…-linux.tar.gz</code> von der Download-Seite laden, entpacken, im Ordner ein Terminal öffnen und <code>./install.sh</code> eingeben. Es installiert die nötigen Systempakete (Python, WebKit, ffmpeg, GStreamer) und richtet SongGrabber für deinen Benutzer ein – mit Eintrag im Startmenü und dem Befehl <code>songgrabber</code>. Läuft unter Ubuntu, Linux Mint, Debian, Fedora, Arch/Manjaro und openSUSE.</li>
+<li><b>Update</b>: neues Paket entpacken und wieder <code>./install.sh</code> starten. <b>Entfernen</b>: <code>~/.local/share/SongGrabber/uninstall.sh</code> – deine Musik bleibt.</li>
+<li><b>Ordner</b>: Einstellungen in <code>~/.config/SongGrabber</code>, Musik standardmäßig in <code>~/Musik/SongGrabber</code>. Gelöschte Titel landen im Papierkorb.</li>
+<li><b>Audio-CDs</b> werden über <code>/dev/sr0</code> gelesen. Dein Benutzer muss dafür in der Gruppe <code>cdrom</code> (Ubuntu/Debian) bzw. <code>optical</code> (Arch) sein: <code>sudo usermod -aG cdrom $USER</code>, danach neu anmelden.</li>
+<li><b>Systemsound &amp; „Alles am PC“</b> nutzen PulseAudio bzw. PipeWire (bei allen aktuellen Desktops dabei). Titel, Cover und Steuerung kommen von Spotify, Firefox, Chrome, VLC &amp; Co. über MPRIS – oft läuft der Songtext dadurch sogar genau mit.</li>
+<li><b>Nicht unter Linux</b>: die Frage nach dem Musik-Ordner beim Installieren (einfach unten rechts ändern) und das Setup-Programm selbst – dafür gibt es <code>install.sh</code>.</li></ul></article>
+
 <article id="h-faq"><h2>Probleme &amp; Fragen</h2>
 <dl><dt>Ein Link lädt nicht.</dt><dd>yt-dlp aktualisieren (Einstellungen → Werkzeuge). Private, altersbeschränkte oder kostenpflichtige Inhalte gehen nicht.</dd>
 <dt>Album oder Genre fehlen.</dt><dd>Interpret und Titel prüfen: Die Suche braucht beides korrekt geschrieben. Danach im Tag-Editor <em>Online ergänzen</em> oder die Felder von Hand füllen.</dd>

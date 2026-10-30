@@ -1,12 +1,10 @@
-## SongGrabber 1.9.1
+## SongGrabber 1.10.0 – jetzt auch für Linux 🐧
 
-**Installieren / Update:** `SongGrabber-Setup-1.9.1.exe` herunterladen und starten – einfach über die alte Version installieren, Einstellungen, Bibliothek und Musik bleiben erhalten.
+**Windows:** `SongGrabber-Setup-1.10.0.exe` herunterladen und starten (einfach über die alte Version installieren).
+**Linux** (Ubuntu, Mint, Debian, Fedora, Arch/Manjaro, openSUSE): `SongGrabber-1.10.0-linux.tar.gz` herunterladen, entpacken, im Ordner ein Terminal öffnen und `./install.sh` eingeben. Danach steht SongGrabber im Startmenü. *(Das Linux-Paket erscheint hier automatisch ein paar Minuten nach der Veröffentlichung.)*
 
-### Behoben
-- **Mini-Player friert nicht mehr ein** („Keine Rückmeldung“) – das Fenster wird zuverlässig zur kleinen Leiste unten rechts, bleibt im Vordergrund und kommt per Pfeil oder Doppelklick genau so zurück, wie es war (auch maximiert). Von Hand vergrößern beendet den Mini-Modus.
-- **Knöpfe oben im Player** (Lichter, EQ, Timer, Mini, Vollbild) bleiben bei jeder Fenstergröße sichtbar – bei wenig Platz als Symbole bzw. in einer zweiten Zeile.
-
-### Neu in 1.9 (zur Erinnerung)
-Überblenden, Lautstärke angleichen, Mini-Player, Bibliothek aufräumen, Update-Hinweis.
+### Neu
+- **SongGrabber für Linux** – mit Startmenü-Eintrag, Papierkorb, Audio-CDs, Systemsound und „Alles am PC“ (Titel, Cover und Steuerung von Spotify, Firefox, Chrome, VLC & Co.)
+- Der Update-Hinweis verlinkt automatisch die passende Datei für Windows bzw. Linux
 
 Windows zeigt beim ersten Start evtl. „Der Computer wurde durch Windows geschützt“ → *Weitere Informationen* → *Trotzdem ausführen*.

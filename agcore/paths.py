@@ -8,7 +8,7 @@ import sys
 import threading
 
 APP_NAME = "SongGrabber"
-VERSION = "1.9.1"
+VERSION = "1.10.0"
 # Wo neue Versionen veröffentlicht werden. GitHub: "https://api.github.com/repos/<Name>/SongGrabber/releases/latest"
 # oder eine eigene JSON-Datei {"version": "1.9.0", "url": "https://…", "notes": "…"}. Leer = Prüfung aus.
 UPDATE_URL = "https://api.github.com/repos/Pezhy69/SongGrabber/releases/latest"
@@ -41,8 +41,9 @@ def data_dir():
         d, old = os.path.join(app_dir(), "data"), None
     elif IS_WIN and os.environ.get("APPDATA"):
         d, old = os.path.join(os.environ["APPDATA"], APP_NAME), os.path.join(os.environ["APPDATA"], OLD_NAME)
-    else:
-        d, old = os.path.join(os.path.expanduser("~"), ".songgrabber"), os.path.join(os.path.expanduser("~"), ".audiograbber")
+    else:                                   # Linux: ~/.config/SongGrabber (XDG)
+        d = os.path.join(os.environ.get("XDG_CONFIG_HOME") or os.path.join(os.path.expanduser("~"), ".config"), APP_NAME)
+        old = os.path.join(os.path.expanduser("~"), ".songgrabber")
     if not _migrated:
         _migrated = True
         if old and os.path.isdir(old) and not os.path.exists(d):
@@ -61,6 +62,12 @@ def temp_dir():
 
 
 def default_music_dir():
+    if not IS_WIN:
+        try:
+            from . import osint
+            return os.path.join(osint.music_dir(), APP_NAME)
+        except Exception:
+            pass
     return os.path.join(os.path.expanduser("~"), "Music", APP_NAME)
 
 

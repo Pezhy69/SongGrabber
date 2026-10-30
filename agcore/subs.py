@@ -139,7 +139,8 @@ RUN_KEY = r"Software\Microsoft\Windows\CurrentVersion\Run"
 def autostart(enable=None):
     """Ohne Argument: Status. Mit True/False: setzen. Startet minimiert (--minimized)."""
     if not paths.IS_WIN:
-        return False
+        from . import osint
+        return osint.autostart(enable)
     import sys
     import winreg
     exe = sys.executable if getattr(sys, "frozen", False) else f'"{sys.executable}" "{os.path.abspath("main.py")}"'

@@ -57,7 +57,7 @@ class SystemAudio:
             sc = recorder._audio()
             spk = sc.default_speaker()
             self.device = spk.name
-            mic = sc.get_microphone(spk.id, include_loopback=True)
+            mic = recorder.loopback_for(sc, spk)
             threading.Thread(target=recorder.Recorder._silence_player, args=(sc, spk.id, self.RATE, done), daemon=True).start()
             ring = np.zeros(self.N, dtype="float32")
             win = np.hanning(self.N).astype("float32")
@@ -117,12 +117,33 @@ def _app(aumid):
 class NowPlaying:
     def __init__(self, server):
         self.M = _gsmtc() if paths.IS_WIN else None
+        self.mp, self.mp_try = None, 0             # Linux: MPRIS über D-Bus
         self.art = (None, b"", "")
         server.handlers["sysart"] = self._serve_art
         self.art_url = server.route("sysart", "cover")
 
+    def _mpris(self):
+        if paths.IS_WIN:
+            return None
+        if self.mp is None and time.time() - self.mp_try > 30:
+            self.mp_try = time.time()
+            from . import mpris
+            self.mp = mpris.create()
+        return self.mp
+
     def available(self):
-        return self.M is not None
+        return self.M is not None or self._mpris() is not None
+
+    def _info_linux(self, m):
+        out = m.info()
+        src = out.pop("art_src", "")
+        key = (out.get("title"), out.get("artist"))
+        if out.get("active"):
+            data = m.art_bytes(src) if src else b""
+            if data != self.art[1] or self.art[0] != key:
+                self.art = (key, data, str(time.time()))
+        out["art"] = f"{self.art_url}?v={self.art[2]}" if self.art[1] else ""
+        return out
 
     def _serve_art(self, h, _rid):
         data = self.art[1]
@@ -200,6 +221,13 @@ class NowPlaying:
             return bytes(arr)
 
     def info(self):
+        m = self._mpris()
+        if m is not None:
+            try:
+                return self._info_linux(m)
+            except Exception as e:
+                self.mp = None
+                return {"active": False, "error": str(e)[:120]}
         if not self.M:
             return {"active": False, "unavailable": True}
         try:
@@ -217,6 +245,9 @@ class NowPlaying:
         return bool(await f())
 
     def control(self, cmd):
+        m = self._mpris()
+        if m is not None:
+            return m.control(cmd)
         if self.M:
             try:
                 if asyncio.run(asyncio.wait_for(self._cmd(cmd), 4)):

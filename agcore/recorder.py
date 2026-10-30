@@ -25,7 +25,13 @@ def _com_init():
 
 
 def _sc():
-    import soundcard as sc
+    try:
+        import soundcard as sc
+    except Exception as e:
+        if paths.IS_WIN:
+            raise
+        raise RuntimeError("Kein Audio-System erreichbar – läuft PulseAudio bzw. PipeWire? "
+                           f"(Aufnahme und Systemsound brauchen es.) [{type(e).__name__}]")
     warnings.filterwarnings("ignore", category=getattr(sc, "SoundcardRuntimeWarning", RuntimeWarning))
     return sc
 
@@ -58,6 +64,19 @@ def _in_audio_thread(fn):
     return box.get("v")
 
 
+def loopback_for(sc, spk):
+    """Mitschnitt-Eingang für einen Lautsprecher: Windows = gleicher Name, Linux = „Monitor of …“."""
+    if paths.IS_WIN:
+        return sc.get_microphone(spk.id, include_loopback=True)
+    lbs = [m for m in sc.all_microphones(include_loopback=True) if m.isloopback]
+    for m in lbs:
+        if m.name == spk.name or spk.name in m.name or spk.id in str(m.id):
+            return m
+    if lbs:
+        return lbs[0]
+    raise RuntimeError("Kein Systemsound-Eingang gefunden (PulseAudio/PipeWire-„Monitor“).")
+
+
 def devices():
     def f(sc):
         out = []
@@ -73,7 +92,7 @@ def devices():
         for m in sc.all_microphones(include_loopback=True):
             lb = bool(m.isloopback)
             out.append({"id": m.id, "name": m.name, "loopback": lb,
-                        "default": (lb and m.name == default) or (not lb and m.id == default_mic),
+                        "default": (lb and bool(default) and (m.name == default or default in m.name)) or (not lb and m.id == default_mic),
                         "channels": getattr(m, "channels", 2)})
         out.sort(key=lambda d: (not d["loopback"], not d["default"], d["name"]))
         return out
@@ -344,7 +363,9 @@ class Recorder:
 
     @staticmethod
     def _silence_player(sc, speaker_id, sr, done):
-        """WASAPI-Loopback liefert bei Stille keine Daten – ein stummer Player hält ihn wach."""
+        """WASAPI-Loopback liefert bei Stille keine Daten – ein stummer Player hält ihn wach (nur Windows)."""
+        if not paths.IS_WIN:
+            return
         _com_init()
         try:
             spk = sc.get_speaker(speaker_id)

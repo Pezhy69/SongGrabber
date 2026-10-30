@@ -379,7 +379,7 @@ def _recycle(files):
 
 
 def delete_files(files):
-    """Löscht Audiodateien (+ .lrc daneben). Unter Windows in den Papierkorb. → (gelöscht, fehler)"""
+    """Löscht Audiodateien (+ .lrc daneben) – in den Papierkorb (Windows und Linux). → (gelöscht, fehler)"""
     root = os.path.abspath(paths.settings()["output_dir"])
     todo = []
     for f in files:
@@ -393,6 +393,12 @@ def delete_files(files):
         try:
             if _recycle(todo):
                 done = [f for f in todo if not os.path.exists(f)]
+        except Exception:
+            pass
+    elif todo:                                       # Linux: freedesktop-Papierkorb
+        try:
+            from . import osint
+            done = [f for f in osint.trash(todo) if not os.path.exists(f)]
         except Exception:
             pass
     for f in todo:                                   # Rest (oder kein Windows): direkt löschen
