@@ -1711,6 +1711,7 @@ $("#ppFx").onclick = toggleFx;
 })();
 function togglePop(id, btn) {
   const p = $(id), open = p.hidden; $$(".pp-pop").forEach(x => x.hidden = true); $$(".pp-tool").forEach(x => x.classList.remove("on"));
+  p.style.top = Math.round(btn.getBoundingClientRect().bottom - $("#page-player").getBoundingClientRect().top + 8) + "px";
   p.hidden = !open; btn.classList.toggle("on", open);
   if (id === "#ppEq" && open) { EQ.draw(); if (!Audio_.live()) $("#eqHint").textContent = "Der Equalizer wirkt, sobald ein Titel aus SongGrabber läuft · Doppelklick setzt auf 0 dB"; }
 }
@@ -1876,12 +1877,20 @@ const Mini = (() => {
   }
   async function set(v) {
     if (v === on && !auto) return;
+    busy = Date.now() + 1500;
     show(v);
     try { await call("mini", v); } catch (e) { }
+    busy = Date.now() + 400;
   }
+  let busy = 0;
   window.addEventListener("resize", () => {             // sehr kleines Fenster → automatisch Mini-Ansicht
+    if (Date.now() < busy) return;                      // gerade selbst umgeschaltet
     const tiny = innerWidth < 860 || innerHeight < 520;
-    if (tiny && !on) show(true, true); else if (!tiny && on && auto) show(false);
+    if (tiny && !on) show(true, true);
+    else if (!tiny && on) {                              // von Hand vergrößert/maximiert → Mini verlassen
+      const was = auto; show(false);
+      if (!was) call("mini", false, true).catch(() => { });
+    }
   });
   $("#miPrev").onclick = () => sys() ? $("#sysPrev").click() : Player.prev();
   $("#miNext").onclick = () => sys() ? $("#sysNext").click() : Player.next();

@@ -905,3 +905,10 @@ body.is-mini .mini{display:grid;position:fixed;inset:0;grid-template-columns:aut
 @media (max-width:330px){body.is-mini .mi-cover{display:none}body.is-mini .mini{grid-template-columns:1fr auto auto}}
 
 .upd-notes{max-height:240px;overflow:auto;border:1px solid var(--line);border-radius:10px;padding:10px 14px;font-size:13px;color:var(--muted);margin-top:10px}
+/* Player-Kopfleiste: rechte Knöpfe als Gruppe, bei wenig Platz sauber in zweite Zeile */
+.pp-top{flex-wrap:wrap;row-gap:8px}
+.pp-top > .grow{display:none}
+.pp-tools{display:flex;align-items:center;gap:10px;margin-left:auto}
+@media (max-width:1760px){.pp-tool span{display:none}.pp-tool{padding:9px}}
+@media (max-width:1520px){.pp-src button span{display:none}.pp-src button{padding:7px 11px}}
+@media (max-width:1440px){.pp-seg button{padding:7px 10px}}

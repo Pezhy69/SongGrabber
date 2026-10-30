@@ -539,29 +539,16 @@ class Api:
         p = pipeline.write_m3u([x for x in paths_ if os.path.isfile(x)], name, folder=paths.playlist_dir())
         return os.path.splitext(os.path.basename(p))[0] if p else name
 
-    def mini(self, on):
-        """Mini-Player: kleines Fenster unten rechts, immer im Vordergrund – und wieder zurück."""
-        w = self._window
-        if not w:
-            return False
+    def mini(self, on, keep=False):
+        """Mini-Player: kleines Fenster unten rechts, immer im Vordergrund – und wieder zurück.
+        keep=True: Mini wurde durch Vergrößern von Hand verlassen → Größe lassen, nur Vordergrund aufheben."""
         try:
-            if on:
-                if not getattr(self, "_normal", None):
-                    self._normal = (w.width, w.height, w.x, w.y)
-                import webview
-                W, H = 460, 150
-                w.resize(W, H)
-                sc = (webview.screens or [None])[0]
-                if sc:
-                    w.move(sc.x + sc.width - W - 24, sc.y + sc.height - H - 72)
-                w.on_top = True
-            else:
-                w.on_top = False
-                n = getattr(self, "_normal", None)
-                if n:
-                    w.resize(n[0], n[1])
-                    w.move(n[2], n[3])
-                self._normal = None
+            if paths.IS_WIN:
+                from agcore import winwin
+                return winwin.forget() if (keep and not on) else winwin.mini(bool(on))
+            w = self._window
+            if w:
+                w.on_top = bool(on)
             return True
         except Exception as e:
             paths.log.warning("Mini-Player: %s", e)
