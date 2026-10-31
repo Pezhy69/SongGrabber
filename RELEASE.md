@@ -4,7 +4,7 @@
 **Linux:** `SongGrabber-1.11.0-linux.tar.gz` herunterladen, entpacken, im Ordner `./install.sh` ausführen. *(Erscheint hier automatisch ein paar Minuten nach der Veröffentlichung.)*
 
 ### Neu
-- **Player: rechte Leiste wegschieben** – Warteschlange/Songtext mit einem Klick (oder Q) weg, Drüberfahren am Rand zeigt sie wieder; nach 1 Minute Ruhe verschwindet sie von selbst
+- **Player: Leiste hochrollen & Bedienung einklappen** – Warteschlange/Songtext rollen wie ein Rollo nach oben (Q), die Bedienung schrumpft zu kleinen Knöpfen unten (H); Drüberfahren zeigt alles, nach 1 Minute Ruhe passiert es von selbst
 - **Bildschirm aufnehmen**: Zoom, Teams, Webinar oder Live-Coaching als MP4-Video – ganzer Bildschirm oder nur ein Fenster, mit Vorschau
 - **Bereich zeichnen**: nur einen Ausschnitt aufnehmen – z. B. nur das Video in YouTube, Zoom oder Teams
 - Klar sichtbar, welcher Ton mit drauf ist: **Ton vom PC** und/oder **dein Mikrofon** – jeweils mit Pegelanzeige

@@ -1098,19 +1098,33 @@ body.is-scrbar .scrbar.paused{border-top-color:var(--info)}
 .crop-rect i[data-h=sw]{left:-8px;bottom:-8px;cursor:nesw-resize}.crop-rect i[data-h=se]{right:-8px;bottom:-8px;cursor:nwse-resize}
 .crop-rect b{position:absolute;left:6px;top:6px;font:600 11.5px/1.3 var(--mono);background:rgba(0,0,0,.7);color:#fff;padding:2px 6px;border-radius:5px;white-space:nowrap}
 
-/* ---------- Player: rechte Leiste wegschieben ---------- */
+/* ---------- Player: rechte Leiste hochrollen (wie ein Rollo) ---------- */
 .pp-main{position:relative}
-.pp-side{transition:transform .35s cubic-bezier(.2,.8,.2,1),opacity .35s}
+.pp-side{transition:clip-path .45s cubic-bezier(.2,.8,.2,1),opacity .3s}
 .pp-sidehide{flex:none !important;width:42px;padding:0 !important;display:grid;place-items:center;color:#A9A2C4 !important;border-bottom-color:transparent !important}
 .pp-sidehide:hover{color:#fff !important;background:rgba(255,255,255,.05) !important}
 .pp-sidehide svg{width:16px;height:16px}
 .pp-sidetab{display:none}
 .pp-main.side-off{grid-template-columns:1fr}
-.pp-main.side-off .pp-side{position:absolute;right:26px;top:4px;bottom:22px;width:380px;z-index:5;transform:translateX(calc(100% + 40px));opacity:0;pointer-events:none;box-shadow:-20px 0 60px -20px rgba(0,0,0,.8)}
-.pp-main.side-off.peek .pp-side{transform:none;opacity:1;pointer-events:auto}
-.pp-main.side-off .pp-sidetab{display:flex;position:absolute;right:0;top:50%;transform:translateY(-50%);z-index:4;flex-direction:column;align-items:center;gap:10px;padding:14px 5px;border:1px solid rgba(255,255,255,.12);border-right:0;border-radius:12px 0 0 12px;background:rgba(9,8,18,.7);backdrop-filter:blur(10px);color:#C9C2E4;cursor:pointer;opacity:.55;transition:opacity .2s,padding .2s}
-.pp-main.side-off .pp-sidetab:hover{opacity:1;padding:14px 9px}
-.pp-sidetab span{writing-mode:vertical-rl;font-size:11.5px;letter-spacing:.6px;font-weight:600}
+.pp-main.side-off .pp-side{position:absolute;right:26px;top:4px;bottom:22px;width:380px;z-index:6;clip-path:inset(0 0 100% 0 round 16px);opacity:0;pointer-events:none;box-shadow:0 30px 60px -20px rgba(0,0,0,.8)}
+.pp-main.side-off.peek .pp-side{clip-path:inset(0 0 0 0 round 16px);opacity:1;pointer-events:auto}
+.pp-main.side-off .pp-sidetab{display:flex;position:absolute;right:26px;top:-2px;z-index:5;align-items:center;gap:8px;padding:5px 14px 6px;border:1px solid rgba(255,255,255,.12);border-top:0;border-radius:0 0 12px 12px;background:rgba(9,8,18,.72);backdrop-filter:blur(10px);color:#C9C2E4;font-size:12px;font-weight:600;cursor:pointer;opacity:.6;transition:opacity .2s,padding .2s}
+.pp-main.side-off .pp-sidetab:hover{opacity:1;padding:8px 16px 9px}
 .pp-sidetab svg{width:14px;height:14px}
-@media (max-width:1320px){.pp-main.side-off .pp-side{right:18px;bottom:18px}}
+@media (max-width:1320px){.pp-main.side-off .pp-side,.pp-main.side-off .pp-sidetab{right:18px}.pp-main.side-off .pp-side{bottom:18px}}
 @media (max-width:1180px){.pp-main.side-off .pp-side{width:320px}}
+
+/* ---------- Player: Bedienung einklappen (kleine Knöpfe unten in der Mitte) ---------- */
+.pp-stage{position:relative}
+.pp-now > .pp-seek,.pp-now > .pp-live,.pp-now > .pp-ctrl,.pp-now > .pp-sub,.pp-sys > .pp-ctrl,.pp-sys > .pp-hint{transition:max-height .35s ease,opacity .25s,margin .35s;max-height:140px}
+.pp-stage.ctl-off:not(.ctl-peek) :is(.pp-now,.pp-sys) > :is(.pp-seek,.pp-live,.pp-ctrl,.pp-sub,.pp-hint){max-height:0;opacity:0;margin:-7px 0;overflow:hidden;pointer-events:none}
+.pp-ctlhide{margin-left:2px}
+.pp-dock{display:none}
+.pp-stage.ctl-off .pp-dock{display:flex;position:absolute;left:50%;bottom:6px;transform:translateX(-50%);z-index:4;align-items:center;gap:4px;padding:5px;border-radius:30px;background:rgba(9,8,18,.62);backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,.12);opacity:.65;transition:opacity .2s}
+.pp-stage.ctl-off .pp-dock:hover,.pp-stage.ctl-off.ctl-peek .pp-dock{opacity:1}
+.pp-stage.ctl-off.ctl-peek .pp-dock{opacity:0;pointer-events:none}
+.pp-dock button{width:32px;height:32px;border-radius:50%;border:0;background:transparent;color:#E4DEF7;display:grid;place-items:center;padding:0}
+.pp-dock button:hover{background:rgba(255,255,255,.1)}
+.pp-dock button.play{background:linear-gradient(135deg,var(--c1),var(--c2));color:#fff}
+.pp-dock svg{width:15px;height:15px}
+.pp-stage.ctl-off:not(.ctl-peek){padding-bottom:50px}

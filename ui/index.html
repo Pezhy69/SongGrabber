@@ -66,6 +66,8 @@
     <symbol id="i-screen" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="12" rx="2"/><path d="M8 20h8M12 16v4"/><circle cx="12" cy="10" r="2.2" fill="currentColor" stroke="none"/></symbol>
     <symbol id="i-micoff" viewBox="0 0 24 24"><path d="M9 9v2a3 3 0 0 0 5.1 2.1M15 10.5V6a3 3 0 0 0-5.7-1.3M5.5 11a6.5 6.5 0 0 0 10.6 5M18.5 11a6.4 6.4 0 0 1-.6 2.7M12 17.5V21M3 3l18 18"/></symbol>
     <symbol id="i-crop" viewBox="0 0 24 24"><path d="M6 2v14a2 2 0 0 0 2 2h14M2 6h14a2 2 0 0 1 2 2v14"/></symbol>
+    <symbol id="i-up" viewBox="0 0 24 24"><path d="M6 15l6-6 6 6"/></symbol>
+    <symbol id="i-down2" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></symbol>
     <symbol id="i-window" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 8.5h18"/><circle cx="6" cy="6.3" r=".6"/><circle cx="8.3" cy="6.3" r=".6"/></symbol>
     <symbol id="i-pc" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="12" rx="2"/><path d="M8 20h8M12 16v4"/></symbol>
     <symbol id="i-plug" viewBox="0 0 24 24"><path d="M9 3v5M15 3v5M6 8h12v3a6 6 0 0 1-12 0zM12 17v4"/></symbol>
@@ -625,7 +627,7 @@
           <h4>Über</h4>
           <p><b>SongGrabber</b> <span id="aboutVer"></span> · by Pezhy · kostenlos</p>
           <p><button class="link" id="btnLicenses">Lizenzen &amp; verwendete Dienste</button> · <button class="link" id="btnUpdate">Nach Updates suchen</button></p>
-          <label class="switch"><input type="checkbox" data-key="pp_side_auto"><i></i><span>Player: rechte Leiste von selbst wegschieben</span><small>nach 1 Minute ohne Maus und Tastatur – kommt per Klick auf den Rand, beim Drüberfahren oder mit Q zurück</small></label>
+          <label class="switch"><input type="checkbox" data-key="pp_side_auto"><i></i><span>Player: Leiste und Bedienung von selbst ausblenden</span><small>nach 1 Minute ohne Maus und Tastatur – kommen per Klick, beim Drüberfahren oder mit Q / H zurück</small></label>
           <label class="switch"><input type="checkbox" data-key="update_check"><i></i><span>Beim Start nach Updates suchen</span><small>höchstens einmal am Tag – es wird nichts automatisch installiert</small></label>
           <p class="hint">Bitte nur Inhalte speichern, für die du die Rechte hast (eigene CDs, freie Inhalte, Privatkopie im erlaubten Rahmen).</p>
         </div>
@@ -672,6 +674,12 @@
             </div>
             <small class="pp-hint" id="sysHint">Steuert die App, die gerade Musik abspielt. Lautstärke regelst du in der App oder in Windows.</small>
           </div>
+          <div class="pp-dock" id="ppDock" title="Bedienung – Drüberfahren zeigt alles">
+            <button id="dkPrev" title="Zurück"><svg><use href="#i-prev"/></svg></button>
+            <button id="dkPlay" class="play" title="Abspielen/Pause"><svg><use href="#i-play"/></svg></button>
+            <button id="dkNext" title="Weiter"><svg><use href="#i-next"/></svg></button>
+            <button id="dkOpen" title="Bedienung wieder ausklappen (H)"><svg><use href="#i-up"/></svg></button>
+          </div>
           <div class="pp-now" id="ppNow" hidden>
             <div class="pp-cover" id="ppCover"><div class="pp-cover-img" id="ppCoverImg"></div></div>
             <div class="pp-meta"><h2 id="ppTitle">–</h2><p id="ppArtist">–</p><small id="ppAlbum"></small></div>
@@ -687,14 +695,15 @@
             <div class="pp-sub">
               <button class="pp-btn sm" id="ppMute" title="Stumm (M)"><svg><use href="#i-vol"/></svg></button>
               <input type="range" id="ppVol" min="0" max="100" value="80" title="Lautstärke (↑/↓)">
+              <button class="pp-btn sm pp-ctlhide" id="ppCtlHide" title="Bedienung einklappen (H) – unten bleiben kleine Knöpfe"><svg><use href="#i-down2"/></svg></button>
               <select id="ppSpeed" title="Tempo"><option value="0.75">0,75×</option><option value="1" selected>1×</option><option value="1.25">1,25×</option><option value="1.5">1,5×</option></select>
             </div>
           </div>
         </div>
 
-        <button class="pp-sidetab" id="ppSideTab" title="Warteschlange &amp; Songtext einblenden (Q)"><svg><use href="#i-prev"/></svg><span>Warteschlange · Songtext</span></button>
+        <button class="pp-sidetab" id="ppSideTab" title="Warteschlange &amp; Songtext herunterrollen (Q)"><span>Warteschlange · Songtext</span><svg><use href="#i-down2"/></svg></button>
         <aside class="pp-side">
-          <div class="pp-tabs"><button data-t="queue" class="active">Warteschlange <b id="ppQn"></b></button><button data-t="lyrics">Songtext</button><button class="pp-sidehide" id="ppSideHide" title="Leiste nach rechts wegschieben (Q) – kommt zurück per Klick auf den Rand oder wenn die Maus darüber fährt"><svg><use href="#i-next"/></svg></button></div>
+          <div class="pp-tabs"><button data-t="queue" class="active">Warteschlange <b id="ppQn"></b></button><button data-t="lyrics">Songtext</button><button class="pp-sidehide" id="ppSideHide" title="Leiste hochrollen (Q) – kommt zurück per Klick auf den Griff oder wenn die Maus darüber fährt"><svg><use href="#i-up"/></svg></button></div>
           <div class="pp-qhead" id="ppQHead">
             <span class="muted" id="ppQInfo"></span><div class="grow"></div>
             <button class="ghost sm" id="ppAdd" title="Titel hinzufügen"><svg><use href="#i-plus"/></svg>Hinzufügen</button>
@@ -903,7 +912,9 @@
 <li><b>Bedienung</b>: Zurück, Abspielen/Pause, Weiter, <b>Zufall</b> (spielt alles einmal in neuer Reihenfolge) und <b>Wiederholen</b> (aus → alle → diesen Titel). Darunter Lautstärke, Stumm und Tempo (0,75× bis 1,5×). Die Zeitleiste lässt sich ziehen.</li>
 <li><b>Lichtshow</b>: <em>Synthwave</em> (Retro-Sonne, Neon-Gitter), <em>Spektrum</em>, <em>Kreis</em> (um das Cover), <em>Welle</em> (vier leuchtende Wellen für Bass, tiefe Mitten, Mitten und Höhen plus die echte Schwingung, automatisch ausgesteuert), <em>Tesla</em> (Tesla-Spule: Bass zündet große Blitze, Höhen lassen es knistern) oder <em>Ruhig</em>. Alle reagieren live auf Bass und Beat. Die Farbpunkte daneben wählen die Farbwelt; der bunte Punkt übernimmt die Farben des aktuellen Covers.</li>
 <li><b>Eigene Farben</b> (Knopf <em>Farben</em> neben den Farbpunkten): Mit dem Regler <b>Grundton</b> drehst du alle Farben gemeinsam, z. B. von Pink-Lila nach Grün-Blau, und alles bleibt aufeinander abgestimmt. Darunter lassen sich Hauptfarbe, zweite Farbe, Akzent, Sonne und Himmel auch einzeln wählen. Die Lichtshow ändert sich sofort mit. <em>Ausgehend von</em> startet mit einer fertigen Farbwelt, <em>Zufällig</em> würfelt passende Farben. Gilt für alle Lichtshows und wird gemerkt.</li>
-<li><b>Rechte Leiste wegschieben</b>: Der Pfeil oben rechts in der Leiste (oder Taste <kbd>Q</kbd>) schiebt Warteschlange und Songtext nach rechts weg – dann gehört der Bildschirm ganz der Lichtshow. Am rechten Rand bleibt ein schmaler Griff: Drüberfahren zeigt die Leiste kurz, Klicken holt sie fest zurück. Nach 1 Minute ohne Maus und Tastatur schiebt sie sich von selbst weg (abschaltbar in den Einstellungen).</li>
+<li><b>Rechte Leiste wegschieben</b>: Der Pfeil oben in der Leiste (oder Taste <kbd>Q</kbd>) rollt Warteschlange und Songtext wie ein Rollo nach oben – dann gehört der Bildschirm ganz der Lichtshow. Oben rechts unter den Knöpfen bleibt ein kleiner Griff: Drüberfahren rollt die Leiste kurz herunter, Klicken holt sie fest zurück.</li>
+<li><b>Bedienung einklappen</b>: Der kleine Pfeil neben der Lautstärke (oder Taste <kbd>H</kbd>) klappt Zeitleiste, LIVE-Anzeige und große Knöpfe zusammen – unten in der Mitte bleiben nur Zurück, Abspielen/Pause und Weiter. Drüberfahren zeigt wieder alles, der Pfeil nach oben holt es fest zurück.</li>
+<li>Nach 1 Minute ohne Maus und Tastatur passiert beides von selbst (abschaltbar in den Einstellungen).</li>
 <li><b>Cover &amp; Titel klein</b>: Beim Start stehen Cover und Titel klein oben links, wie ein Senderlogo im Fernsehen. Ein Klick darauf (oder Taste <kbd>I</kbd>) zeigt sie groß in der Mitte, ein Klick auf das große Cover macht sie wieder klein. Wird gemerkt.</li>
 <li><b>Lichter aus</b> (Glühbirne oben rechts oder Taste <kbd>B</kbd>): schaltet Lichtshow, Pulsieren und alle Effekte ab – nur Musik mit ruhigem, stehendem Bild. Ideal, wenn der Player auf dem zweiten Bildschirm offen bleibt; spart Rechenleistung. Wird gemerkt.</li>
 <li><b>Warteschlange</b> (rechts): Doppelklick spielt, Ziehen sortiert um, ✕ entfernt. Rechtsklick bietet <em>Als Nächstes abspielen</em>, <em>Tags bearbeiten</em> und <em>Im Ordner anzeigen</em>. <em>Hinzufügen</em> holt Dateien, Ordner, eine Playlist oder die ganze Bibliothek. <em>Speichern</em> sichert die Warteschlange als Playlist, der Papierkorb leert sie.</li>
@@ -956,7 +967,7 @@
 <dt data-help-key="cd_verify">Prüflesen</dt><dd>Liest jeden CD-Block doppelt und wiederholt bei Fehlern.</dd>
 <dt data-help-key="cd_eject">CD nach dem Rippen auswerfen</dt><dd>Öffnet das Laufwerk, wenn alle Titel fertig sind.</dd>
 <dt data-help-key="keep_raw">Original-Aufnahme (WAV) zusätzlich behalten</dt><dd>Speichert die ungeteilte Rohaufnahme mit, z. B. zum späteren Nachbearbeiten.</dd>
-<dt data-help-key="pp_side_auto">Player: rechte Leiste von selbst wegschieben</dt><dd>Nach 1 Minute ohne Maus und Tastatur schiebt sich die Leiste mit Warteschlange und Songtext auf der Player-Seite nach rechts weg. Zurück per Klick auf den Griff am rechten Rand, beim Drüberfahren oder mit <kbd>Q</kbd>. Ausgeschaltet bleibt sie stehen, bis du sie selbst wegschiebst.</dd>
+<dt data-help-key="pp_side_auto">Player: Leiste und Bedienung von selbst ausblenden</dt><dd>Nach 1 Minute ohne Maus und Tastatur rollt sich auf der Player-Seite die Leiste mit Warteschlange und Songtext nach oben weg, und die Bedienung unten klappt zu kleinen Knöpfen zusammen. Zurück per Klick, beim Drüberfahren oder mit <kbd>Q</kbd> (Leiste) bzw. <kbd>H</kbd> (Bedienung). Ausgeschaltet bleibt alles stehen, bis du es selbst wegklickst.</dd>
 <dt data-help-key="update_check">Beim Start nach Updates suchen</dt><dd>Sieht höchstens einmal am Tag nach, ob es eine neuere Version gibt, und zeigt dann einen Hinweis mit Download-Link. Installiert wird nur, wenn du das neue Setup selbst startest. <em>Nach Updates suchen</em> (unter Über) prüft sofort.</dd>
 <dt data-help-key="lyrics_auto">Songtexte automatisch einbetten</dt><dd>Lädt Songtexte von lrclib.net, mitlaufend, wenn verfügbar.</dd>
 <dt data-help-key="lyrics_lrc">Zusätzlich .lrc-Datei speichern</dt><dd>Für Autoradios und Player, die keine eingebetteten Texte lesen.</dd>
@@ -975,7 +986,7 @@
 <tr><td><kbd>↑</kbd> / <kbd>↓</kbd></td><td>lauter / leiser (Player-Seite)</td></tr>
 <tr><td><kbd>N</kbd> / <kbd>P</kbd></td><td>nächster / vorheriger Titel (Player-Seite)</td></tr>
 <tr><td><kbd>S</kbd> · <kbd>R</kbd> · <kbd>M</kbd></td><td>Zufall · Wiederholen · Stumm (Player-Seite)</td></tr>
-<tr><td><kbd>V</kbd> · <kbd>B</kbd> · <kbd>I</kbd> · <kbd>L</kbd> · <kbd>Q</kbd> · <kbd>F11</kbd></td><td>Lichtshow wechseln · Lichter an/aus · Cover groß/klein · Songtext · rechte Leiste weg/zurück · Vollbild (Player-Seite)</td></tr>
+<tr><td><kbd>V</kbd> · <kbd>B</kbd> · <kbd>I</kbd> · <kbd>L</kbd> · <kbd>Q</kbd> · <kbd>H</kbd> · <kbd>F11</kbd></td><td>Lichtshow wechseln · Lichter an/aus · Cover groß/klein · Songtext · rechte Leiste hoch/runter · Bedienung ein-/ausklappen · Vollbild (Player-Seite)</td></tr>
 <tr><td><kbd>Entf</kbd></td><td>markierte Titel löschen (Bibliothek)</td></tr>
 <tr><td><kbd>Enter</kbd></td><td>Link analysieren / Abo hinzufügen</td></tr>
 <tr><td><kbd>Esc</kbd></td><td>Dialog oder Menü schließen</td></tr></table></article>

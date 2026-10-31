@@ -1050,7 +1050,7 @@ $("#btnKeepLive").onclick = () => {
 
 /* ---------------------------------------------------------------- Neu in dieser Version (bei jeder Version ergänzen!) */
 const CHANGES = [
-  ["1.11.0", ["<b>Bildschirm aufnehmen</b>: Zoom, Teams, Webinar oder Live-Coaching als MP4-Video – ganzer Bildschirm oder nur ein Fenster, mit Vorschau", "Player: <b>rechte Leiste wegschieben</b> (Pfeil oder Q) – kommt per Drüberfahren zurück, verschwindet nach 1 Minute Ruhe von selbst", "<b>Bereich zeichnen</b>: nur einen Ausschnitt aufnehmen – z. B. nur das Video in YouTube, Zoom oder Teams", "Klar sichtbar, welcher Ton mit drauf ist: <b>Ton vom PC</b> und/oder <b>dein Mikrofon</b> – mit Pegelanzeige", "<b>Mikrofon während der Aufnahme an/aus</b> – z. B. nur kurz einschalten, um etwas zu sagen", "<b>Kleine Aufnahme-Leiste</b> oben rechts mit Uhr, Pause und Stopp – unter Windows im Video unsichtbar", "Fertiges Video direkt in SongGrabber ansehen – saubere Dateinamen ohne Emojis", "Pause, Verwerfen, auf Wunsch zusätzlich als MP3 – und beim Schließen geht keine laufende Aufnahme verloren"]],
+  ["1.11.0", ["<b>Bildschirm aufnehmen</b>: Zoom, Teams, Webinar oder Live-Coaching als MP4-Video – ganzer Bildschirm oder nur ein Fenster, mit Vorschau", "Player: <b>rechte Leiste hochrollen</b> wie ein Rollo (Q) und <b>Bedienung einklappen</b> zu kleinen Knöpfen (H) – Drüberfahren zeigt alles, nach 1 Minute Ruhe passiert es von selbst", "<b>Bereich zeichnen</b>: nur einen Ausschnitt aufnehmen – z. B. nur das Video in YouTube, Zoom oder Teams", "Klar sichtbar, welcher Ton mit drauf ist: <b>Ton vom PC</b> und/oder <b>dein Mikrofon</b> – mit Pegelanzeige", "<b>Mikrofon während der Aufnahme an/aus</b> – z. B. nur kurz einschalten, um etwas zu sagen", "<b>Kleine Aufnahme-Leiste</b> oben rechts mit Uhr, Pause und Stopp – unter Windows im Video unsichtbar", "Fertiges Video direkt in SongGrabber ansehen – saubere Dateinamen ohne Emojis", "Pause, Verwerfen, auf Wunsch zusätzlich als MP3 – und beim Schließen geht keine laufende Aufnahme verloren"]],
   ["1.10.0", ["<b>SongGrabber für Linux</b>: Ubuntu, Mint, Debian, Fedora, Arch, openSUSE – mit <code>install.sh</code>, Startmenü-Eintrag, Papierkorb, Audio-CDs, Systemsound und „Alles am PC“ über MPRIS", "Update-Hinweis verlinkt automatisch die passende Datei für Windows bzw. Linux"]],
   ["1.9.1", ["<b>Mini-Player</b> friert nicht mehr ein – Fenster wird zuverlässig klein, bleibt im Vordergrund und kommt genau so zurück", "Knöpfe oben im Player bleiben bei jeder Fenstergröße sichtbar"]],
   ["1.9.0", ["<b>Überblenden</b>: sanfte Übergänge zwischen Titeln (2–12 s) – Alben am Stück bleiben nahtlos", "<b>Lautstärke angleichen</b>: leise und laute Titel klingen gleich laut", "<b>Mini-Player</b>: mit einem Klick als kleine Leiste unten rechts, immer im Vordergrund – mit Songtext-Zeile und Lichtshow", "<b>Bibliothek aufräumen</b>: doppelte Titel, fehlende Cover/Angaben, leere Ordner", "<b>Update-Hinweis</b>: SongGrabber sagt Bescheid, wenn es eine neue Version gibt"]],
@@ -1584,6 +1584,7 @@ const Player = (() => {
     if (onPage && !e.ctrlKey && !e.altKey && (e.key === "b" || e.key === "B")) { toggleFx(); return; }
     if (onPage && !e.ctrlKey && !e.altKey && (e.key === "i" || e.key === "I")) { InfoMin.toggle(); return; }
     if (onPage && !e.ctrlKey && !e.altKey && (e.key === "q" || e.key === "Q")) { SideBar.toggle(); return; }
+    if (onPage && !e.ctrlKey && !e.altKey && (e.key === "h" || e.key === "H")) { SideBar.toggleCtl(); return; }
     if (!cur()) return;
     if (e.code === "Space") { e.preventDefault(); toggle(); }
     else if (e.ctrlKey && e.code === "ArrowRight") next();
@@ -2281,11 +2282,12 @@ async function checkUpdate(manual) {
 $("#btnUpdate").onclick = () => checkUpdate(true);
 
 /* ---------------------------------------------------------------- Mini-Player */
-/* ---------------------------------------------------------------- Player: rechte Leiste wegschieben */
+/* ---------------------------------------------------------------- Player: Leiste hochrollen & Bedienung einklappen */
 const SideBar = (() => {
-  const main = $(".pp-main"), side = $(".pp-side"), AUTO = 60000;
-  let off = false, last = Date.now(), leaveT = 0;
+  const main = $(".pp-main"), side = $(".pp-side"), stage = $(".pp-stage"), dock = $("#ppDock"), AUTO = 60000;
+  let off = false, ctl = false, last = Date.now(), leaveT = 0, ctlT = 0;
   const onPlayer = () => $("#page-player").classList.contains("active");
+  /* rechte Leiste (Rollo) */
   function set(v, keep) {
     off = v; main.classList.toggle("side-off", v); main.classList.remove("peek");
     if (!keep) save({ pp_side_off: v });
@@ -2297,13 +2299,38 @@ const SideBar = (() => {
   side.addEventListener("mouseenter", () => { if (off) peek(true); });
   side.addEventListener("mouseleave", () => { if (off) leaveT = setTimeout(() => peek(false), 500); });
   $("#ppSideTab").addEventListener("mouseleave", () => { if (off) leaveT = setTimeout(() => peek(false), 700); });
+  /* Bedienung unten (einklappen zu kleinen Knöpfen) */
+  function setCtl(v, keep) {
+    ctl = v; stage.classList.toggle("ctl-off", v); stage.classList.remove("ctl-peek");
+    if (!keep) save({ pp_ctl_off: v });
+  }
+  const ctlPeek = v => { clearTimeout(ctlT); stage.classList.toggle("ctl-peek", v && ctl); };
+  const sys = () => SysMode.on();
+  $("#ppCtlHide").onclick = e => { e.stopPropagation(); setCtl(true); };
+  $("#dkOpen").onclick = e => { e.stopPropagation(); last = Date.now(); setCtl(false); };
+  $("#dkPrev").onclick = () => sys() ? $("#sysPrev").click() : Player.prev();
+  $("#dkNext").onclick = () => sys() ? $("#sysNext").click() : Player.next();
+  $("#dkPlay").onclick = () => { sys() ? $("#sysPlay").click() : Player.toggle(); setTimeout(dockIcon, 80); };
+  function dockIcon() {
+    const playing = sys() ? $("#sysPlay use").getAttribute("href") === "#i-pause" : !$("#audio").paused;
+    $("#dkPlay use").setAttribute("href", playing ? "#i-pause" : "#i-play");
+  }
+  setInterval(() => { if (ctl) dockIcon(); }, 700);
+  dock.addEventListener("mouseenter", () => ctlPeek(true));
+  [$("#ppNow"), $("#ppSys")].forEach(el => {
+    el.addEventListener("mouseenter", () => { if (ctl && stage.classList.contains("ctl-peek")) clearTimeout(ctlT); });
+    el.addEventListener("mouseleave", () => { if (ctl) ctlT = setTimeout(() => ctlPeek(false), 600); });
+  });
+  dock.addEventListener("mouseleave", () => { if (ctl) ctlT = setTimeout(() => ctlPeek(false), 900); });
+  /* nach 1 Minute ohne Maus/Tastatur: Leiste hoch, Bedienung klein */
   ["mousemove", "keydown", "wheel", "pointerdown"].forEach(ev => document.addEventListener(ev, () => { last = Date.now(); }, { passive: true }));
-  setInterval(() => {                                  // nach 1 Minute ohne Maus/Tastatur von selbst wegschieben
-    if (off || !onPlayer() || document.body.classList.contains("is-mini") || side.matches(":hover")) return;
-    if (S.settings.pp_side_auto === false) return;
-    if (Date.now() - last > AUTO) set(true, true);
+  setInterval(() => {
+    if (!onPlayer() || document.body.classList.contains("is-mini") || S.settings.pp_side_auto === false) return;
+    if (Date.now() - last < AUTO) return;
+    if (!off && !side.matches(":hover")) set(true, true);
+    if (!ctl && !$("#ppNow").matches(":hover") && !$("#ppSys").matches(":hover")) setCtl(true, true);
   }, 5000);
-  return { set, toggle: () => set(!off), load: s => set(!!s.pp_side_off, true) };
+  return { set, toggle: () => set(!off), toggleCtl: () => setCtl(!ctl), load: s => { set(!!s.pp_side_off, true); setCtl(!!s.pp_ctl_off, true); } };
 })();
 
 const Mini = (() => {

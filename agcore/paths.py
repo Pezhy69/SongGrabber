@@ -110,7 +110,8 @@ DEFAULTS = {
     "update_skip": "",
     "xfade": 4,                    # Player: Überblenden in Sekunden (0 = aus)
     "pp_side_off": False,          # Player: rechte Leiste (Warteschlange/Songtext) weggeschoben
-    "pp_side_auto": True,          # Player: rechte Leiste nach 1 Minute ohne Bedienung wegschieben
+    "pp_side_auto": True,          # Player: nach 1 Minute ohne Bedienung Leiste hochrollen + Bedienung einklappen
+    "pp_ctl_off": False,           # Player: Bedienung unten eingeklappt (kleine Knöpfe)
     "screen_hint_ok": False,       # Bildschirmaufnahme: Einverständnis-Hinweis gelesen
     "screen_opts": {},             # Bildschirmaufnahme: zuletzt gewählte Einstellungen
     "norm_play": True,             # Player: Lautstärke der Titel angleichen             # zuletzt vom Setup übernommener Musik-Ordner            # Player: eigene Farben {c0, c1, c2, sun0, sun1, sky}           # Player: Cover & Titel klein oben links (wie ein Senderlogo)                # Player: Lichtshow & Effekte an/aus
