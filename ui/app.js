@@ -1050,7 +1050,7 @@ $("#btnKeepLive").onclick = () => {
 
 /* ---------------------------------------------------------------- Neu in dieser Version (bei jeder Version ergänzen!) */
 const CHANGES = [
-  ["1.11.0", ["<b>Bildschirm aufnehmen</b>: Zoom, Teams, Webinar oder Live-Coaching als MP4-Video – ganzer Bildschirm oder nur ein Fenster, mit Vorschau", "Player: <b>rechte Leiste hochrollen</b> wie ein Rollo (Q) und <b>Bedienung einklappen</b> zu kleinen Knöpfen (H) – Drüberfahren zeigt alles, nach 1 Minute Ruhe passiert es von selbst", "<b>Bereich zeichnen</b>: nur einen Ausschnitt aufnehmen – z. B. nur das Video in YouTube, Zoom oder Teams", "Klar sichtbar, welcher Ton mit drauf ist: <b>Ton vom PC</b> und/oder <b>dein Mikrofon</b> – mit Pegelanzeige", "<b>Mikrofon während der Aufnahme an/aus</b> – z. B. nur kurz einschalten, um etwas zu sagen", "<b>Kleine Aufnahme-Leiste</b> oben rechts mit Uhr, Pause und Stopp – unter Windows im Video unsichtbar", "Fertiges Video direkt in SongGrabber ansehen – saubere Dateinamen ohne Emojis", "Pause, Verwerfen, auf Wunsch zusätzlich als MP3 – und beim Schließen geht keine laufende Aufnahme verloren"]],
+  ["1.11.0", ["<b>Bildschirm aufnehmen</b>: Zoom, Teams, Webinar oder Live-Coaching als MP4-Video – ganzer Bildschirm oder nur ein Fenster, mit Vorschau", "Neue Lichtshows: <b>Nordlicht</b>, <b>Disco-Kugel</b> und <b>Feuerwerk</b> (statt Tesla)", "Player: <b>rechte Leiste hochrollen</b> wie ein Rollo (Q) und <b>Bedienung einklappen</b> zu kleinen Knöpfen (H) – Drüberfahren zeigt alles, nach 1 Minute Ruhe passiert es von selbst", "<b>Bereich zeichnen</b>: nur einen Ausschnitt aufnehmen – z. B. nur das Video in YouTube, Zoom oder Teams", "Klar sichtbar, welcher Ton mit drauf ist: <b>Ton vom PC</b> und/oder <b>dein Mikrofon</b> – mit Pegelanzeige", "<b>Mikrofon während der Aufnahme an/aus</b> – z. B. nur kurz einschalten, um etwas zu sagen", "<b>Kleine Aufnahme-Leiste</b> oben rechts mit Uhr, Pause und Stopp – unter Windows im Video unsichtbar", "Fertiges Video direkt in SongGrabber ansehen – saubere Dateinamen ohne Emojis", "Pause, Verwerfen, auf Wunsch zusätzlich als MP3 – und beim Schließen geht keine laufende Aufnahme verloren"]],
   ["1.10.0", ["<b>SongGrabber für Linux</b>: Ubuntu, Mint, Debian, Fedora, Arch, openSUSE – mit <code>install.sh</code>, Startmenü-Eintrag, Papierkorb, Audio-CDs, Systemsound und „Alles am PC“ über MPRIS", "Update-Hinweis verlinkt automatisch die passende Datei für Windows bzw. Linux"]],
   ["1.9.1", ["<b>Mini-Player</b> friert nicht mehr ein – Fenster wird zuverlässig klein, bleibt im Vordergrund und kommt genau so zurück", "Knöpfe oben im Player bleiben bei jeder Fenstergröße sichtbar"]],
   ["1.9.0", ["<b>Überblenden</b>: sanfte Übergänge zwischen Titeln (2–12 s) – Alben am Stück bleiben nahtlos", "<b>Lautstärke angleichen</b>: leise und laute Titel klingen gleich laut", "<b>Mini-Player</b>: mit einem Klick als kleine Leiste unten rechts, immer im Vordergrund – mit Songtext-Zeile und Lichtshow", "<b>Bibliothek aufräumen</b>: doppelte Titel, fehlende Cover/Angaben, leere Ordner", "<b>Update-Hinweis</b>: SongGrabber sagt Bescheid, wenn es eine neue Version gibt"]],
@@ -1917,118 +1917,175 @@ const Viz = (() => {
     ripples = ripples.filter(r => r.a > .04);
   }
 
-  /* Tesla: Spule mit Blitzen – Bass zündet große Entladungen, Höhen knistern */
-  let bolts = [], flash = 0;
-  function makeBolt(x0, y0, x1, y1, rough, depth) {
-    let pts = [[x0, y0], [x1, y1]];
-    const len = Math.hypot(x1 - x0, y1 - y0);
-    for (let it = 0, off = len * rough; it < 6; it++, off *= .52) {
-      const np = [pts[0]];
-      for (let i = 0; i < pts.length - 1; i++) {
-        const [ax, ay] = pts[i], [bx, by] = pts[i + 1], dx = bx - ax, dy = by - ay, l = Math.hypot(dx, dy) || 1;
-        const m = (Math.random() - .5) * off; np.push([(ax + bx) / 2 - dy / l * m, (ay + by) / 2 + dx / l * m], pts[i + 1]);
+  /* Nordlichter: wehende Lichtschleier über Bergen – Bass hebt sie an, Höhen lassen sie flackern */
+  let mtnCache = null, mtnKey = "";
+  function mountains(p) {
+    const key = [W, H, p.sky[0], p.sky[2]].join("|");
+    if (mtnCache && mtnKey === key) return mtnCache;
+    const c = document.createElement("canvas"); c.width = W; c.height = H; const g = c.getContext("2d");
+    const ridge = (base, amp, seed, col) => {
+      g.beginPath(); g.moveTo(0, H);
+      for (let i = 0; i <= 80; i++) {
+        const t = i / 80, y = base - amp * (.55 * Math.abs(Math.sin(t * 5.3 + seed)) + .3 * Math.abs(Math.sin(t * 13.1 + seed * 2)) + .15 * Math.sin(t * 31 + seed * 3));
+        g.lineTo(t * W, y);
       }
-      pts = np;
-    }
-    const br = [];
-    if (depth > 0) for (let i = 4; i < pts.length - 4; i += 6) if (Math.random() < .22) {
-      const [bx, by] = pts[i], ang = Math.atan2(y1 - y0, x1 - x0) + (Math.random() - .5) * 1.6, bl = len * (.15 + Math.random() * .3);
-      br.push(makeBolt(bx, by, bx + Math.cos(ang) * bl, by + Math.sin(ang) * bl, rough * 1.1, depth - 1));
-    }
-    return { pts, br };
-  }
-  function boltLines(b, w, out) { out.push([b.pts, w]); b.br.forEach(s => boltLines(s, w * .55, out)); return out; }
-  let coilPat = null, coilPatD = 0;
-  let coilCache = null, coilKey = "";
-  function coilArt(cx, topY, baseY, R, p) {      // Spule einmal schön zeichnen, dann nur noch kopieren
-    const key = [W, H, D, p.c[0], p.c[1]].join("|");
-    if (coilCache && coilKey === key) return coilCache;
-    const cv2 = document.createElement("canvas"); cv2.width = W; cv2.height = H; const g = cv2.getContext("2d");
-    const cw = R * .40, colTop = topY + R * .22, platY = baseY - R * .35;
-    // Sockel (lackiert, mit Lichtkante)
-    const PW = R * 2.3, PH = R * .5;
-    let gr = g.createLinearGradient(0, platY, 0, platY + PH); gr.addColorStop(0, "#1c1b26"); gr.addColorStop(1, "#060509");
-    g.fillStyle = gr; g.fillRect(cx - PW, platY, PW * 2, PH);
-    g.beginPath(); g.ellipse(cx, platY + PH, PW, PW * .16, 0, 0, Math.PI); g.fill();
-    gr = g.createRadialGradient(cx - PW * .3, platY - PW * .05, 0, cx, platY, PW); gr.addColorStop(0, "#3a3848"); gr.addColorStop(1, "#121119");
-    g.fillStyle = gr; g.beginPath(); g.ellipse(cx, platY, PW, PW * .16, 0, 0, Math.PI * 2); g.fill();
-    g.strokeStyle = "rgba(255,255,255,.18)"; g.lineWidth = 1.2 * D; g.beginPath(); g.ellipse(cx, platY, PW, PW * .16, 0, Math.PI * 1.05, Math.PI * 1.95); g.stroke();
-    // Primärspule: Kupferrohr-Spirale
-    for (let i = 0; i < 5; i++) {
-      const rx = cw * 1.8 + i * R * .2, ry = rx * .16, yy = platY - R * .04 - i * .6 * D;
-      g.lineWidth = 3.4 * D; g.strokeStyle = "#5a2c0e"; g.beginPath(); g.ellipse(cx, yy, rx, ry, 0, 0, Math.PI * 2); g.stroke();
-      g.lineWidth = 1.6 * D; g.strokeStyle = "#e7a066"; g.beginPath(); g.ellipse(cx, yy - .8 * D, rx, ry, 0, Math.PI * 1.1, Math.PI * 1.9); g.stroke();
-      g.strokeStyle = "rgba(255,220,180,.5)"; g.lineWidth = .8 * D; g.beginPath(); g.ellipse(cx, yy - 1 * D, rx, ry, 0, Math.PI * .1, Math.PI * .9); g.stroke();
-    }
-    // Sekundärspule: Säule mit Zylinder-Schattierung und feiner Wicklung
-    gr = g.createLinearGradient(cx - cw, 0, cx + cw, 0);
-    [[0, "#1f0e04"], [.14, "#6b3511"], [.32, "#c27434"], [.42, "#ffd3a2"], [.5, "#e08f4c"], [.7, "#8a4517"], [.9, "#3a1a07"], [1, "#160903"]].forEach(([o, c]) => gr.addColorStop(o, c));
-    g.fillStyle = gr; g.fillRect(cx - cw, colTop, cw * 2, platY - colTop);
-    for (let yy = colTop + 2 * D; yy < platY - 2 * D; yy += 2.2 * D) {
-      g.fillStyle = "rgba(0,0,0,.28)"; g.fillRect(cx - cw, yy, cw * 2, Math.max(.6, .7 * D));
-      g.fillStyle = "rgba(255,230,200,.08)"; g.fillRect(cx - cw * .35, yy + .9 * D, cw * .5, Math.max(.5, .4 * D));
-    }
-    // Kanten-Schatten links/rechts für Rundung
-    gr = g.createLinearGradient(cx - cw, 0, cx + cw, 0); gr.addColorStop(0, "rgba(0,0,0,.55)"); gr.addColorStop(.18, "rgba(0,0,0,0)"); gr.addColorStop(.82, "rgba(0,0,0,0)"); gr.addColorStop(1, "rgba(0,0,0,.6)");
-    g.fillStyle = gr; g.fillRect(cx - cw, colTop, cw * 2, platY - colTop);
-    // Kunststoffkragen unten
-    gr = g.createLinearGradient(cx - cw * 1.25, 0, cx + cw * 1.25, 0); gr.addColorStop(0, "#09080d"); gr.addColorStop(.4, "#3b3946"); gr.addColorStop(1, "#08070b");
-    g.fillStyle = gr; g.fillRect(cx - cw * 1.25, platY - R * .22, cw * 2.5, R * .22);
-    g.beginPath(); g.ellipse(cx, platY - R * .22, cw * 1.25, cw * .22, 0, 0, Math.PI * 2); g.fillStyle = "#2a2833"; g.fill();
-    // Toroid: Aluminium-Ring mit Loch
-    const tx = R * 1.35, ty = R * .5;
-    gr = g.createLinearGradient(0, topY - ty, 0, topY + ty);
-    [[0, "#fbfcff"], [.22, "#d9dde7"], [.45, "#8d93a5"], [.62, "#4c5162"], [.82, "#22252f"], [1, "#0d0e14"]].forEach(([o, c]) => gr.addColorStop(o, c));
-    g.fillStyle = gr; g.beginPath(); g.ellipse(cx, topY, tx, ty, 0, 0, Math.PI * 2); g.fill();
-    gr = g.createLinearGradient(0, topY - ty * .4, 0, topY + ty * .1); gr.addColorStop(0, "#07070b"); gr.addColorStop(1, "#30333f");
-    g.fillStyle = gr; g.beginPath(); g.ellipse(cx, topY - ty * .14, tx * .42, ty * .26, 0, 0, Math.PI * 2); g.fill();
-    g.strokeStyle = "rgba(255,255,255,.75)"; g.lineWidth = 1.6 * D; g.beginPath(); g.ellipse(cx, topY - ty * .02, tx * .86, ty * .62, 0, Math.PI * 1.12, Math.PI * 1.62); g.stroke();
-    g.strokeStyle = "rgba(255,255,255,.25)"; g.lineWidth = 1 * D; g.beginPath(); g.ellipse(cx, topY - ty * .14, tx * .42, ty * .26, 0, Math.PI * .1, Math.PI * .9); g.stroke();
-    coilCache = cv2; coilKey = key; return cv2;
-  }
-  function tesla(p, bassV) {
-    const cx = W * .42, topY = H * .31, baseY = H * .74, R = Math.min(W, H) * .085;
-    x.fillStyle = "rgba(4,3,10,.42)"; x.fillRect(0, 0, W, H);
-    const gl = x.createRadialGradient(cx, topY, R * .3, cx, topY, Math.max(W, H) * .55);
-    gl.addColorStop(0, rgba(p.c[1], .20 + energy * .32 + beat * .25)); gl.addColorStop(.4, rgba(p.c[0], .05 + beat * .06)); gl.addColorStop(1, "rgba(0,0,0,0)");
-    x.fillStyle = gl; x.fillRect(0, 0, W, H);
-    // Bodenschein unter dem Sockel
-    x.save(); x.translate(cx, baseY); x.scale(1, .18);
-    const fg = x.createRadialGradient(0, 0, 0, 0, 0, R * 5); fg.addColorStop(0, rgba(p.c[0], .35 + beat * .3)); fg.addColorStop(1, "rgba(0,0,0,0)");
-    x.fillStyle = fg; x.beginPath(); x.arc(0, 0, R * 5, 0, Math.PI * 2); x.fill(); x.restore();
-    x.drawImage(coilArt(cx, topY, baseY, R, p), 0, 0);
-    // Farbschein der Blitze auf dem Ring
-    x.save(); x.globalCompositeOperation = "lighter";
-    x.strokeStyle = rgba(p.c[0], .35 + beat * .5 + energy * .3); x.lineWidth = (2 + beat * 3) * D;
-    x.beginPath(); x.ellipse(cx, topY, R * 1.35, R * .5, 0, 0, Math.PI * 2); x.stroke();
-    const cg = x.createRadialGradient(cx, topY, R * .8, cx, topY, R * 2.6); cg.addColorStop(0, rgba(p.c[1], .18 + beat * .3)); cg.addColorStop(1, "rgba(0,0,0,0)");
-    x.fillStyle = cg; x.fillRect(cx - R * 3, topY - R * 3, R * 6, R * 6); x.restore();
-    // neue Blitze: Bass/Beat = große Entladungen, Mitten = mittlere, Höhen = Knistern
-    const hi = bandAvg(46, 72), mids = bandAvg(12, 40);
-    const spawn = (count, minL, maxL, w, life, upward) => {
-      for (let i = 0; i < count; i++) {
-        const ang = upward ? -Math.PI / 2 + (Math.random() - .5) * 2.6 : Math.random() * Math.PI * 2;
-        const sx = cx + Math.cos(ang) * R * 1.2, sy = topY + Math.sin(ang) * R * .4;
-        const L = (minL + Math.random() * (maxL - minL)) * Math.min(W, H);
-        bolts.push({ b: makeBolt(sx, sy, sx + Math.cos(ang) * L, sy + Math.sin(ang) * L * .85, .28, 2), w, life, max: life, c: p.c[i % 3] });
-      }
+      g.lineTo(W, H); g.closePath(); g.fillStyle = col; g.fill();
     };
-    if (beat > .95) { spawn(2 + Math.round(bassV * 3), .35, .7, 2.6, 7, true); flash = .5; }
-    if (Math.random() < .12 + mids * .9) spawn(1, .12 + mids * .2, .3 + mids * .3, 1.6, 4, true);
-    if (Math.random() < hi * 2.2) spawn(1 + Math.round(hi * 3), .04, .12, .9, 2, false);
-    if (!a.paused || SysMode.on()) { if (Math.random() < .04) spawn(1, .08, .18, 1.1, 3, true); }
-    x.save(); x.globalCompositeOperation = "lighter"; x.lineCap = "round"; x.lineJoin = "round";
-    const byCol = {};
-    bolts.forEach(o => { const al = (o.life / o.max) * (.55 + Math.random() * .45); (byCol[o.c] = byCol[o.c] || []).push([boltLines(o.b, o.w, []), al]); o.life--;
-      if (Math.random() < .3) o.b = makeBolt(o.b.pts[0][0], o.b.pts[0][1], o.b.pts[o.b.pts.length - 1][0], o.b.pts[o.b.pts.length - 1][1], .28, 2); });
-    const pass = (c, wMul, aMul, white) => Object.entries(byCol).forEach(([col, list]) => list.forEach(([lines, al]) => {
-      x.strokeStyle = rgba(white ? "#ffffff" : col, Math.min(1, al * aMul));
-      lines.forEach(([pts, w]) => { x.lineWidth = Math.max(.6, w * wMul) * D; x.beginPath(); pts.forEach(([px, py], i) => i ? x.lineTo(px, py) : x.moveTo(px, py)); x.stroke(); });
-    }));
-    pass(null, 7, .10); pass(null, 3, .35); pass(null, 1, 1, true);       // weiter Schein, Farbe, heller Kern
+    ridge(H * .80, H * .20, 1.3, "#0a0d1a");
+    ridge(H * .86, H * .14, 4.1, "#05060d");
+    const lake = g.createLinearGradient(0, H * .86, 0, H); lake.addColorStop(0, "rgba(255,255,255,.04)"); lake.addColorStop(1, "rgba(0,0,0,0)");
+    g.fillStyle = lake; g.fillRect(0, H * .86, W, H * .14);
+    mtnCache = c; mtnKey = key; return c;
+  }
+  const raySprites = {};
+  function raySprite(col) {                 // ein senkrechter Lichtstreifen: unten hell, nach oben verblassend
+    if (raySprites[col]) return raySprites[col];
+    const c = document.createElement("canvas"); c.width = 4; c.height = 128; const g = c.getContext("2d");
+    const gr = g.createLinearGradient(0, 0, 0, 128);
+    gr.addColorStop(0, rgba(col, 0)); gr.addColorStop(.55, rgba(col, .35)); gr.addColorStop(.86, rgba(col, 1)); gr.addColorStop(.93, rgba("#ffffff", .55)); gr.addColorStop(1, rgba(col, 0));
+    g.fillStyle = gr; g.fillRect(0, 0, 4, 128);
+    return (raySprites[col] = c);
+  }
+  function aurora(p, bassV) {
+    const g0 = x.createLinearGradient(0, 0, 0, H);
+    g0.addColorStop(0, "#010208"); g0.addColorStop(.7, p.sky[0]); g0.addColorStop(1, "#03040a");
+    x.fillStyle = g0; x.fillRect(0, 0, W, H);
+    const now = performance.now() / 1000;
+    for (const s of stars) { x.globalAlpha = .2 + .45 * Math.abs(Math.sin(now * .6 + s[3])); x.fillStyle = "#fff"; x.fillRect(s[0] * W, s[1] * H * 1.4, s[2] * D * .8, s[2] * D * .8); }
+    x.globalAlpha = 1;
+    const n = bars.length, hi = bandAvg(46, 72), cols = 150, cw = W / cols;
+    x.save(); x.globalCompositeOperation = "lighter";
+    [[p.c[2] || p.c[0], .40, 0, [0, 24], .9], [p.c[0], .50, 2.1, [8, 40], 1], [p.c[1], .60, 4.2, [24, 60], .8]].forEach(([col, yb, ph, rg, str]) => {
+      const lv = bandAvg(rg[0], rg[1]), spr = raySprite(col);
+      for (let i = 0; i < cols; i++) {
+        const t = i / cols;
+        // Vorhang-Linie: sanfte Falten, die langsam wandern
+        const fold = Math.sin(t * 7 + now * .3 + ph) * .06 + Math.sin(t * 17 - now * .55 + ph * 1.7) * .018 + Math.sin(t * 2.4 + now * .12 + ph) * .05;
+        const base = H * (yb + fold);
+        const b = bars[Math.min(n - 1, Math.floor(rg[0] + t * (rg[1] - rg[0])))] || 0;
+        const hgt = H * (.12 + .14 * Math.sin(t * 5 + now * .5 + ph) ** 2 + lv * .25 + b * .15 + bassV * .05);
+        // Helligkeit: Bänder im Vorhang + Flackern mit den Höhen
+        const band = .35 + .65 * Math.pow(Math.sin(t * 23 + now * 1.1 + ph * 3) * .5 + .5, 2);
+        const flick = 1 - hi * .6 * (Math.sin(i * 91.7 + now * 30) * .5 + .5);
+        const edge = Math.min(1, t * 6, (1 - t) * 6);
+        x.globalAlpha = Math.min(1, (.32 + lv * .8 + beat * .2) * band * flick * edge * str);
+        const x0 = Math.floor(i * cw); x.drawImage(spr, x0, base - hgt, Math.floor((i + 1) * cw) - x0, hgt * 1.08);
+      }
+    });
     x.restore();
-    bolts = bolts.filter(o => o.life > 0); if (bolts.length > 40) bolts.splice(0, bolts.length - 40);
-    if (flash > .01) { x.fillStyle = rgba("#ffffff", flash * .18); x.fillRect(0, 0, W, H); flash *= .7; }
+    x.drawImage(mountains(p), 0, 0);
+    x.save(); x.globalAlpha = .12 + energy * .2; x.globalCompositeOperation = "lighter";
+    const rf = x.createLinearGradient(0, H * .86, 0, H); rf.addColorStop(0, rgba(p.c[0], .5)); rf.addColorStop(1, rgba(p.c[1], 0));
+    x.fillStyle = rf; x.fillRect(0, H * .86, W, H * .14); x.restore();
+  }
+
+  /* Disco-Kugel: dreht sich, wirft Lichtpunkte und Strahlen – Takt lässt alles aufblitzen */
+  let discoDots = [];
+  function disco(p, bassV) {
+    const cx = W * .42, cy = H * .2, R = Math.min(W, H) * .1, now = performance.now() / 1000, rot = now * .35;
+    const bg = x.createRadialGradient(cx, H * .55, 0, cx, H * .55, Math.max(W, H) * .8);
+    bg.addColorStop(0, rgba(p.c[1], .16 + energy * .15)); bg.addColorStop(1, "#030209");
+    x.fillStyle = bg; x.fillRect(0, 0, W, H);
+    // Boden mit Lichtschein
+    const fl = x.createLinearGradient(0, H * .72, 0, H); fl.addColorStop(0, "rgba(255,255,255,.03)"); fl.addColorStop(1, rgba(p.c[0], .10 + beat * .12));
+    x.fillStyle = fl; x.fillRect(0, H * .72, W, H * .28);
+    // Strahlen
+    x.save(); x.globalCompositeOperation = "lighter";
+    const beams = 8;
+    for (let i = 0; i < beams; i++) {
+      const ang = Math.PI / 2 + Math.sin(rot * 1.3 + i * 2.4) * 1.1, len = Math.max(W, H) * 1.1, wd = .05 + bassV * .03;
+      const col = p.c[i % 3], al = .05 + beat * .16 + energy * .07;
+      const gr = x.createLinearGradient(cx, cy, cx + Math.cos(ang) * len, cy + Math.sin(ang) * len);
+      gr.addColorStop(0, rgba(col, al * 2)); gr.addColorStop(1, rgba(col, 0));
+      x.fillStyle = gr; x.beginPath(); x.moveTo(cx, cy);
+      x.lineTo(cx + Math.cos(ang - wd) * len, cy + Math.sin(ang - wd) * len); x.lineTo(cx + Math.cos(ang + wd) * len, cy + Math.sin(ang + wd) * len); x.closePath(); x.fill();
+    }
+    // Lichtpunkte im Raum (wandern mit der Drehung)
+    if (discoDots.length !== 110) discoDots = Array.from({ length: 110 }, () => ({ a: Math.random() * Math.PI * 2, y: .1 + Math.random() * .85, s: .6 + Math.random(), c: Math.floor(Math.random() * 3) }));
+    for (const d of discoDots) {
+      const a2 = d.a + rot, vis = Math.cos(a2);
+      if (vis < -.2) continue;
+      const px = cx + Math.sin(a2) * W * .62, py = d.y * H, r = (2 + d.s * 3 + bassV * 4 + beat * 4) * D * (.6 + vis * .5);
+      const g = x.createRadialGradient(px, py, 0, px, py, r * 2.2); g.addColorStop(0, rgba("#ffffff", .7 * (.4 + vis * .6))); g.addColorStop(.35, rgba(p.c[d.c], .55 * (.4 + vis * .6))); g.addColorStop(1, rgba(p.c[d.c], 0));
+      x.fillStyle = g; x.fillRect(px - r * 2.2, py - r * 2.2, r * 4.4, r * 4.4);
+    }
+    x.restore();
+    // Aufhängung
+    x.strokeStyle = "rgba(200,200,220,.35)"; x.lineWidth = 1.5 * D; x.beginPath(); x.moveTo(cx, 0); x.lineTo(cx, cy - R); x.stroke();
+    // Kugel: Spiegelplättchen
+    const sg = x.createRadialGradient(cx - R * .35, cy - R * .4, R * .1, cx, cy, R);
+    sg.addColorStop(0, "#d8dbe6"); sg.addColorStop(.5, "#5b5f70"); sg.addColorStop(1, "#14151c");
+    x.fillStyle = sg; x.beginPath(); x.arc(cx, cy, R, 0, Math.PI * 2); x.fill();
+    const rows = 12, colsN = 22;
+    x.save(); x.beginPath(); x.arc(cx, cy, R, 0, Math.PI * 2); x.clip();
+    for (let r = 0; r < rows; r++) {
+      const la0 = -Math.PI / 2 + r / rows * Math.PI, la1 = la0 + Math.PI / rows, y0 = cy + Math.sin(la0) * R, y1 = cy + Math.sin(la1) * R, rr = Math.cos((la0 + la1) / 2) * R;
+      for (let c = 0; c < colsN; c++) {
+        const lo = c / colsN * Math.PI * 2 + rot, s = Math.sin(lo), s2 = Math.sin(lo + Math.PI * 2 / colsN);
+        if (Math.cos(lo) < 0) continue;
+        const xa = cx + s * rr, xb = cx + s2 * rr;
+        const tw = Math.sin(r * 7.1 + c * 3.7 + now * 4) * .5 + .5, lit = Math.cos(lo - .6) * .5 + .5;
+        const v = Math.min(1, lit * .55 + (tw > .93 ? .6 + beat * .4 : 0));
+        x.fillStyle = tw > .95 ? rgba(p.c[(r + c) % 3], .9) : `rgba(${200 * v + 30 | 0},${200 * v + 30 | 0},${220 * v + 35 | 0},.9)`;
+        x.fillRect(Math.min(xa, xb) + .6 * D, y0 + .6 * D, Math.max(.5, Math.abs(xb - xa) - 1.2 * D), Math.max(.5, y1 - y0 - 1.2 * D));
+      }
+    }
+    x.restore();
+    x.save(); x.globalCompositeOperation = "lighter";
+    const glow = x.createRadialGradient(cx, cy, R * .8, cx, cy, R * 2.4); glow.addColorStop(0, rgba(p.c[0], .15 + beat * .3)); glow.addColorStop(1, "rgba(0,0,0,0)");
+    x.fillStyle = glow; x.fillRect(cx - R * 3, cy - R * 3, R * 6, R * 6); x.restore();
+  }
+
+  /* Feuerwerk: Raketen steigen im Takt auf – je lauter, desto größer die Explosion */
+  let rockets = [], sparks = [], cityCache = null, cityKey = "", skyFlash = 0, lastLaunch = 0;
+  function city(p) {
+    const key = [W, H].join("|");
+    if (cityCache && cityKey === key) return cityCache;
+    const c = document.createElement("canvas"); c.width = W; c.height = H; const g = c.getContext("2d");
+    let xx = 0; g.fillStyle = "#04040a";
+    while (xx < W) {
+      const bw = (18 + Math.random() * 46) * D, bh = H * (.05 + Math.random() * .16);
+      g.fillRect(xx, H - bh, bw, bh);
+      g.fillStyle = "rgba(255,210,140,.35)";
+      for (let wy = H - bh + 6 * D; wy < H - 6 * D; wy += 9 * D) for (let wx = xx + 4 * D; wx < xx + bw - 5 * D; wx += 8 * D) if (Math.random() < .18) g.fillRect(wx, wy, 3 * D, 4 * D);
+      g.fillStyle = "#04040a"; xx += bw + Math.random() * 6 * D;
+    }
+    cityCache = c; cityKey = key; return c;
+  }
+  function launch(p, power) {
+    const sx = W * (.12 + Math.random() * .62);
+    rockets.push({ x: sx, y: H, vx: (Math.random() - .5) * 1.4 * D, vy: -(H * (.0115 + Math.random() * .004 + power * .004)), c: p.c[Math.floor(Math.random() * 3)], p: power });
+  }
+  function fireworks(p, bassV) {
+    x.fillStyle = "rgba(3,3,10,.18)"; x.fillRect(0, 0, W, H);
+    if (skyFlash > .01) { x.fillStyle = rgba(p.c[1], skyFlash * .12); x.fillRect(0, 0, W, H); skyFlash *= .85; }
+    const now = performance.now(), playing = !a.paused || SysMode.on();
+    if (beat > .95 && now - lastLaunch > 180) { launch(p, .5 + bassV); if (bassV > .55) launch(p, bassV); lastLaunch = now; }
+    else if (playing && (Math.random() < .01 + energy * .04 || (!rockets.length && now - lastLaunch > 1100))) { launch(p, .3 + energy); lastLaunch = now; }
+    else if (!playing && Math.random() < .004) launch(p, .3);
+    x.save(); x.globalCompositeOperation = "lighter";
+    for (const r of rockets) {
+      r.x += r.vx; r.y += r.vy; r.vy += H * .00016;
+      x.fillStyle = rgba("#fff3d6", .9); x.fillRect(r.x - D, r.y - D, 2.4 * D, 2.4 * D);
+      if (Math.random() < .7) sparks.push({ x: r.x, y: r.y, vx: (Math.random() - .5) * .6 * D, vy: Math.random() * D, l: .5, c: "#ffcf8a", s: 1.4 });
+      if (r.vy >= -H * .0012) {                       // Gipfel: Explosion
+        r.done = true; skyFlash = Math.min(1, skyFlash + .4 + r.p * .4);
+        const cnt = Math.round(70 + r.p * 120), sp = (2.2 + r.p * 3.2) * D, ring = Math.random() < .3, c2 = p.c[Math.floor(Math.random() * 3)];
+        for (let i = 0; i < cnt; i++) {
+          const ang = Math.random() * Math.PI * 2, v = ring ? sp : sp * (.3 + Math.random() * .8);
+          sparks.push({ x: r.x, y: r.y, vx: Math.cos(ang) * v, vy: Math.sin(ang) * v, l: 1, c: i % 4 === 0 ? c2 : r.c, s: 2.2, tw: Math.random() < .3 });
+        }
+      }
+    }
+    rockets = rockets.filter(r => !r.done && r.y > -50);
+    for (const s of sparks) {
+      s.x += s.vx; s.y += s.vy; s.vx *= .975; s.vy = s.vy * .975 + .045 * D; s.l -= .011;
+      const al = Math.max(0, s.l) * (s.tw && Math.random() < .4 ? .3 : 1);
+      x.fillStyle = rgba(s.c, al); const sz = s.s * D * (.6 + s.l * .6); x.fillRect(s.x - sz / 2, s.y - sz / 2, sz, sz);
+    }
+    x.restore();
+    sparks = sparks.filter(s => s.l > 0); if (sparks.length > 2500) sparks.splice(0, sparks.length - 2500);
+    x.drawImage(city(p), 0, 0);
   }
   function calm(p, bassV) {
     const g = x.createRadialGradient(W * .42, H * .45, 0, W * .42, H * .45, Math.max(W, H) * .8);
@@ -2073,13 +2130,13 @@ const Viz = (() => {
     if (!$("#page-player").classList.contains("active")) { if (!SysMode.on()) sample(now); if (!a.paused) raf = requestAnimationFrame(frame); return; }
     resize();
     const bassV = sample(now), p = pal();
-    if (mode === "synth") synth(p, bassV); else if (mode === "bars") barsScene(p, bassV); else if (mode === "ring") ring(p, bassV); else if (mode === "wave") waveScene(p); else if (mode === "tesla") tesla(p, bassV); else calm(p, bassV);
+    if (mode === "synth") synth(p, bassV); else if (mode === "bars") barsScene(p, bassV); else if (mode === "ring") ring(p, bassV); else if (mode === "wave") waveScene(p); else if (mode === "aurora") aurora(p, bassV); else if (mode === "disco") disco(p, bassV); else if (mode === "fireworks") fireworks(p, bassV); else calm(p, bassV);
     raf = requestAnimationFrame(frame);
   }
   function start() { Audio_.connect(); if (!fx) { drawStill(); return; } if (!raf) raf = requestAnimationFrame(frame); }
   window.addEventListener("resize", () => { if (!fx) drawStill(); });
   a.addEventListener("play", start);
-  const MODES = ["synth", "bars", "ring", "wave", "tesla", "off"];
+  const MODES = ["synth", "bars", "ring", "wave", "aurora", "disco", "fireworks", "off"];
   return {
     start, setMode, setTheme, setCover, setFx, fx: () => fx, redraw() { if (!fx) drawStill(); }, mode: () => mode, theme: () => theme, external(f) { ext = f; },
     cycle() { const m = MODES[(MODES.indexOf(mode) + 1) % MODES.length]; setMode(m); call("save_settings", { viz_mode: m }); },
@@ -3207,7 +3264,7 @@ async function boot() {
   S.presets = i.presets; S.settings = i.settings;
   Player.setVolume(S.settings.volume ?? .8);
   $("#xfSel").value = String(S.settings.xfade ?? 4); $("#normPlay").checked = S.settings.norm_play !== false;
-  Colors.load(S.settings); SideBar.load(S.settings); Viz.setMode(S.settings.viz_mode || "synth"); Viz.setTheme(THEMES[S.settings.viz_theme] ? S.settings.viz_theme : "synth"); Viz.setFx(S.settings.viz_fx !== false); InfoMin.set(S.settings.pp_info_min !== false); EQ.load(S.settings);
+  Colors.load(S.settings); SideBar.load(S.settings); Viz.setMode(S.settings.viz_mode === "tesla" ? "aurora" : (S.settings.viz_mode || "synth")); Viz.setTheme(THEMES[S.settings.viz_theme] ? S.settings.viz_theme : "synth"); Viz.setFx(S.settings.viz_fx !== false); InfoMin.set(S.settings.pp_info_min !== false); EQ.load(S.settings);
   Player.refresh(); Player.restore();
   fillPresets(presetFmt(S.settings.preset), S.settings.preset);
   $("#aboutVer").textContent = "Version " + i.version;
