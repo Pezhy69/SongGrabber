@@ -7,6 +7,16 @@
 - **Windows 10/11:** `SongGrabber-Setup-<Version>.exe` starten.
 - **Linux** (Ubuntu, Mint, Debian, Fedora, Arch, openSUSE): `SongGrabber-<Version>-linux.tar.gz` entpacken, im Ordner `./install.sh` ausführen. Danach steht SongGrabber im Startmenü.
 
+## So sieht es aus
+
+<p align="center"><img src="docs/screenshots/player.png" width="900" alt="Player mit Lichtshow „Synthwave“"></p>
+
+| | |
+|---|---|
+| <img src="docs/screenshots/links.png" alt="Links & Streams: YouTube-Album wird in Titel aufgeteilt"><br><sub><b>Links & Streams</b> – ganze Alben von YouTube & Co., automatisch in Titel geteilt und getaggt</sub> | <img src="docs/screenshots/cd.png" alt="Audio-CD mit Titeln von MusicBrainz"><br><sub><b>Audio-CD</b> – Bit für Bit gelesen, Titel und Cover von MusicBrainz</sub> |
+| <img src="docs/screenshots/rec.png" alt="Aufnahme mit Pegelanzeige"><br><sub><b>Aufnahme</b> – Schallplatte, Kassette, Systemsound oder Mikrofon mit Pegelanzeige</sub> | <img src="docs/screenshots/library.png" alt="Bibliothek"><br><sub><b>Bibliothek</b> – suchen, abspielen, aufräumen, Playlists erstellen</sub> |
+| <img src="docs/screenshots/radio.png" alt="Radio & Podcasts"><br><sub><b>Radio & Podcasts</b> – über 30.000 Sender mit Songtext und Mitschnitt</sub> | <img src="docs/screenshots/player.png" alt="Player"><br><sub><b>Player</b> – Lichtshow, Equalizer, Songtext, Mini-Player</sub> |
+
 Audio von **Audio-CD, Links/Streams, Schallplatte/Kassette/Systemsound und Dateien/DVD** als
 **MP3 (LAME), WAV oder FLAC** – mit ID3-Tags, Cover und schöner Oberfläche. Läuft komplett autark
 als portabler Ordner (nichts installieren) und lässt sich mit dem **Multi Video Downloader** koppeln.
