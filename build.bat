@@ -1,7 +1,8 @@
 @echo off
 chcp 65001 >nul
 setlocal
-cd /d "%~dp0"
+rem pushd statt cd: funktioniert auch auf Netzlaufwerken (\\NAS\...), Windows leiht dafuer kurz einen Laufwerksbuchstaben
+pushd "%~dp0"
 echo === SongGrabber Build ===
 
 for /f "delims=" %%v in ('python -c "from agcore.paths import VERSION; print(VERSION)"') do set "VER=%%v"
@@ -73,6 +74,7 @@ echo  Portabel:      dist\SongGrabber\SongGrabber.exe
 echo ============================================================
 if exist "Setup" (start "" explorer "Setup") else (start "" explorer "dist\SongGrabber")
 pause
+popd
 exit /b 0
 
 :findiscc
@@ -86,4 +88,5 @@ exit /b 0
 echo.
 echo Build fehlgeschlagen.
 pause
+popd
 exit /b 1
