@@ -806,9 +806,27 @@ async function playVideo(path) {
     ],
     onClose: () => { const v = box.querySelector("video"); if (v) { v.pause(); v.removeAttribute("src"); v.load(); } } });
   box.classList.add("vid-modal");
-  const v = box.querySelector("video");
+  const v = box.querySelector("video"), head = box.querySelector(".m-head");
+  let winFs = false;
+  const tools = document.createElement("div");
+  tools.className = "vid-tools";
+  tools.innerHTML = `<button class="ghost sm" data-v="big" title="Fenster groß / klein (Doppelklick aufs Bild)"><svg><use href="#i-expand"/></svg><span>Größer</span></button><button class="ghost sm" data-v="fs" title="Vollbild (Esc beendet)"><svg><use href="#i-full"/></svg><span>Vollbild</span></button>`;
+  head.insertBefore(tools, head.querySelector("[data-close]"));
+  const setBig = on => { box.classList.toggle("big", on); box.style.width = box.style.height = ""; tools.querySelector("[data-v=big] span").textContent = on ? "Kleiner" : "Größer"; };
+  const fs = async on => {
+    if (on === winFs) return;
+    const r = await call("toggle_fullscreen").catch(() => null);
+    winFs = r === null ? on : !!r; box.classList.toggle("fs", winFs); if (winFs) setBig(true);
+    tools.querySelector("[data-v=fs] span").textContent = winFs ? "Vollbild aus" : "Vollbild";
+  };
+  tools.querySelector("[data-v=big]").onclick = () => setBig(!box.classList.contains("big"));
+  tools.querySelector("[data-v=fs]").onclick = () => fs(!winFs);
+  const esc_ = e => { if (e.key === "Escape" && winFs) { e.stopPropagation(); fs(false); } };
+  document.addEventListener("keydown", esc_, true);
+  const prevClose = dlgClose;
+  dlgClose = () => { document.removeEventListener("keydown", esc_, true); if (winFs) fs(false); prevClose && prevClose(); };
   v.addEventListener("error", () => { toast("Dieses Video lässt sich hier nicht abspielen – es wird mit einem anderen Programm geöffnet.", "err"); closeDialog(); call("open_file", path); });
-  v.addEventListener("dblclick", () => { if (document.fullscreenElement) document.exitFullscreen(); else v.requestFullscreen?.(); });
+  v.addEventListener("dblclick", e => { e.preventDefault(); if (winFs) fs(false); else setBig(!box.classList.contains("big")); });
 }
 window.Scr = Scr;
 
