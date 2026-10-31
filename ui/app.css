@@ -1077,3 +1077,23 @@ body.is-scrbar .scrbar.paused{border-top-color:var(--info)}
 .modal.vid-modal.fs{width:100vw!important;height:100vh!important;border-radius:0;border:0}
 .modal-bg:has(.vid-modal.fs){padding:0}
 .vid-modal .m-head h3{max-width:calc(100% - 40px);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+/* ---------- Bereich zeichnen ---------- */
+.scr-kind{grid-template-columns:1fr 1fr 1fr}
+.scr-shot{aspect-ratio:var(--ar,16/10);margin:0 auto;width:min(100%, calc(360px * var(--arn,1.6)));background-size:100% 100%}
+.scr-cropbox{position:absolute;border:2px solid var(--accent);box-shadow:0 0 0 999px rgba(0,0,0,.55);border-radius:2px;pointer-events:none}
+.scr-croprow{display:flex;align-items:center;gap:10px;margin-top:-4px}
+.scr-croprow .ghost{display:flex;align-items:center;gap:7px}
+.scr-croprow svg{width:14px;height:14px}
+.scr-croprow .link:hover{color:var(--text)}
+.scr-list .scr-sec{font-size:11px;letter-spacing:1px;text-transform:uppercase;color:var(--dim);font-weight:650;margin:6px 2px 2px}
+.modal.crop-modal{width:min(1240px,96vw)}
+.crop-tip{margin:0 0 10px;font-size:13px}
+.crop-stage{position:relative;user-select:none;touch-action:none;background:#000;border-radius:8px;overflow:hidden;cursor:crosshair;line-height:0}
+.crop-stage img{display:block;width:100%;max-height:68vh;object-fit:contain;pointer-events:none}
+.crop-stage .loading{position:absolute;inset:0;display:grid;place-items:center;color:var(--muted);font-size:13px;line-height:1.4}
+.crop-rect{position:absolute;border:2px solid var(--accent);box-shadow:0 0 0 9999px rgba(0,0,0,.55);cursor:move}
+.crop-rect i{position:absolute;width:14px;height:14px;background:var(--accent);border:2px solid #fff;border-radius:3px}
+.crop-rect i[data-h=nw]{left:-8px;top:-8px;cursor:nwse-resize}.crop-rect i[data-h=ne]{right:-8px;top:-8px;cursor:nesw-resize}
+.crop-rect i[data-h=sw]{left:-8px;bottom:-8px;cursor:nesw-resize}.crop-rect i[data-h=se]{right:-8px;bottom:-8px;cursor:nwse-resize}
+.crop-rect b{position:absolute;left:6px;top:6px;font:600 11.5px/1.3 var(--mono);background:rgba(0,0,0,.7);color:#fff;padding:2px 6px;border-radius:5px;white-space:nowrap}

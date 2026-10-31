@@ -492,12 +492,12 @@ async function monitorLoop() {
 /* ---------------------------------------------------------------- Bildschirm aufnehmen */
 const Scr = (() => {
   let data = null, kind = "screen", src = null, devs = null, st = { state: "idle" }, view = "setup";
-  let prevT = null, prevBusy = false, lvlT = null, pollT = null, discardArm = 0, barOn = false;
+  let prevT = null, prevBusy = false, lvlT = null, pollT = null, discardArm = 0, barOn = false, crop = null;
   const active = () => $("#page-screen").classList.contains("active");
   const sep = () => (S.settings.output_dir || "").includes("\\") ? "\\" : "/";
   const db2w = v => Math.max(0, Math.min(100, ((v ?? -90) + 60) / 60 * 100));
   const opts = () => ({ source: src && src.id, sys_audio: $("#scrSys").checked, mic: $("#scrMic").checked, mic_device: $("#scrMicDev").value,
-    fps: +$("#scrFps").value, quality: $("#scrQ").value, cursor: $("#scrCursor").checked, mp3: $("#scrMp3").checked, small: $("#scrSmall").checked, kind });
+    fps: +$("#scrFps").value, quality: $("#scrQ").value, cursor: $("#scrCursor").checked, mp3: $("#scrMp3").checked, small: $("#scrSmall").checked, kind, crop });
 
   function applyOpts() {
     const o = S.settings.screen_opts || {};
@@ -509,6 +509,7 @@ const Scr = (() => {
     if (o.cursor !== undefined) $("#scrCursor").checked = !!o.cursor;
     if (o.mp3 !== undefined) $("#scrMp3").checked = !!o.mp3;
     if (o.small !== undefined) $("#scrSmall").checked = !!o.small;
+    if (o.crop) crop = o.crop;
   }
   async function remember() {
     const o = opts(); o.last = o.source; delete o.source;
@@ -544,31 +545,38 @@ const Scr = (() => {
     const last = (S.settings.screen_opts || {}).last;
     const all = [...data.screens, ...data.windows];
     src = all.find(x => x.id === (src && src.id)) || all.find(x => x.id === last) || null;
-    if (src) kind = src.id.startsWith("win:") ? "win" : "screen";
+    if (!src) crop = null;
+    if (src && kind !== "area") kind = src.id.startsWith("win:") ? "win" : "screen";
     pickDefault();
     renderList(); preview(true);
   }
+  const itemsFor = k => k === "screen" ? data.screens : k === "win" ? data.windows : [...data.screens, ...data.windows.filter(w => !w.minimized)];
   function pickDefault() {
-    const items = kind === "screen" ? data.screens : data.windows;
+    const items = itemsFor(kind);
     if (src && items.some(x => x.id === src.id)) return;
-    src = kind === "screen" ? (items.find(x => x.primary) || items[0] || null)
+    src = kind !== "win" ? (items.find(x => x.primary) || items[0] || null)
       : (items.find(x => !x.minimized && /zoom|teams|webex|meet|skype|discord|slack|jitsi/i.test(x.app + " " + x.title)) || items.find(x => !x.minimized) || items[0] || null);
   }
   function renderList() {
     $$("#scrKind button").forEach(b => b.classList.toggle("active", b.dataset.k === kind));
     $("#scrKindTip").textContent = kind === "screen"
       ? "Alles, was auf diesem Bildschirm zu sehen ist – auch Hinweise und andere Fenster."
-      : "Nur dieses eine Fenster. Es darf verschoben werden, aber nicht minimiert sein.";
-    const items = kind === "screen" ? data.screens : data.windows;
+      : kind === "win" ? "Nur dieses eine Fenster. Es darf verschoben werden, aber nicht minimiert sein."
+      : "Wähle, worin der Bereich liegt – dann ziehst du ein Rechteck darum, z. B. nur um das Video in Zoom, Teams oder YouTube.";
+    const items = itemsFor(kind);
     const box = $("#scrList");
     if (!items.length) { box.innerHTML = `<div class="muted" style="font-size:12.5px">${kind === "screen" ? "Kein Bildschirm gefunden." : "Keine offenen Fenster gefunden – starte zuerst Zoom, Teams oder das Programm, das du aufnehmen willst, und klicke dann auf „Neu suchen“."}</div>`; summary(); return; }
-    box.innerHTML = items.map(x => kind === "screen"
+    const isScr = x => !x.id.startsWith("win:");
+    box.innerHTML = items.map((x, i) => (kind === "area" && (i === 0 || isScr(items[i - 1]) !== isScr(x)) ? `<div class="scr-sec">${isScr(x) ? "Auf dem Bildschirm" : "In einem Fenster"}</div>` : "") + (isScr(x)
       ? `<button class="scr-src ${src && src.id === x.id ? "sel" : ""}" data-id="${esc(x.id)}"><span class="si">${esc(x.id.split(":")[1] * 1 + 1)}</span><span><b>${esc(x.name)}</b><small>${x.primary ? "Hauptbildschirm" : "weiterer Bildschirm"}</small></span><em>${esc(x.size)}</em></button>`
-      : `<button class="scr-src ${src && src.id === x.id ? "sel" : ""} ${x.minimized ? "min" : ""}" data-id="${esc(x.id)}" title="${esc(x.title)}"><span class="si">${esc((x.app || "?").slice(0, 1).toUpperCase())}</span><span><b>${esc(x.title)}</b><small>${esc(x.app)}${x.minimized ? " · minimiert" : ""}</small></span><em>${x.w && x.h ? x.w + " × " + x.h : ""}</em></button>`).join("");
+      : `<button class="scr-src ${src && src.id === x.id ? "sel" : ""} ${x.minimized ? "min" : ""}" data-id="${esc(x.id)}" title="${esc(x.title)}"><span class="si">${esc((x.app || "?").slice(0, 1).toUpperCase())}</span><span><b>${esc(x.title)}</b><small>${esc(x.app)}${x.minimized ? " · minimiert" : ""}</small></span><em>${x.w && x.h ? x.w + " × " + x.h : ""}</em></button>`)).join("");
     $$("#scrList .scr-src").forEach(b => b.onclick = () => {
-      src = items.find(x => x.id === b.dataset.id);
+      const nw = items.find(x => x.id === b.dataset.id);
+      if (!src || nw.id !== src.id) crop = null;
+      src = nw;
       $$("#scrList .scr-src").forEach(y => y.classList.toggle("sel", y === b));
       summary(); preview(true); remember();
+      if (kind === "area") openCrop();
     });
     summary();
   }
@@ -597,14 +605,20 @@ const Scr = (() => {
     const line = (on, icon, txt) => `<div class="${on ? "on" : "off"}"><svg><use href="#${icon}"/></svg><span>${txt}</span></div>`;
     const what = !src ? `<div class="warn"><svg><use href="#i-help"/></svg>Bitte oben auswählen, was aufgenommen werden soll.</div>`
       : line(true, src.id.startsWith("win:") ? "i-window" : "i-screen", src.id.startsWith("win:") ? `Fenster „${esc(src.title)}“` : `${esc(src.name)} (${esc(src.size)})`);
-    let h = `<span class="t">So wird aufgenommen</span>${what}`
+    let cl = "";
+    if (src && crop) {
+      const W = src.w && Math.round(src.w * crop.w), H = src.h && Math.round(src.h * crop.h);
+      cl = line(true, "i-crop", "Nur dieser Bereich" + (W && H ? ` <span class="muted">· ca. ${W} × ${H}</span>` : ""));
+    } else if (src && kind === "area") cl = `<div class="warn"><svg><use href="#i-crop"/></svg>Bitte noch den Bereich zeichnen.</div>`;
+    let h = `<span class="t">So wird aufgenommen</span>${what}${cl}`
       + line(o.sys_audio, "i-vol", o.sys_audio ? "Ton vom PC" : "Ton vom PC – nein")
       + line(o.mic, "i-mic", o.mic ? "Dein Mikrofon" + (mic ? ` <span class="muted">· ${esc(mic.name)}</span>` : "") : "Dein Mikrofon – nein");
     if (!o.sys_audio && !o.mic) h += `<div class="warn"><svg><use href="#i-mute"/></svg>Ohne Ton – es wird nur das Bild aufgenommen.</div>`;
     else if (o.sys_audio && !o.mic) h += `<div class="warn"><svg><use href="#i-mic"/></svg>Man hört nur die anderen, nicht dich.</div>`;
     if (src && src.minimized) h += `<div class="warn"><svg><use href="#i-window"/></svg>Dieses Fenster ist minimiert – bitte vorher öffnen.</div>`;
     $("#scrSum").innerHTML = h;
-    $("#scrGo").disabled = !src;
+    $("#scrGo").disabled = !src || (kind === "area" && !crop);
+    cropUi();
     const d = S.settings.output_dir || "";
     $("#scrWhere").textContent = d ? `Wird als MP4-Video gespeichert in: ${d}${d.endsWith(sep()) ? "" : sep()}Bildschirmaufnahmen` : "";
   }
@@ -616,7 +630,11 @@ const Scr = (() => {
       prevBusy = true;
       try {
         const id = src.id, u = await call("screen_preview", id);
-        if (u && src && src.id === id) { const b = $("#scrShot"); b.style.backgroundImage = `url("${u}")`; b.classList.add("has"); }
+        if (u && src && src.id === id) {
+          const b = $("#scrShot"), im = new Image();
+          im.onload = () => { const r = im.naturalWidth / im.naturalHeight || 1.6; b.style.setProperty("--ar", `${im.naturalWidth} / ${im.naturalHeight}`); b.style.setProperty("--arn", r.toFixed(3)); };
+          im.src = u; b.style.backgroundImage = `url("${u}")`; b.classList.add("has");
+        }
       } catch { } finally { prevBusy = false; }
     }
     prevT = setTimeout(preview, now ? 2500 : 3000);
@@ -633,6 +651,68 @@ const Scr = (() => {
     lvlT = setTimeout(levels, 140);
   }
   function loops() { preview(true); levels(); }
+
+  /* --- Bereich zeichnen */
+  function cropUi() {
+    const bx = $("#scrCropBox");
+    bx.hidden = !crop;
+    if (crop) Object.assign(bx.style, { left: crop.x * 100 + "%", top: crop.y * 100 + "%", width: crop.w * 100 + "%", height: crop.h * 100 + "%" });
+    $("#scrCropBtn span").textContent = crop ? "Bereich ändern" : "Nur einen Bereich aufnehmen";
+    $("#scrCropBtn").disabled = !src;
+    $("#scrCropOff").hidden = !crop;
+  }
+  async function openCrop() {
+    if (!src) return;
+    const s0 = src;
+    let r = crop ? { ...crop } : null, drag = null;
+    const box = dialog({ title: "Bereich zeichnen", icon: "i-crop", wide: true,
+      body: `<p class="muted crop-tip">Ziehe mit der Maus ein Rechteck um das, was aufgenommen werden soll – z. B. nur das Video. An den Ecken ziehen ändert die Größe, in der Mitte ziehen verschiebt.</p>
+        <div class="crop-stage"><img alt=""><div class="loading">Bild wird geladen …</div><div class="crop-rect" hidden><i data-h="nw"></i><i data-h="ne"></i><i data-h="sw"></i><i data-h="se"></i><b></b></div></div>`,
+      buttons: [
+        { label: "Ganzes Bild", fn: () => { crop = null; closeDialog(); if (kind === "area") { kind = s0.id.startsWith("win:") ? "win" : "screen"; renderList(); } summary(); remember(); } },
+        { label: "Abbrechen" },
+        { label: "Übernehmen", cls: "primary", id: "cropOk", fn: () => { if (!r || r.w < .02 || r.h < .02) return toast("Bitte zuerst ein Rechteck ziehen."); crop = r; closeDialog(); summary(); remember(); } },
+      ] });
+    box.classList.add("crop-modal");
+    const stage = box.querySelector(".crop-stage"), img = stage.querySelector("img"), rect = stage.querySelector(".crop-rect"), lab = rect.querySelector("b");
+    const clamp = v => Math.max(0, Math.min(1, v));
+    const draw = () => {
+      rect.hidden = !r;
+      if (!r) return;
+      Object.assign(rect.style, { left: r.x * 100 + "%", top: r.y * 100 + "%", width: r.w * 100 + "%", height: r.h * 100 + "%" });
+      lab.textContent = s0.w && s0.h ? `${Math.round(s0.w * r.w)} × ${Math.round(s0.h * r.h)}` : `${Math.round(r.w * 100)} % × ${Math.round(r.h * 100)} %`;
+    };
+    const pt = e => { const b = img.getBoundingClientRect(); return { x: clamp((e.clientX - b.left) / b.width), y: clamp((e.clientY - b.top) / b.height) }; };
+    stage.addEventListener("pointerdown", e => {
+      if (!img.naturalWidth) return;
+      e.preventDefault(); stage.setPointerCapture(e.pointerId);
+      const p = pt(e), h = e.target.dataset && e.target.dataset.h;
+      if (h && r) drag = { mode: h, r0: { ...r } };
+      else if (r && e.target.closest(".crop-rect")) drag = { mode: "move", p0: p, r0: { ...r } };
+      else { drag = { mode: "new", p0: p }; r = { x: p.x, y: p.y, w: 0, h: 0 }; }
+    });
+    stage.addEventListener("pointermove", e => {
+      if (!drag) return;
+      const p = pt(e), o = drag.r0;
+      if (drag.mode === "new") r = { x: Math.min(p.x, drag.p0.x), y: Math.min(p.y, drag.p0.y), w: Math.abs(p.x - drag.p0.x), h: Math.abs(p.y - drag.p0.y) };
+      else if (drag.mode === "move") r = { ...o, x: clamp(Math.min(1 - o.w, o.x + p.x - drag.p0.x)), y: clamp(Math.min(1 - o.h, o.y + p.y - drag.p0.y)) };
+      else {
+        let x1 = o.x, y1 = o.y, x2 = o.x + o.w, y2 = o.y + o.h;
+        if (drag.mode.includes("w")) x1 = p.x; else x2 = p.x;
+        if (drag.mode.includes("n")) y1 = p.y; else y2 = p.y;
+        r = { x: Math.min(x1, x2), y: Math.min(y1, y2), w: Math.abs(x2 - x1), h: Math.abs(y2 - y1) };
+      }
+      draw();
+    });
+    stage.addEventListener("pointerup", () => { drag = null; if (r && (r.w < .01 || r.h < .01)) r = null; draw(); });
+    try {
+      const u = await call("screen_preview", s0.id, 1280);
+      img.onload = () => { stage.querySelector(".loading").remove(); draw(); };
+      img.src = u;
+    } catch (e) { stage.querySelector(".loading").textContent = "Kein Bild: " + String(e.message || e); }
+  }
+  $("#scrCropBtn").onclick = openCrop;
+  $("#scrCropOff").onclick = () => { crop = null; if (kind === "area") { kind = src && src.id.startsWith("win:") ? "win" : "screen"; renderList(); } summary(); remember(); };
 
   /* --- Aufnahme */
   async function start() {
@@ -970,7 +1050,7 @@ $("#btnKeepLive").onclick = () => {
 
 /* ---------------------------------------------------------------- Neu in dieser Version (bei jeder Version ergänzen!) */
 const CHANGES = [
-  ["1.11.0", ["<b>Bildschirm aufnehmen</b>: Zoom, Teams, Webinar oder Live-Coaching als MP4-Video – ganzer Bildschirm oder nur ein Fenster, mit Vorschau", "Klar sichtbar, welcher Ton mit drauf ist: <b>Ton vom PC</b> und/oder <b>dein Mikrofon</b> – mit Pegelanzeige", "<b>Mikrofon während der Aufnahme an/aus</b> – z. B. nur kurz einschalten, um etwas zu sagen", "<b>Kleine Aufnahme-Leiste</b> oben rechts mit Uhr, Pause und Stopp – unter Windows im Video unsichtbar", "Fertiges Video direkt in SongGrabber ansehen – saubere Dateinamen ohne Emojis", "Pause, Verwerfen, auf Wunsch zusätzlich als MP3 – und beim Schließen geht keine laufende Aufnahme verloren"]],
+  ["1.11.0", ["<b>Bildschirm aufnehmen</b>: Zoom, Teams, Webinar oder Live-Coaching als MP4-Video – ganzer Bildschirm oder nur ein Fenster, mit Vorschau", "<b>Bereich zeichnen</b>: nur einen Ausschnitt aufnehmen – z. B. nur das Video in YouTube, Zoom oder Teams", "Klar sichtbar, welcher Ton mit drauf ist: <b>Ton vom PC</b> und/oder <b>dein Mikrofon</b> – mit Pegelanzeige", "<b>Mikrofon während der Aufnahme an/aus</b> – z. B. nur kurz einschalten, um etwas zu sagen", "<b>Kleine Aufnahme-Leiste</b> oben rechts mit Uhr, Pause und Stopp – unter Windows im Video unsichtbar", "Fertiges Video direkt in SongGrabber ansehen – saubere Dateinamen ohne Emojis", "Pause, Verwerfen, auf Wunsch zusätzlich als MP3 – und beim Schließen geht keine laufende Aufnahme verloren"]],
   ["1.10.0", ["<b>SongGrabber für Linux</b>: Ubuntu, Mint, Debian, Fedora, Arch, openSUSE – mit <code>install.sh</code>, Startmenü-Eintrag, Papierkorb, Audio-CDs, Systemsound und „Alles am PC“ über MPRIS", "Update-Hinweis verlinkt automatisch die passende Datei für Windows bzw. Linux"]],
   ["1.9.1", ["<b>Mini-Player</b> friert nicht mehr ein – Fenster wird zuverlässig klein, bleibt im Vordergrund und kommt genau so zurück", "Knöpfe oben im Player bleiben bei jeder Fenstergröße sichtbar"]],
   ["1.9.0", ["<b>Überblenden</b>: sanfte Übergänge zwischen Titeln (2–12 s) – Alben am Stück bleiben nahtlos", "<b>Lautstärke angleichen</b>: leise und laute Titel klingen gleich laut", "<b>Mini-Player</b>: mit einem Klick als kleine Leiste unten rechts, immer im Vordergrund – mit Songtext-Zeile und Lichtshow", "<b>Bibliothek aufräumen</b>: doppelte Titel, fehlende Cover/Angaben, leere Ordner", "<b>Update-Hinweis</b>: SongGrabber sagt Bescheid, wenn es eine neue Version gibt"]],
@@ -3111,7 +3191,7 @@ const Mock = (() => {
     cd_rip: () => 1, cd_eject: () => true,
     rec_devices: () => [{ id: "a", name: "Line-In (Realtek High Definition Audio)", loopback: false }, { id: "b", name: "Mikrofon (USB Headset)", loopback: false, default: true }, { id: "d", name: "Mikrofonarray (Realtek)", loopback: false }, { id: "c", name: "Lautsprecher (Realtek High Definition Audio)", loopback: true, default: true }, { id: "e", name: "Kopfhörer (USB Headset)", loopback: true }],
     rec_monitor: () => { const t = performance.now() / 1000, talk = Math.sin(t * 2.2) > 0; return { privacy: "ok", levels: { a: { peak: -62 + Math.random() * 3, rms: -70, hold: -58, zero: 0, state: "ok" }, b: { peak: talk ? -14 - Math.random() * 10 : -55, rms: -30, hold: -12, zero: 0, state: "ok" }, d: { peak: -90, rms: -90, hold: -90, zero: 4, state: "ok" }, c: { peak: -9 - Math.random() * 8, rms: -20, hold: -8, zero: 0, state: "ok", loop: true }, e: { peak: -90, rms: -90, hold: -90, zero: 3, state: "ok", loop: true } } }; },
-    screen_sources: () => ({ supported: true, reason: "", screens: [{ id: "screen:0", name: "Bildschirm 1 (Hauptbildschirm)", size: "2560 × 1440", primary: true }, { id: "screen:1", name: "Bildschirm 2", size: "1920 × 1080", primary: false }],
+    screen_sources: () => ({ supported: true, reason: "", screens: [{ id: "screen:0", name: "Bildschirm 1 (Hauptbildschirm)", size: "2560 × 1440", w: 2560, h: 1440, primary: true }, { id: "screen:1", name: "Bildschirm 2", size: "1920 × 1080", w: 1920, h: 1080, primary: false }],
       windows: [{ id: "win:11", title: "Zoom Meeting", app: "Zoom", w: 1600, h: 900, minimized: false }, { id: "win:12", title: "Wochenmeeting Vertrieb | Microsoft Teams", app: "Microsoft Teams", w: 1480, h: 920, minimized: false },
         { id: "win:13", title: "Live-Coaching: Zeitmanagement – YouTube – Google Chrome", app: "Google Chrome", w: 1920, h: 1040, minimized: false }, { id: "win:14", title: "Dokumente", app: "Explorer", w: 1100, h: 700, minimized: true }] }),
     screen_preview: id => {

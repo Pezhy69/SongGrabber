@@ -65,6 +65,7 @@
     <symbol id="i-heart" viewBox="0 0 24 24"><path d="M12 20s-7-4.4-9.2-9A5 5 0 0 1 12 6a5 5 0 0 1 9.2 5C19 15.6 12 20 12 20z"/></symbol>
     <symbol id="i-screen" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="12" rx="2"/><path d="M8 20h8M12 16v4"/><circle cx="12" cy="10" r="2.2" fill="currentColor" stroke="none"/></symbol>
     <symbol id="i-micoff" viewBox="0 0 24 24"><path d="M9 9v2a3 3 0 0 0 5.1 2.1M15 10.5V6a3 3 0 0 0-5.7-1.3M5.5 11a6.5 6.5 0 0 0 10.6 5M18.5 11a6.4 6.4 0 0 1-.6 2.7M12 17.5V21M3 3l18 18"/></symbol>
+    <symbol id="i-crop" viewBox="0 0 24 24"><path d="M6 2v14a2 2 0 0 0 2 2h14M2 6h14a2 2 0 0 1 2 2v14"/></symbol>
     <symbol id="i-window" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 8.5h18"/><circle cx="6" cy="6.3" r=".6"/><circle cx="8.3" cy="6.3" r=".6"/></symbol>
     <symbol id="i-pc" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="12" rx="2"/><path d="M8 20h8M12 16v4"/></symbol>
     <symbol id="i-plug" viewBox="0 0 24 24"><path d="M9 3v5M15 3v5M6 8h12v3a6 6 0 0 1-12 0zM12 17v4"/></symbol>
@@ -371,6 +372,7 @@
             <div class="seg scr-kind" id="scrKind">
               <button data-k="screen" class="active"><svg><use href="#i-screen"/></svg>Ganzer Bildschirm</button>
               <button data-k="win"><svg><use href="#i-window"/></svg>Ein Fenster / Programm</button>
+              <button data-k="area"><svg><use href="#i-crop"/></svg>Bereich zeichnen</button>
             </div>
             <div class="scr-list" id="scrList"><div class="muted">Suche Bildschirme und Fenster …</div></div>
             <div class="scr-listfoot">
@@ -420,7 +422,11 @@
 
         <div class="scr-side">
           <div class="card scr-prev">
-            <div class="scr-shot" id="scrShot"><span class="muted">Vorschau</span></div>
+            <div class="scr-shot" id="scrShot"><span class="muted">Vorschau</span><div class="scr-cropbox" id="scrCropBox" hidden></div></div>
+            <div class="scr-croprow">
+              <button class="ghost sm" id="scrCropBtn"><svg><use href="#i-crop"/></svg><span>Nur einen Bereich aufnehmen</span></button>
+              <button class="link" id="scrCropOff" hidden>Ganzes Bild</button>
+            </div>
             <div class="scr-sum" id="scrSum"></div>
             <button class="scr-go" id="scrGo"><i></i>Aufnahme starten</button>
             <small class="muted scr-where" id="scrWhere"></small>
@@ -842,6 +848,7 @@
 <article id="h-screen"><h2>Bildschirm aufnehmen (Zoom, Teams, Coaching)</h2>
 <p>Speichert ein Meeting, Webinar oder Live-Coaching als <b>MP4-Video mit Ton</b> – in deinem Musik-Ordner unter <code>Bildschirmaufnahmen</code>.</p>
 <ol><li><b>Was soll aufgenommen werden?</b> <em>Ganzer Bildschirm</em> nimmt alles auf, was dort zu sehen ist (auch Hinweise und andere Fenster). <em>Ein Fenster / Programm</em> nimmt nur z. B. das Zoom- oder Teams-Fenster auf – es darf verschoben, aber nicht minimiert werden. Rechts siehst du eine <b>Vorschau</b>. Fehlt ein Programm in der Liste: erst starten, dann <em>Neu suchen</em>.</li>
+<li><b>Bereich zeichnen</b>: nimmt nur einen Ausschnitt auf – z. B. nur das Video bei YouTube, nur die Teilnehmer bei Zoom/Teams oder nur die Folien eines Webinars. Erst wählen, worin der Bereich liegt (Bildschirm oder Fenster), dann mit der Maus ein Rechteck ziehen; Ecken ändern die Größe, die Mitte verschiebt. Liegt der Bereich in einem Fenster, wandert er mit, wenn du das Fenster verschiebst. Auch bei „Ganzer Bildschirm“ und „Ein Fenster“ geht das über <em>Nur einen Bereich aufnehmen</em> unter der Vorschau.</li>
 <li><b>Welcher Ton soll mit drauf?</b> <em>Ton vom PC</em> = was die anderen sagen, Videos, Musik. <em>Mein Mikrofon</em> = was du sagst. Bei jedem steht klar <b>„wird aufgenommen“</b> oder <b>„wird nicht aufgenommen“</b>, der Balken zeigt, ob Ton ankommt. Ohne Mikrofon hört man in der Aufnahme nur die anderen.</li>
 <li><b>Qualität</b>: <em>Normal</em> und 30 Bilder/s passen fast immer; für lange Meetings spart <em>Platz sparen</em> mit 15 Bilder/s viel Speicher. <em>Zusätzlich nur den Ton als MP3</em> legt eine Hördatei daneben.</li></ol>
 <ul><li><b>Mikrofon unterwegs an/aus</b>: Während der Aufnahme schaltet der Knopf <em>Mikro an / Mikro aus</em> (bzw. das Mikrofon-Symbol in der kleinen Leiste) dein Mikrofon jederzeit ein oder aus – z. B. nur kurz einschalten, um etwas zu sagen. Ist es aus, ist das Mikrofon wirklich zu; beim Einschalten zeigt der Knopf kurz gelb „geht an …“, bis der Ton ankommt.</li>

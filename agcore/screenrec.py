@@ -230,6 +230,18 @@ def file_label(text):
     return t.strip(" -_.,") or "Bildschirm"
 
 
+def _crop_filter(crop):
+    """Ausschnitt (Anteile 0–1 von x, y, Breite, Höhe) als ffmpeg-Filter – unabhängig von Auflösung und Skalierung."""
+    try:
+        x, y, w, h = (min(1.0, max(0.0, float(crop[k]))) for k in ("x", "y", "w", "h"))
+    except (TypeError, KeyError, ValueError):
+        return ""
+    if w < 0.02 or h < 0.02 or (w > 0.995 and h > 0.995):
+        return ""
+    w, h = min(w, 1 - x), min(h, 1 - y)
+    return f"crop=trunc(iw*{w:.5f}/2)*2:trunc(ih*{h:.5f}/2)*2:trunc(iw*{x:.5f}):trunc(ih*{y:.5f}),"
+
+
 def _variants(src):
     """Wege, eine Quelle aufzunehmen – der erste, der klappt, wird genommen."""
     gfx = ["gfx"] if paths.IS_WIN and _has_gfx() else []
@@ -495,7 +507,7 @@ class ScreenRec:
         # ohne -nostdin: ffmpeg wird mit „q“ über die Eingabe sauber beendet (Datei bleibt vollständig)
         args = [paths.ffmpeg(), "-hide_banner", "-loglevel", "info"] + \
                _video_input(o["src"], fps, o.get("cursor", True), how) + \
-               ["-vf", "scale=trunc(iw/2)*2:trunc(ih/2)*2", "-c:v", "libx264", "-preset", "veryfast", "-crf", str(crf),
+               ["-vf", _crop_filter(o.get("crop")) + "scale=trunc(iw/2)*2:trunc(ih/2)*2", "-c:v", "libx264", "-preset", "veryfast", "-crf", str(crf),
                 "-pix_fmt", "yuv420p", "-g", str(fps * 2)] + (["-fps_mode", "cfr", "-r", str(fps)] if how == "gfx" else []) + \
                ["-y", seg.video]
         seg.proc = subprocess.Popen(args, stdin=subprocess.PIPE, stdout=subprocess.DEVNULL, stderr=subprocess.PIPE,

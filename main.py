@@ -341,8 +341,8 @@ class Api:
     def screen_sources(self):
         return screenrec.sources()
 
-    def screen_preview(self, src_id):
-        return screenrec.preview(src_id)
+    def screen_preview(self, src_id, width=480):
+        return screenrec.preview(src_id, int(width or 480))
 
     def screen_start(self, opts):
         self._mon.stop()                      # Pegel-Vorschau gibt die Geräte frei
