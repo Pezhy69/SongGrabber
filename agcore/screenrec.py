@@ -55,7 +55,8 @@ def _win_screens():
         mi.cbSize = ctypes.sizeof(MI)
         u.GetMonitorInfoW(ctypes.c_void_p(h), ctypes.byref(mi))
         r = mi.rcMonitor
-        out.append({"x": r.left, "y": r.top, "w": r.right - r.left, "h": r.bottom - r.top, "primary": bool(mi.dwFlags & 1)})
+        out.append({"x": r.left, "y": r.top, "w": r.right - r.left, "h": r.bottom - r.top, "primary": bool(mi.dwFlags & 1),
+                    "hmon": int(h or 0)})
         return True
     u.EnumDisplayMonitors(None, None, proto(cb), 0)
     return out
@@ -194,10 +195,30 @@ def _why(log):
     return bad[-1] if bad else ""
 
 
+_GFX = None
+
+
+def _has_gfx():
+    """Kennt dieses ffmpeg „gfxcapture“ (Windows Graphics Capture, ab ffmpeg 8)? Das nimmt auch Browser,
+    Teams & Co. mit Grafikbeschleunigung zuverlässig auf – gdigrab liefert dort oft nur Schwarz."""
+    global _GFX
+    if _GFX is None:
+        try:
+            r = paths.run([paths.ffmpeg(), "-hide_banner", "-h", "filter=gfxcapture"], timeout=10)
+            out = (r.stdout + r.stderr).decode("utf-8", "replace")
+            _GFX = r.returncode == 0 and "gfxcapture" in out and "Unknown filter" not in out
+        except Exception:
+            _GFX = False
+    return _GFX
+
+
 def _variants(src):
     """Wege, eine Quelle aufzunehmen – der erste, der klappt, wird genommen."""
+    gfx = ["gfx"] if paths.IS_WIN and _has_gfx() else []
+    if paths.IS_WIN and not src["id"].startswith("win:"):
+        return gfx + ["main"]
     if paths.IS_WIN and src["id"].startswith("win:"):
-        v = ["hwnd", "title"]
+        v = gfx + ["hwnd", "title"]
         if src.get("w", 0) >= 32 and src.get("h", 0) >= 32 and not src.get("minimized"):
             v.append("region")                             # notfalls: den Bildschirmbereich des Fensters
         return v
@@ -209,6 +230,10 @@ def _video_input(src, fps, cursor, by_title=False):
     fps, cur = str(int(fps)), "1" if cursor else "0"
     how = {False: "hwnd", True: "title"}.get(by_title, by_title)
     if paths.IS_WIN:
+        if how == "gfx":                                   # Windows Graphics Capture über lavfi
+            tgt = f"hwnd={src['id'][4:]}" if src["id"].startswith("win:") else \
+                (f"hmonitor={src['hmon']}" if src.get("hmon") else f"monitor_idx={src['id'].split(':')[1]}")
+            return ["-f", "lavfi", "-i", f"gfxcapture={tgt}:max_framerate={fps}:capture_cursor={cur},hwdownload,format=bgra"]
         if src["id"].startswith("win:") and how == "region":
             w, h = src["w"] // 2 * 2, src["h"] // 2 * 2
             return ["-f", "gdigrab", "-framerate", fps, "-draw_mouse", cur, "-offset_x", str(src["x"]), "-offset_y", str(src["y"]),
@@ -453,7 +478,8 @@ class ScreenRec:
         args = [paths.ffmpeg(), "-hide_banner", "-loglevel", "info", "-thread_queue_size", "512"] + \
                _video_input(o["src"], fps, o.get("cursor", True), how) + \
                ["-vf", "scale=trunc(iw/2)*2:trunc(ih/2)*2", "-c:v", "libx264", "-preset", "veryfast", "-crf", str(crf),
-                "-pix_fmt", "yuv420p", "-g", str(fps * 2), "-y", seg.video]
+                "-pix_fmt", "yuv420p", "-g", str(fps * 2)] + (["-fps_mode", "cfr", "-r", str(fps)] if how == "gfx" else []) + \
+               ["-y", seg.video]
         seg.proc = subprocess.Popen(args, stdin=subprocess.PIPE, stdout=subprocess.DEVNULL, stderr=subprocess.PIPE,
                                     creationflags=paths.CREATE_NO_WINDOW)
         seg.log, seg.t_video, seg.frames = [], None, 0
@@ -497,6 +523,7 @@ class ScreenRec:
             proc.kill()
         except Exception:
             pass
+        paths.log.info("ffmpeg (%s):\n  %s", how, "\n  ".join(seg.log[-15:]))
         return _why(seg.log) or "keine Rückmeldung von ffmpeg"
 
     def _end(self):
