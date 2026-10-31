@@ -18,7 +18,7 @@ FEATURES = [
     "install.sh", "MPRIS",
     "Überblenden", "Lautstärke angleichen", "Mini-Player", "Aufräumen", "Doppelte Titel", "Leere Ordner", "Nach Updates suchen",
     "Speicherort beim Installieren",
-    "Nordlicht", "Disco", "Laser", "Feuerwerk", "Grundton",
+    "Nordlicht", "Disco", "Lava", "Feuerwerk", "Grundton",
     "Eigene Farben",
     "Hereinziehen",
     "Senderlogo",

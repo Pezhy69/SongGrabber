@@ -1050,7 +1050,7 @@ $("#btnKeepLive").onclick = () => {
 
 /* ---------------------------------------------------------------- Neu in dieser Version (bei jeder Version ergänzen!) */
 const CHANGES = [
-  ["1.11.0", ["<b>Bildschirm aufnehmen</b>: Zoom, Teams, Webinar oder Live-Coaching als MP4-Video – ganzer Bildschirm oder nur ein Fenster, mit Vorschau", "Neue Lichtshows: <b>Nordlicht</b>, <b>Disco-Kugel</b>, <b>Laser</b> und <b>Feuerwerk</b> (statt Tesla)", "Player: <b>rechte Leiste hochrollen</b> wie ein Rollo (Q) und <b>Bedienung einklappen</b> zu kleinen Knöpfen (H) – Drüberfahren zeigt alles, nach 1 Minute Ruhe passiert es von selbst", "<b>Bereich zeichnen</b>: nur einen Ausschnitt aufnehmen – z. B. nur das Video in YouTube, Zoom oder Teams", "Klar sichtbar, welcher Ton mit drauf ist: <b>Ton vom PC</b> und/oder <b>dein Mikrofon</b> – mit Pegelanzeige", "<b>Mikrofon während der Aufnahme an/aus</b> – z. B. nur kurz einschalten, um etwas zu sagen", "<b>Kleine Aufnahme-Leiste</b> oben rechts mit Uhr, Pause und Stopp – unter Windows im Video unsichtbar", "Fertiges Video direkt in SongGrabber ansehen – saubere Dateinamen ohne Emojis", "Pause, Verwerfen, auf Wunsch zusätzlich als MP3 – und beim Schließen geht keine laufende Aufnahme verloren"]],
+  ["1.11.0", ["<b>Bildschirm aufnehmen</b>: Zoom, Teams, Webinar oder Live-Coaching als MP4-Video – ganzer Bildschirm oder nur ein Fenster, mit Vorschau", "Neue Lichtshows: <b>Nordlicht</b>, <b>Disco-Kugel</b>, <b>Lava-Lampe</b> und <b>Feuerwerk</b> (statt Tesla)", "Player: <b>rechte Leiste hochrollen</b> wie ein Rollo (Q) und <b>Bedienung einklappen</b> zu kleinen Knöpfen (H) – Drüberfahren zeigt alles, nach 1 Minute Ruhe passiert es von selbst", "<b>Bereich zeichnen</b>: nur einen Ausschnitt aufnehmen – z. B. nur das Video in YouTube, Zoom oder Teams", "Klar sichtbar, welcher Ton mit drauf ist: <b>Ton vom PC</b> und/oder <b>dein Mikrofon</b> – mit Pegelanzeige", "<b>Mikrofon während der Aufnahme an/aus</b> – z. B. nur kurz einschalten, um etwas zu sagen", "<b>Kleine Aufnahme-Leiste</b> oben rechts mit Uhr, Pause und Stopp – unter Windows im Video unsichtbar", "Fertiges Video direkt in SongGrabber ansehen – saubere Dateinamen ohne Emojis", "Pause, Verwerfen, auf Wunsch zusätzlich als MP3 – und beim Schließen geht keine laufende Aufnahme verloren"]],
   ["1.10.0", ["<b>SongGrabber für Linux</b>: Ubuntu, Mint, Debian, Fedora, Arch, openSUSE – mit <code>install.sh</code>, Startmenü-Eintrag, Papierkorb, Audio-CDs, Systemsound und „Alles am PC“ über MPRIS", "Update-Hinweis verlinkt automatisch die passende Datei für Windows bzw. Linux"]],
   ["1.9.1", ["<b>Mini-Player</b> friert nicht mehr ein – Fenster wird zuverlässig klein, bleibt im Vordergrund und kommt genau so zurück", "Knöpfe oben im Player bleiben bei jeder Fenstergröße sichtbar"]],
   ["1.9.0", ["<b>Überblenden</b>: sanfte Übergänge zwischen Titeln (2–12 s) – Alben am Stück bleiben nahtlos", "<b>Lautstärke angleichen</b>: leise und laute Titel klingen gleich laut", "<b>Mini-Player</b>: mit einem Klick als kleine Leiste unten rechts, immer im Vordergrund – mit Songtext-Zeile und Lichtshow", "<b>Bibliothek aufräumen</b>: doppelte Titel, fehlende Cover/Angaben, leere Ordner", "<b>Update-Hinweis</b>: SongGrabber sagt Bescheid, wenn es eine neue Version gibt"]],
@@ -2014,7 +2014,6 @@ const Viz = (() => {
       x.fillStyle = g; x.fillRect(px - r * 2.2, py - r * 2.2, r * 4.4, r * 4.4);
     }
     x.restore();
-    if (mode === "party") { x.save(); x.globalAlpha = .8; laser(p, bassV, true); x.restore(); }
     // Aufhängung
     x.strokeStyle = "rgba(200,200,220,.35)"; x.lineWidth = 1.5 * D; x.beginPath(); x.moveTo(cx, 0); x.lineTo(cx, cy - R); x.stroke();
     // Kugel: echte Spiegelplättchen mit Fugen, spiegeln die Farben im Raum, Glanzpunkte funkeln im Takt
@@ -2055,64 +2054,56 @@ const Viz = (() => {
     x.fillStyle = glow; x.fillRect(cx - R * 3, cy - R * 3, R * 6, R * 6); x.restore();
   }
 
-  /* Laser-Show: scharfe Strahlen im Nebel – Muster wechseln im Takt, Bass lässt sie aufblitzen */
-  let lzPat = 0, lzBeats = 0, fogCv = null, fogKey = "";
-  function fog() {
-    const key = W + "|" + H; if (fogCv && fogKey === key) return fogCv;
-    const c = document.createElement("canvas"); c.width = W; c.height = H; const g = c.getContext("2d");
-    for (let i = 0; i < 40; i++) {
-      const fx = Math.random() * W, fy = H * (.25 + Math.random() * .75), r = (60 + Math.random() * 220) * D;
-      const gr = g.createRadialGradient(fx, fy, 0, fx, fy, r); gr.addColorStop(0, "rgba(255,255,255,.035)"); gr.addColorStop(1, "rgba(255,255,255,0)");
-      g.fillStyle = gr; g.fillRect(fx - r, fy - r, r * 2, r * 2);
+  /* Lava-Lampe: zähe Wachsblasen steigen und sinken, verschmelzen und teilen sich – Bass lässt sie anschwellen */
+  let lvC = null, lvX = null, lvImg = null, lvG = null, lvBlobs = [], lvE = 0, lvT = 0, lvTime = 0;
+  function lava(p, bassV) {
+    const now = performance.now() / 1000, dt = Math.min(.1, lvT ? now - lvT : 0); lvT = now;
+    lvE += (energy - lvE) * .02;
+    lvTime += dt * (.55 + lvE * .5);                       // lauter = etwas lebhafter, aber nie hektisch
+    const g0 = x.createLinearGradient(0, 0, 0, H);
+    g0.addColorStop(0, "#05030b"); g0.addColorStop(.6, p.sky[0]); g0.addColorStop(1, rgba(p.c[0], .35));
+    x.fillStyle = g0; x.fillRect(0, 0, W, H);
+    const cw = Math.max(120, Math.round(W / 5)), ch = Math.max(70, Math.round(H / 5));
+    if (!lvC || lvC.width !== cw || lvC.height !== ch) { lvC = document.createElement("canvas"); lvC.width = cw; lvC.height = ch; lvX = lvC.getContext("2d"); lvImg = lvX.createImageData(cw, ch); lvG = document.createElement("canvas"); lvG.width = Math.ceil(cw / 4); lvG.height = Math.ceil(ch / 4); }
+    if (lvBlobs.length !== 7) lvBlobs = Array.from({ length: 7 }, (_, i) => ({ x: .1 + (i / 6) * .8 + (Math.random() - .5) * .06, ph: Math.random() * 6.28, sp: .1 + Math.random() * .12, r: .07 + Math.random() * .05, wx: Math.random() * 6.28 }));
+    const c0 = hexRgb(p.c[0]), c1 = hexRgb(p.c[1]), c2 = hexRgb(p.c[2] || p.c[0]);
+    const swell = 1 + bassV * .22 + beat * .08, S = Math.min(cw, ch);
+    const B = lvBlobs.map(b => [
+      (b.x + Math.sin(lvTime * .23 + b.wx) * .05) * cw,
+      (.5 - .46 * Math.sin(lvTime * b.sp + b.ph)) * ch,          // langsames Steigen und Sinken
+      (b.r * S * swell * (1 + .15 * Math.sin(lvTime * .7 + b.ph))) ** 2]);
+    // Boden- und Deckenwachs: flache Blasen, an denen die anderen „andocken“
+    B.push([cw * .5, ch * 1.08, (cw * .55) ** 2 * .055], [cw * .5, -ch * .1, (cw * .5) ** 2 * .03]);
+    // Wachs: klare Kante, von unten warm angeleuchtet, heller Rand wie bei echtem Wachs im Glas
+    const d = lvImg.data, heat = .85 + beat * .25;
+    for (let yy = 0, k = 0; yy < ch; yy++) {
+      const ty = yy / ch, lit = (.55 + ty * .6) * heat;
+      const base = [c0[0] + (c1[0] - c0[0]) * (1 - ty), c0[1] + (c1[1] - c0[1]) * (1 - ty), c0[2] + (c1[2] - c0[2]) * (1 - ty)];
+      for (let xx = 0; xx < cw; xx++, k += 4) {
+        let f = 0;
+        for (let i = 0; i < B.length; i++) { const dx = xx - B[i][0], dy = yy - B[i][1]; f += B[i][2] / (dx * dx + dy * dy + 1); }
+        if (f < .9) { d[k + 3] = 0; continue; }
+        const a = Math.min(1, (f - .9) / .12), rim = Math.max(0, 1 - (f - .9) / .45), inner = Math.min(1, (f - 1) * .25);
+        d[k] = Math.min(255, base[0] * lit * (1 - inner * .08) + c2[0] * inner * .08 + rim * 110);
+        d[k + 1] = Math.min(255, base[1] * lit * (1 - inner * .08) + c2[1] * inner * .08 + rim * 90);
+        d[k + 2] = Math.min(255, base[2] * lit * (1 - inner * .08) + c2[2] * inner * .08 + rim * 110);
+        d[k + 3] = a * a * (3 - 2 * a) * 255;
+      }
     }
-    fogCv = c; fogKey = key; return c;
-  }
-  let lzPrev = -1, lzFade = 1, lzE = 0, lzPh = 0, lzT = 0, lzSince = 0;
-  function lzBeams(pat, p, bassV, now) {
-    const beams = [], cx = W * .42;
-    const emit = (ex, ey, ang, col, len = Math.max(W, H) * 1.4) => beams.push([ex, ey, ex + Math.cos(ang) * len, ey + Math.sin(ang) * len, col]);
-    const spread = .5 + bassV * .12 + lzE * .15, sw = Math.sin(lzPh);
-    if (pat === 0) {                                      // Fächer von unten, schwenkt langsam hin und her
-      [[cx, 0], [W * .12, 1], [W * .78, 2]].forEach(([ex, k]) => { const n = 5; for (let i = 0; i < n; i++) emit(ex, H * .96, -Math.PI / 2 + (i / (n - 1) - .5) * spread * 2 + sw * .35 * (k === 1 ? 1 : -1), p.c[(i + k) % 3]); });
-    } else if (pat === 1) {                               // kreuzende Strahlen von links und rechts
-      for (let i = 0; i < 6; i++) { const a1 = -.18 - i * .08 + sw * .12; emit(0, H * (.38 + i * .09), a1, p.c[i % 3]); emit(W, H * (.38 + i * .09), Math.PI - a1, p.c[(i + 1) % 3]); }
-    } else if (pat === 2) {                               // Lichttunnel: langsam drehender Kegel von oben
-      const n = 12, rr = Math.min(W, H) * (.34 + bassV * .04);
-      for (let i = 0; i < n; i++) { const t = i / n * Math.PI * 2 + lzPh * .6; beams.push([cx, -10 * D, cx + Math.cos(t) * rr * 1.6, H * .9 + Math.sin(t) * rr * .25, p.c[i % 3]]); }
-    } else {                                              // Lichtfläche, die ruhig auf und ab gleitet
-      const yy = H * (.48 + Math.sin(lzPh * .7) * .2);
-      for (let i = 0; i < 16; i++) beams.push([W * .04, H * .5, W * 1.05, yy + (i / 15 - .5) * H * .42 * spread, p.c[(i >> 2) % 3]]);
-      for (let i = 0; i < 16; i++) beams.push([W * .96, H * .5, -W * .05, yy + (i / 15 - .5) * H * .42 * spread, p.c[((i >> 2) + 1) % 3]]);
-    }
-    return beams;
-  }
-  function laser(p, bassV, overlay) {
-    const now = performance.now() / 1000, dt = Math.min(.1, lzT ? now - lzT : 0); lzT = now;
-    lzE += (energy - lzE) * .02;                          // geglättete Lautstärke → ruhige Bewegung
-    lzPh += dt * (.28 + lzE * .3);
-    if (!overlay) {
-      x.fillStyle = "rgba(2,2,8,.6)"; x.fillRect(0, 0, W, H);
-      const fo = fog(), off = (now * 7 * D) % W;
-      x.globalAlpha = .7 + lzE * .4; x.drawImage(fo, -off, 0); x.drawImage(fo, W - off, 0); x.globalAlpha = 1;
-    }
-    // Muster wechseln: alle 16 Takte (frühestens nach 20 s), weich überblendet
-    if (beat > .95) lzBeats++;
-    if ((lzBeats >= 16 && now - lzSince > 20) || (!lzSince)) { if (lzSince) { lzPrev = lzPat; lzPat = (lzPat + 1) % 4; lzFade = 0; } lzBeats = 0; lzSince = now; }
-    lzFade = Math.min(1, lzFade + dt / 2.5);
-    const sets = [[lzBeams(lzPat, p, bassV, now), lzFade]];
-    if (lzFade < 1 && lzPrev >= 0) sets.push([lzBeams(lzPrev, p, bassV, now), 1 - lzFade]);
-    const glow = 1 + beat * .25;
-    x.save(); x.globalCompositeOperation = "lighter"; x.lineCap = "round";
-    for (const [beams, wgt] of sets) {
-      const pass = (w, al, white) => {
-        const by = {}; beams.forEach(b => (by[white ? "#ffffff" : b[4]] = by[white ? "#ffffff" : b[4]] || []).push(b));
-        for (const col in by) { x.strokeStyle = rgba(col, Math.min(1, al * glow * wgt)); x.lineWidth = w * D; x.beginPath(); by[col].forEach(([a1, b1, c1, d1]) => { x.moveTo(a1, b1); x.lineTo(c1, d1); }); x.stroke(); }
-      };
-      pass(8, .05 + lzE * .04); pass(3, .2 + lzE * .15); pass(1.1, .5 + beat * .12, true);
-      const src = {}; beams.forEach(b => src[Math.round(b[0]) + "," + Math.round(b[1])] = b);
-      Object.values(src).forEach(([ex, ey, , , col]) => { const r = (14 + beat * 6) * D, g = x.createRadialGradient(ex, ey, 0, ex, ey, r); g.addColorStop(0, rgba("#ffffff", .85 * wgt)); g.addColorStop(.3, rgba(col, .45 * wgt)); g.addColorStop(1, rgba(col, 0)); x.fillStyle = g; x.fillRect(ex - r, ey - r, r * 2, r * 2); });
-    }
+    lvX.putImageData(lvImg, 0, 0);
+    // Leuchten: dieselben Blasen sehr klein und unscharf dahinter (statt teurem Schatten)
+    const gx = lvG.getContext("2d"); gx.clearRect(0, 0, lvG.width, lvG.height); gx.drawImage(lvC, 0, 0, lvG.width, lvG.height);
+    x.save(); x.imageSmoothingEnabled = true; x.imageSmoothingQuality = "high";
+    x.globalCompositeOperation = "lighter"; x.globalAlpha = .45 + beat * .25; x.drawImage(lvG, -W * .02, -H * .02, W * 1.04, H * 1.04);
+    x.globalCompositeOperation = "source-over"; x.globalAlpha = 1; x.drawImage(lvC, 0, 0, W, H);
     x.restore();
+    // Glaslicht: weicher Glanzstreifen links, Wärme von unten
+    const gl = x.createLinearGradient(0, 0, W, 0);
+    gl.addColorStop(0, "rgba(255,255,255,0)"); gl.addColorStop(.08, "rgba(255,255,255,.05)"); gl.addColorStop(.14, "rgba(255,255,255,0)"); gl.addColorStop(1, "rgba(0,0,0,.25)");
+    x.fillStyle = gl; x.fillRect(0, 0, W, H);
+    const hb = x.createRadialGradient(W * .45, H * 1.05, 0, W * .45, H * 1.05, H * .7);
+    hb.addColorStop(0, rgba(p.c[0], .25 + lvE * .2 + beat * .1)); hb.addColorStop(1, "rgba(0,0,0,0)");
+    x.save(); x.globalCompositeOperation = "lighter"; x.fillStyle = hb; x.fillRect(0, 0, W, H); x.restore();
   }
 
   /* Feuerwerk: Raketen steigen im Takt auf – je lauter, desto größer die Explosion */
@@ -2209,13 +2200,13 @@ const Viz = (() => {
     if (!$("#page-player").classList.contains("active")) { if (!SysMode.on()) sample(now); if (!a.paused) raf = requestAnimationFrame(frame); return; }
     resize();
     const bassV = sample(now), p = pal();
-    if (mode === "synth") synth(p, bassV); else if (mode === "bars") barsScene(p, bassV); else if (mode === "ring") ring(p, bassV); else if (mode === "wave") waveScene(p); else if (mode === "aurora") aurora(p, bassV); else if (mode === "disco" || mode === "party") disco(p, bassV); else if (mode === "laser") laser(p, bassV); else if (mode === "fireworks") fireworks(p, bassV); else calm(p, bassV);
+    if (mode === "synth") synth(p, bassV); else if (mode === "bars") barsScene(p, bassV); else if (mode === "ring") ring(p, bassV); else if (mode === "wave") waveScene(p); else if (mode === "aurora") aurora(p, bassV); else if (mode === "disco") disco(p, bassV); else if (mode === "lava") lava(p, bassV); else if (mode === "fireworks") fireworks(p, bassV); else calm(p, bassV);
     raf = requestAnimationFrame(frame);
   }
   function start() { Audio_.connect(); if (!fx) { drawStill(); return; } if (!raf) raf = requestAnimationFrame(frame); }
   window.addEventListener("resize", () => { if (!fx) drawStill(); });
   a.addEventListener("play", start);
-  const MODES = ["synth", "bars", "ring", "wave", "aurora", "disco", "laser", "fireworks", "off"];
+  const MODES = ["synth", "bars", "ring", "wave", "aurora", "disco", "lava", "fireworks", "off"];
   return {
     start, setMode, setTheme, setCover, setFx, fx: () => fx, redraw() { if (!fx) drawStill(); }, mode: () => mode, theme: () => theme, external(f) { ext = f; },
     cycle() { const m = MODES[(MODES.indexOf(mode) + 1) % MODES.length]; setMode(m); call("save_settings", { viz_mode: m }); },
@@ -3343,7 +3334,7 @@ async function boot() {
   S.presets = i.presets; S.settings = i.settings;
   Player.setVolume(S.settings.volume ?? .8);
   $("#xfSel").value = String(S.settings.xfade ?? 4); $("#normPlay").checked = S.settings.norm_play !== false;
-  Colors.load(S.settings); SideBar.load(S.settings); Viz.setMode(S.settings.viz_mode === "tesla" ? "aurora" : (S.settings.viz_mode || "synth")); Viz.setTheme(THEMES[S.settings.viz_theme] ? S.settings.viz_theme : "synth"); Viz.setFx(S.settings.viz_fx !== false); InfoMin.set(S.settings.pp_info_min !== false); EQ.load(S.settings);
+  Colors.load(S.settings); SideBar.load(S.settings); Viz.setMode({ tesla: "aurora", laser: "lava" }[S.settings.viz_mode] || S.settings.viz_mode || "synth"); Viz.setTheme(THEMES[S.settings.viz_theme] ? S.settings.viz_theme : "synth"); Viz.setFx(S.settings.viz_fx !== false); InfoMin.set(S.settings.pp_info_min !== false); EQ.load(S.settings);
   Player.refresh(); Player.restore();
   fillPresets(presetFmt(S.settings.preset), S.settings.preset);
   $("#aboutVer").textContent = "Version " + i.version;
