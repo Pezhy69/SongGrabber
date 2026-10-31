@@ -475,7 +475,7 @@ class ScreenRec:
         except OSError:
             pass
         # ohne -nostdin: ffmpeg wird mit „q“ über die Eingabe sauber beendet (Datei bleibt vollständig)
-        args = [paths.ffmpeg(), "-hide_banner", "-loglevel", "info", "-thread_queue_size", "512"] + \
+        args = [paths.ffmpeg(), "-hide_banner", "-loglevel", "info"] + \
                _video_input(o["src"], fps, o.get("cursor", True), how) + \
                ["-vf", "scale=trunc(iw/2)*2:trunc(ih/2)*2", "-c:v", "libx264", "-preset", "veryfast", "-crf", str(crf),
                 "-pix_fmt", "yuv420p", "-g", str(fps * 2)] + (["-fps_mode", "cfr", "-r", str(fps)] if how == "gfx" else []) + \
