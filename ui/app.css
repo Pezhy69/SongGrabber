@@ -1129,6 +1129,6 @@ body.is-scrbar .scrbar.paused{border-top-color:var(--info)}
 .pp-dock svg{width:15px;height:15px}
 .pp-stage.ctl-off:not(.ctl-peek){padding-bottom:50px}
 /* 8 Lichtshow-Stile: Leiste kompakter, damit alles in eine Zeile passt */
-@media (max-width:1980px){#vizModes button{padding:7px 8px}}
+@media (max-width:1980px){#vizModes button{padding:7px 8px}.pp-colbtn span{display:none}.pp-colbtn{padding:9px}}
 @media (max-width:1680px){#vizModes button{padding:7px 7px;font-size:12.5px;letter-spacing:.1px}.pp-colbtn span{display:none}.pp-colbtn{padding:9px}.pp-themes{display:none}}
 @media (max-width:1500px){#vizModes button{padding:6px 6px;font-size:12px;letter-spacing:0}.pp-themes{display:none}}
