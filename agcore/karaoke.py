@@ -113,6 +113,46 @@ def playlist_items(url):
     return [_song(e) for e in info.get("entries") or [] if e and e.get("id")]
 
 
+FORMAT = "bv*[height<=720][vcodec^=avc1]+ba[ext=m4a]/b[height<=720][ext=mp4]/bv*[height<=720]+ba/b"
+
+
+def fetch(vid, base, progress=None, cancel=None):
+    """Video mit yt-dlp nach base.mp4 (+ base.jpg) holen. progress(0..1). Gibt den Dateipfad zurück."""
+    args = [links._ytdlp(), "-f", FORMAT, "--merge-output-format", "mp4", "--no-playlist", "--newline", "--no-warnings",
+            "--no-part", "--write-thumbnail", "--convert-thumbnails", "jpg", "-o", base + ".%(ext)s",
+            "--progress-template", "download:AG %(progress.downloaded_bytes)s %(progress.total_bytes)s %(progress.total_bytes_estimate)s"]
+    ff = paths.ffmpeg()
+    if ff:
+        args += ["--ffmpeg-location", os.path.dirname(ff)]
+    proc = paths.popen(args + ["https://www.youtube.com/watch?v=" + vid], stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+    last, part, parts = [], 0, 2
+    for raw in proc.stdout:
+        if cancel is not None and cancel():
+            proc.kill()
+            raise encoder.Cancelled()
+        line = raw.decode("utf-8", "replace").strip()
+        if line.startswith("AG "):
+            p = line.split()
+            try:
+                done = float(p[1])
+                tot = float(p[2]) if p[2] not in ("NA", "None") else float(p[3])
+                if progress:
+                    progress(min(.98, (part + done / tot) / parts), done)
+                if done >= tot:
+                    part = min(parts - 1, part + 1)
+            except (ValueError, ZeroDivisionError, IndexError):
+                pass
+        elif line:
+            last = (last + [line])[-6:]
+    proc.wait()
+    files = [p for p in glob.glob(glob.escape(base) + ".*") if p.lower().endswith((".mp4", ".mkv", ".webm"))]
+    if proc.returncode != 0 or not files:
+        paths.log.warning("Karaoke-Download %s fehlgeschlagen:\n  %s", vid, "\n  ".join(last))
+        err = [l for l in last if "ERROR" in l] or last
+        raise RuntimeError((err[-1] if err else "Download fehlgeschlagen").replace("ERROR: ", "")[:200])
+    return files[0]
+
+
 # ---------------------------------------------------------------- Favoriten & Offline
 class Karaoke:
     def __init__(self, media, jobs):
@@ -127,7 +167,50 @@ class Karaoke:
             pass
         self.dl = {}                  # id → {progress, error}
         self.cache = {}               # id → (zeit, video, audio, headers)
+        self.prep = {}                # id → {progress, file, error}  (vorgeladene Songs zum Abspielen)
+        self.cdir = os.path.join(paths.temp_dir(), "karaoke")
+        os.makedirs(self.cdir, exist_ok=True)
+        self._tidy()
         media.handlers["kv"] = self._stream
+
+    def _tidy(self):
+        """Zwischenspeicher klein halten: höchstens 25 Songs und nichts älter als 3 Tage."""
+        try:
+            fs = sorted((os.path.join(self.cdir, f) for f in os.listdir(self.cdir)), key=os.path.getmtime, reverse=True)
+            for i, f in enumerate(fs):
+                if i >= 50 or time.time() - os.path.getmtime(f) > 3 * 86400:
+                    os.remove(f)
+        except OSError:
+            pass
+
+    # --- Abspielen: Song vorladen (zuverlässiger als direkt streamen, Spulen geht, der nächste lädt schon im Hintergrund)
+    def prepare(self, song):
+        vid = song["id"]
+        f = next((x for x in self.data["favorites"] if x["id"] == vid), None)
+        if f and f.get("file") and os.path.isfile(f["file"]):
+            return {"ready": True, "src": self.media.url(f["file"]), "offline": True}
+        cached = os.path.join(self.cdir, vid + ".mp4")
+        if os.path.isfile(cached) and vid not in self.prep:
+            return {"ready": True, "src": self.media.url(cached), "offline": False}
+        st = self.prep.get(vid)
+        if st is None or st.get("error"):
+            st = self.prep[vid] = {"progress": 0.0, "file": "", "error": "", "mb": 0}
+
+            def run():
+                try:
+                    def prog(p, done):
+                        st["progress"], st["mb"] = p, round(done / 1048576, 1)
+                    st["file"] = fetch(vid, os.path.join(self.cdir, vid), prog)
+                    st["progress"] = 1.0
+                except Exception as e:
+                    st["error"] = str(e) or "Download fehlgeschlagen"
+                finally:
+                    if st.get("file"):
+                        self.prep.pop(vid, None)
+            threading.Thread(target=run, daemon=True).start()
+        if st.get("file"):
+            return {"ready": True, "src": self.media.url(st["file"]), "offline": False}
+        return {"ready": False, "progress": round(st["progress"], 3), "mb": st.get("mb", 0), "error": st.get("error", "")}
 
     def _save(self):
         tmp = self.path + ".tmp"
@@ -208,47 +291,26 @@ class Karaoke:
             os.makedirs(folder, exist_ok=True)
             name = paths.clean(re.sub(r"\s+", " ", re.sub(r"[^\w\s\-.,()&'!]", " ", title)).strip())[:90] or vid
             base = os.path.join(folder, name)
-            args = [links._ytdlp(), "-f", "bv*[height<=720][vcodec^=avc1]+ba[ext=m4a]/b[height<=720][ext=mp4]/bv*[height<=720]+ba/b",
-                    "--merge-output-format", "mp4", "--no-playlist", "--newline", "--no-warnings", "--no-part",
-                    "--write-thumbnail", "--convert-thumbnails", "jpg", "-o", base + ".%(ext)s",
-                    "--progress-template", "download:AG %(progress.downloaded_bytes)s %(progress.total_bytes)s %(progress.total_bytes_estimate)s"]
-            ff = paths.ffmpeg()
-            if ff:
-                args += ["--ffmpeg-location", os.path.dirname(ff)]
-            proc = paths.popen(args + ["https://www.youtube.com/watch?v=" + vid], stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-            last, part, parts = [], 0, 2
-            for raw in proc.stdout:
-                if job.cancel.is_set():
-                    proc.kill()
-                    raise encoder.Cancelled()
-                line = raw.decode("utf-8", "replace").strip()
-                if line.startswith("AG "):
-                    p = line.split()
-                    try:
-                        done = float(p[1])
-                        tot = float(p[2]) if p[2] not in ("NA", "None") else float(p[3])
-                        pr = min(.98, (part + done / tot) / parts)
-                        if done >= tot:
-                            part = min(parts - 1, part + 1)
-                        self.dl[vid]["progress"] = pr
-                        job.set(pr, f"Lädt … {done / 1048576:.1f} MB")
-                    except (ValueError, ZeroDivisionError, IndexError, KeyError):
-                        pass
-                elif line:
-                    last = (last + [line])[-4:]
-            proc.wait()
-            files = [p for p in glob.glob(glob.escape(base) + ".*") if p.lower().endswith((".mp4", ".mkv", ".webm"))]
-            if proc.returncode != 0 or not files:
-                err = [l for l in last if "ERROR" in l] or last
-                raise RuntimeError((err[-1] if err else "Download fehlgeschlagen").replace("ERROR: ", ""))
-            thumb = next(iter(glob.glob(glob.escape(base) + ".jpg")), "")
+            cached = os.path.join(self.cdir, vid + ".mp4")
+            if os.path.isfile(cached):                      # gerade gesungen → nur noch umkopieren
+                import shutil
+                file = paths.unique(base + ".mp4")
+                shutil.copy2(cached, file)
+                if os.path.isfile(os.path.join(self.cdir, vid + ".jpg")):
+                    shutil.copy2(os.path.join(self.cdir, vid + ".jpg"), os.path.splitext(file)[0] + ".jpg")
+            else:
+                def prog(p, done):
+                    self.dl[vid]["progress"] = p
+                    job.set(p, f"Lädt … {done / 1048576:.1f} MB")
+                file = fetch(vid, base, prog, job.cancel.is_set)
+            thumb = os.path.splitext(file)[0] + ".jpg"
             with self.lock:
                 for x in self.data["favorites"]:
                     if x["id"] == vid:
-                        x["file"], x["thumb_file"] = files[0], thumb
+                        x["file"], x["thumb_file"] = file, thumb if os.path.isfile(thumb) else ""
                 self._save()
                 self.dl.pop(vid, None)
-            job.outputs.append(files[0])
+            job.outputs.append(file)
             job.set(1.0, "Offline gespeichert")
 
         def wrap(job):

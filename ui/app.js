@@ -1025,18 +1025,27 @@ const Kara = (() => {
     const e = K.queue.shift(); save();
     if (!e) { stop(); toast("Warteschlange ist leer – das war's! 🎤"); return; }
     K.cur = e; renderQueue();
-    if (!$("#audio").paused) Player.toggle();                    // Musik anhalten
-    $("#kaStage").hidden = false; $("#kaLoad").hidden = false;
+    Player.pause(); try { $("#audio2").pause(); } catch { }        // Musik/Radio anhalten
+    v.pause(); v.removeAttribute("src"); v.load();
+    $("#kaStage").hidden = false; $("#kaLoad").hidden = false; loadTxt("Video wird geladen …");
     $("#kaNowT").textContent = e.song.title; $("#kaNowS").textContent = e.singer ? "Es singt: " + e.singer : "";
     $("#kaFav").classList.toggle("on", !!favOf(e.song.id));
+    if (active()) $("#kaStage").scrollIntoView({ behavior: "smooth", block: "start" });
     let r;
-    try { r = await call("kara_play", e.song); } catch (err) { toast(String(err.message || err), "err"); return; }
-    if (K.cur !== e) return;
+    for (;;) {                                                    // Song vorladen (Fortschritt anzeigen)
+      try { r = await call("kara_prepare", e.song); } catch (err) { r = { error: String(err.message || err) }; }
+      if (K.cur !== e) return;
+      if (r.ready || r.error) break;
+      loadTxt(r.progress > 0 ? `Video wird geladen … ${Math.round(r.progress * 100)} %` : "Video wird gesucht …");
+      await new Promise(ok => setTimeout(ok, 500));
+    }
+    if (r.error) { $("#kaLoad").hidden = true; toast("Dieses Video lässt sich nicht laden: " + r.error, "err"); setTimeout(() => { if (K.cur === e) next(); }, 3500); return; }
     v.src = r.src; v.volume = +$("#kaVol").value / 100;
     v.play().catch(() => { });
     over(e.singer ? `Jetzt singt: ${esc(e.singer)}` : esc(e.song.title), e.singer ? esc(e.song.title) : (r.offline ? "offline" : ""), 4500);
-    if (active()) $("#kaStage").scrollIntoView({ behavior: "smooth", block: "start" });
+    if (K.queue[0]) call("kara_prepare", K.queue[0].song).catch(() => { });   // nächsten Song schon im Hintergrund laden
   }
+  const loadTxt = t => { $("#kaLoad span").textContent = t; };
   let overT = 0, nextShown = false;
   function over(big, small, ms) { clearTimeout(overT); $("#kaOver").innerHTML = big + (small ? `<small>${small}</small>` : ""); $("#kaOver").classList.add("on"); if (ms) overT = setTimeout(() => $("#kaOver").classList.remove("on"), ms); }
   function stop() { v.pause(); v.removeAttribute("src"); v.load(); K.cur = null; $("#kaStage").hidden = true; full(false); renderQueue(); }
@@ -3539,7 +3548,7 @@ const Mock = (() => {
     ["Bon Jovi – It's My Life (Karaoke Version)", "Sing King", 226], ["DJ Ötzi – Ein Stern (der deinen Namen trägt) Karaoke", "Karaoke Hits DE", 235], ["Udo Jürgens – Griechischer Wein (Karaoke)", "KaraFun Deutschland", 228],
     ["Queen – Bohemian Rhapsody (Karaoke Version)", "Sing King", 356], ["Nena – 99 Luftballons (Karaoke)", "Zoom Karaoke", 232]]
     .map(([t, ch, d], i) => ({ id: "k" + i + q.length, title: t, channel: ch, duration: d, thumb: kThumb(t, i), score: 5 }));
-  let kfav = [];
+  let kfav = [], kprep = {};
 
   const LIB = [["Rolling in the Deep", "Adele", "21", "Pop", "2011", 228], ["Someone Like You", "Adele", "21", "Pop", "2011", 285], ["Skyfall", "Adele", "Skyfall", "Pop", "2012", 286], ["99 Luftballons", "Nena", "Nena", "Pop", "1983", 232], ["Major Tom", "Peter Schilling", "Fehler im System", "Pop", "1983", 300], ["Bohemian Rhapsody", "Queen", "A Night at the Opera", "Rock", "1975", 355], ["Get Lucky", "Daft Punk", "Random Access Memories", "Electronic", "2013", 369], ["Atemlos durch die Nacht", "Helene Fischer", "Farbenspiel", "Schlager", "2013", 219], ["Wonderwall", "Oasis", "(What's the Story) Morning Glory?", "Rock", "1995", 258]].map(([title, artist, album, genre, year, duration], i) => ({ title, artist, album, genre, year, duration, track: 1, path: "C:\\Musik\\" + artist + " - " + title + ".mp3", mtime: Date.now() / 1000 - i * 86400 * 9, format: "MP3" }));
   return {
@@ -3591,6 +3600,7 @@ const Mock = (() => {
     kara_playlists: q => new Promise(r => setTimeout(() => r(["Schlager Karaoke – die besten Party-Hits", "Deutsche Schlager zum Mitsingen", "Ballermann Karaoke 2026", "Schlager Klassiker Karaoke", "Après-Ski Karaoke", "Helene & Co. – Karaoke"].map((t, i) => ({ url: "pl" + i, title: t, channel: ["KaraFun Deutschland", "Sing King", "Karaoke Hits DE"][i % 3], count: 20 + i * 7, thumb: kThumb(t, i + 3) }))), 400)),
     kara_playlist: () => new Promise(r => setTimeout(() => r(kSongs("schlager").slice(0, 8)), 400)),
     kara_play: s => ({ src: Mock.__kvsrc || "", offline: !!(kfav.find(f => f.id === s.id) || {}).offline }),
+    kara_prepare: s => { kprep[s.id] = (kprep[s.id] || 0) + .34; return kprep[s.id] >= 1 ? { ready: true, src: Mock.__kvsrc || "", offline: false } : { ready: false, progress: kprep[s.id] }; },
     kara_fav: (s, on) => { if (on) kfav.unshift({ ...s, offline: false, loading: 0.35 }); else kfav = kfav.filter(f => f.id !== s.id); return Mock.kara_state(); },
     kara_remove: id => { kfav = kfav.filter(f => f.id !== id); return Mock.kara_state(); },
     kara_offline_all: () => { kfav.forEach(f => { if (!f.offline) f.loading = 0.1; }); return kfav.length; },

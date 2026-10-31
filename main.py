@@ -393,6 +393,9 @@ class Api:
     def kara_play(self, song):
         return self._kara.play_url(song)
 
+    def kara_prepare(self, song):
+        return self._kara.prepare(song)
+
     def kara_fav(self, song, on=True):
         return self._kara.favorite(song, bool(on))
 
