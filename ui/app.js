@@ -42,6 +42,7 @@ function go(page) {
   if (page === "player") { Viz.start(); SysMode.resume(); if (SysMode.on()) SysMode.lyrics(true); else if (!$("#ppLyBody").hidden) { LY.path = ""; loadLyrics(Player.lyricsTrack()); } }
   if (page === "radio") loadRadio();
   if (page === "screen") Scr.enter();
+  if (page === "karaoke") Kara.enter();
 }
 $$(".nav-item").forEach(b => b.onclick = () => go(b.dataset.page));
 
@@ -910,6 +911,173 @@ async function playVideo(path) {
 }
 window.Scr = Scr;
 
+/* ---------------------------------------------------------------- Karaoke */
+const Kara = (() => {
+  const K = { tab: "songs", results: [], plItems: [], pl: null, favs: [], queue: [], singers: [], cur: null, loaded: false, poll: 0 };
+  const v = $("#kaVideo"), active = () => $("#page-karaoke").classList.contains("active");
+  const favOf = id => K.favs.find(f => f.id === id);
+  const durTxt = d => d ? fmtTime(d) : "";
+  const save = () => call("kara_queue", K.queue, K.singers).catch(() => { });
+
+  async function enter() {
+    if (!K.loaded) { await refresh(); K.loaded = true; const s = await call("kara_state"); K.queue = s.queue || []; K.singers = s.singers || []; starters(s.starters || []); $("#kaSinger").value = K.singers[0] || ""; renderQueue(); }
+    else refresh();
+    if (!K.results.length && K.tab === "songs") $("#kaQ").focus();
+  }
+  async function refresh() {
+    const s = await call("kara_state").catch(() => null); if (!s) return;
+    K.favs = s.favorites || []; K.folder = s.folder;
+    $("#kaFavN").textContent = K.favs.length || "";
+    if (K.tab === "favs") renderFavs();
+    $$(".ka-card[data-id]").forEach(c => { const st = c.querySelector(".star"); if (st) st.classList.toggle("on", !!favOf(c.dataset.id)); });
+    $("#kaFav").classList.toggle("on", !!(K.cur && favOf(K.cur.song.id)));
+    clearTimeout(K.poll);
+    if (K.favs.some(f => f.loading !== null && f.loading !== undefined)) K.poll = setTimeout(refresh, 1500);
+  }
+  function starters(list) {
+    $("#kaStarters").innerHTML = list.map(s => `<span data-q="${esc(s.query)}">${esc(s.name)}</span>`).join("");
+    $$("#kaStarters span").forEach(c => c.onclick = () => { $$("#kaStarters span").forEach(x => x.classList.toggle("on", x === c)); findLists(c.dataset.q); });
+  }
+  function tab(t) {
+    K.tab = t; $$("#kaTabs button").forEach(b => b.classList.toggle("active", b.dataset.t === t));
+    $("#kaSongs").hidden = t !== "songs"; $("#kaLists").hidden = t !== "lists"; $("#kaFavs").hidden = t !== "favs";
+    if (t === "favs") renderFavs();
+    if (t === "lists" && !$("#kaPl").children.length) { const c = $("#kaStarters span"); if (c) c.click(); }
+  }
+  function card(s, extra = "") {
+    const f = favOf(s.id), badge = f ? (f.offline ? `<span class="badge2 off">✓ offline</span>` : f.loading != null ? `<span class="badge2 load">lädt ${Math.round(f.loading * 100)} %</span>` : f.error ? `<span class="badge2">Fehler</span>` : `<span class="badge2">nur online</span>`) : "";
+    return `<div class="ka-card" data-id="${esc(s.id)}"><div class="ka-th" style="background-image:url('${esc(s.thumb || "")}')">${badge}<em>${durTxt(s.duration)}</em><div class="play"><svg><use href="#i-play"/></svg></div></div>
+      <div class="ka-info"><b title="${esc(s.title)}">${esc(s.title)}</b><small>${esc(s.channel || "")}</small></div>
+      <div class="ka-act"><button class="primary sm" data-a="sing"><svg><use href="#i-stage"/></svg>Singen</button><button class="ghost sm" data-a="q" title="In die Warteschlange"><svg><use href="#i-plus"/></svg></button><div class="grow"></div>${extra}<button class="ghost sm star ${f ? "on" : ""}" data-a="fav" title="${f ? "Favorit – gespeichert für offline" : "Als Favorit merken und offline speichern"}"><svg><use href="#i-star"/></svg></button></div></div>`;
+  }
+  function bind(box, list) {
+    $$(".ka-card", box).forEach(c => {
+      const s = list.find(x => x.id === c.dataset.id); if (!s) return;
+      c.querySelector(".ka-th").onclick = () => singNow(s);
+      c.querySelectorAll("[data-a]").forEach(b => b.onclick = e => {
+        e.stopPropagation(); const a = b.dataset.a;
+        if (a === "sing") singNow(s); else if (a === "q") addQ(s); else if (a === "fav") toggleFav(s);
+        else if (a === "dl") call("kara_download", s.id).then(() => { toast("Wird für unterwegs gespeichert …"); refresh(); });
+        else if (a === "del") delFav(s);
+      });
+    });
+  }
+  /* --- Suche */
+  async function find() {
+    const q = $("#kaQ").value.trim(); if (!q) return;
+    tab("songs"); $("#kaList").innerHTML = `<div class="ka-empty">Suche Karaoke-Versionen von „${esc(q)}“ …</div>`;
+    try { K.results = await call("kara_search", q); }
+    catch (e) { K.results = []; $("#kaList").innerHTML = `<div class="ka-empty">${esc(String(e.message || e))}<br>Kein Internet? Deine <a href="#" id="kaToFav">★ Favoriten</a> laufen auch offline.</div>`; const l = $("#kaToFav"); if (l) l.onclick = ev => { ev.preventDefault(); tab("favs"); }; return; }
+    $("#kaList").innerHTML = K.results.length ? K.results.map(s => card(s)).join("") : `<div class="ka-empty">Nichts gefunden – anders schreiben oder nur den Interpreten suchen.</div>`;
+    bind($("#kaList"), K.results);
+  }
+  async function findLists(q) {
+    $("#kaPlHead").hidden = true; $("#kaPl").innerHTML = `<div class="ka-empty">Suche Playlists …</div>`;
+    let pls = [];
+    try { pls = await call("kara_playlists", q); } catch (e) { $("#kaPl").innerHTML = `<div class="ka-empty">${esc(String(e.message || e))}</div>`; return; }
+    K.pls = pls;
+    $("#kaPl").innerHTML = pls.length ? pls.map((p, i) => `<div class="ka-card ka-plcard" data-i="${i}"><div class="ka-th" style="background-image:url('${esc(p.thumb)}')"><em>${p.count ? p.count + " Songs" : "Playlist"}</em><div class="play"><svg><use href="#i-list"/></svg></div></div><div class="ka-info"><b>${esc(p.title)}</b><small>${esc(p.channel)}</small></div></div>`).join("") : `<div class="ka-empty">Keine Playlists gefunden.</div>`;
+    $$("#kaPl .ka-plcard").forEach(c => c.onclick = () => openList(K.pls[+c.dataset.i]));
+  }
+  async function openList(p) {
+    $("#kaPl").innerHTML = `<div class="ka-empty">Lade „${esc(p.title)}“ …</div>`;
+    try { K.plItems = await call("kara_playlist", p.url); } catch (e) { $("#kaPl").innerHTML = `<div class="ka-empty">${esc(String(e.message || e))}</div>`; return; }
+    K.pl = p; $("#kaPlHead").hidden = false; $("#kaPlTitle").textContent = `${p.title} · ${K.plItems.length} Songs`;
+    $("#kaPl").innerHTML = K.plItems.map(s => card(s)).join(""); bind($("#kaPl"), K.plItems);
+  }
+  /* --- Favoriten */
+  function renderFavs() {
+    const off = K.favs.filter(f => f.offline).length, loading = K.favs.filter(f => f.loading != null).length;
+    $("#kaOffT").textContent = K.favs.length ? `${off} von ${K.favs.length} Favoriten offline gespeichert` + (loading ? ` · ${loading} werden geladen` : "") : "Noch keine Favoriten";
+    $("#kaOffS").textContent = K.favs.length ? "Gespeichert in: " + (K.folder || "") : "Bei einem Song auf ★ klicken – dann wird er gemerkt und für unterwegs gespeichert.";
+    $("#kaOffAll").hidden = !K.favs.some(f => !f.offline && f.loading == null);
+    $("#kaFavList").innerHTML = K.favs.map(f => card(f, (!f.offline && f.loading == null ? `<button class="ghost sm" data-a="dl" title="Offline speichern"><svg><use href="#i-down"/></svg></button>` : "") + `<button class="ghost sm" data-a="del" title="Aus den Favoriten entfernen"><svg><use href="#i-trash"/></svg></button>`)).join("");
+    bind($("#kaFavList"), K.favs);
+  }
+  async function toggleFav(s) {
+    const on = !favOf(s.id);
+    await call("kara_fav", { id: s.id, title: s.title, channel: s.channel, duration: s.duration, thumb: s.thumb }, on);
+    toast(on ? "★ Favorit – wird für unterwegs gespeichert (Karaoke-Ordner)." : "Aus den Favoriten entfernt.");
+    await refresh(); renderAll();
+  }
+  function delFav(s) {
+    const f = favOf(s.id);
+    dialog({ title: "Favorit entfernen", icon: "i-trash", body: `<p>„${esc(s.title)}“ aus den Favoriten nehmen?</p>${f && f.offline ? "<p class='muted'>Die gespeicherte Videodatei kann dabei gelöscht oder behalten werden.</p>" : ""}`,
+      buttons: [...(f && f.offline ? [{ label: "Entfernen & Datei löschen", fn: async () => { closeDialog(); await call("kara_remove", s.id, true); refresh(); } }] : []),
+        { label: f && f.offline ? "Nur entfernen" : "Entfernen", cls: "primary", fn: async () => { closeDialog(); await call("kara_remove", s.id, false); refresh(); } }, { label: "Abbrechen" }] });
+  }
+  function renderAll() { if (K.results.length) { $("#kaList").innerHTML = K.results.map(s => card(s)).join(""); bind($("#kaList"), K.results); } if (K.plItems.length && !$("#kaPlHead").hidden) { $("#kaPl").innerHTML = K.plItems.map(s => card(s)).join(""); bind($("#kaPl"), K.plItems); } }
+  /* --- Warteschlange */
+  const singer = () => { const n = $("#kaSinger").value.trim(); if (n && !K.singers.includes(n)) { K.singers.unshift(n); $("#kaSingers").innerHTML = K.singers.map(x => `<option value="${esc(x)}">`).join(""); } return n; };
+  const slim = s => ({ id: s.id, title: s.title, channel: s.channel, duration: s.duration, thumb: s.thumb });
+  function addQ(s) { K.queue.push({ song: slim(s), singer: singer() }); renderQueue(); save(); toast(`In der Warteschlange: ${s.title}`); }
+  function renderQueue() {
+    $("#kaSingers").innerHTML = K.singers.map(x => `<option value="${esc(x)}">`).join("");
+    $("#kaQN").textContent = K.queue.length ? K.queue.length + " Songs" : "";
+    const now = K.cur ? `<div class="ka-q now"><i>▶</i><div><b>${esc(K.cur.song.title)}</b><small>${esc(K.cur.singer || "")}</small></div><span></span></div>` : "";
+    $("#kaQueue").innerHTML = now + (K.queue.length ? K.queue.map((e, i) => `<div class="ka-q" data-i="${i}"><i>${i + 1}</i><div><b title="${esc(e.song.title)}">${esc(e.song.title)}</b><small>${esc(e.singer || "")}</small></div><button class="x" title="Entfernen"><svg><use href="#i-x"/></svg></button></div>`).join("") : (K.cur ? "" : `<div class="ka-empty">Noch leer – bei einem Song auf <b>+</b> klicken.</div>`));
+    $$("#kaQueue .ka-q[data-i] .x").forEach(b => b.onclick = () => { K.queue.splice(+b.closest(".ka-q").dataset.i, 1); renderQueue(); save(); });
+    $("#kaStart").hidden = !K.queue.length || !!K.cur;
+  }
+  /* --- Singen */
+  function singNow(s) { K.queue.unshift({ song: slim(s), singer: singer() }); next(); }
+  async function next() {
+    const e = K.queue.shift(); save();
+    if (!e) { stop(); toast("Warteschlange ist leer – das war's! 🎤"); return; }
+    K.cur = e; renderQueue();
+    if (!$("#audio").paused) Player.toggle();                    // Musik anhalten
+    $("#kaStage").hidden = false; $("#kaLoad").hidden = false;
+    $("#kaNowT").textContent = e.song.title; $("#kaNowS").textContent = e.singer ? "Es singt: " + e.singer : "";
+    $("#kaFav").classList.toggle("on", !!favOf(e.song.id));
+    let r;
+    try { r = await call("kara_play", e.song); } catch (err) { toast(String(err.message || err), "err"); return; }
+    if (K.cur !== e) return;
+    v.src = r.src; v.volume = +$("#kaVol").value / 100;
+    v.play().catch(() => { });
+    over(e.singer ? `Jetzt singt: ${esc(e.singer)}` : esc(e.song.title), e.singer ? esc(e.song.title) : (r.offline ? "offline" : ""), 4500);
+    if (active()) $("#kaStage").scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+  let overT = 0, nextShown = false;
+  function over(big, small, ms) { clearTimeout(overT); $("#kaOver").innerHTML = big + (small ? `<small>${small}</small>` : ""); $("#kaOver").classList.add("on"); if (ms) overT = setTimeout(() => $("#kaOver").classList.remove("on"), ms); }
+  function stop() { v.pause(); v.removeAttribute("src"); v.load(); K.cur = null; $("#kaStage").hidden = true; full(false); renderQueue(); }
+  v.addEventListener("playing", () => { $("#kaLoad").hidden = true; nextShown = false; $("#kaPlay").innerHTML = `<svg><use href="#i-pause"/></svg>`; });
+  v.addEventListener("pause", () => { $("#kaPlay").innerHTML = `<svg><use href="#i-play"/></svg>`; });
+  v.addEventListener("waiting", () => { $("#kaLoad").hidden = false; });
+  v.addEventListener("ended", () => next());
+  v.addEventListener("error", () => { if (!K.cur || !v.getAttribute("src")) return; $("#kaLoad").hidden = true; toast("Video lässt sich nicht laden – Internetverbindung prüfen. Weiter mit dem nächsten Song …", "err"); setTimeout(() => { if (K.cur) next(); }, 3000); });
+  v.addEventListener("timeupdate", () => {
+    const d = isFinite(v.duration) && v.duration ? v.duration : (K.cur && K.cur.song.duration) || 0;
+    if (d && !nextShown && d - v.currentTime < 15 && K.queue.length) { nextShown = true; const n = K.queue[0]; over(`Als Nächstes: ${esc(n.singer || n.song.title)}`, n.singer ? esc(n.song.title) : "", 9000); }
+  });
+  /* --- Vollbild */
+  let fsOn = false;
+  async function full(on) {
+    if (on === fsOn) return; fsOn = on; $("#kaStage").classList.toggle("full", on);
+    await call("toggle_fullscreen").catch(() => { });
+  }
+  document.addEventListener("keydown", e => { if (e.key === "Escape" && fsOn) full(false); if (e.key === "F11" && active() && K.cur) { e.preventDefault(); full(!fsOn); } });
+  $("#kaPlay").onclick = () => v.paused ? v.play() : v.pause();
+  $("#kaNext").onclick = () => next();
+  $("#kaClose").onclick = stop;
+  $("#kaFull").onclick = () => full(!fsOn);
+  $("#kaVol").oninput = e => { v.volume = +e.target.value / 100; };
+  $("#kaFav").onclick = () => K.cur && toggleFav(K.cur.song);
+  v.addEventListener("dblclick", () => full(!fsOn));
+  /* --- Bedienung */
+  $$("#kaTabs button").forEach(b => b.onclick = () => tab(b.dataset.t));
+  $("#kaGo").onclick = find; $("#kaQ").onkeydown = e => { if (e.key === "Enter") find(); };
+  $("#kaPGo").onclick = () => $("#kaPQ").value.trim() && findLists($("#kaPQ").value.trim());
+  $("#kaPQ").onkeydown = e => { if (e.key === "Enter") $("#kaPGo").click(); };
+  $("#kaPlBack").onclick = () => { $("#kaPlHead").hidden = true; K.plItems = []; const c = $("#kaStarters span.on"); if (K.pls) { $("#kaPl").innerHTML = ""; c ? c.click() : findLists($("#kaPQ").value); } };
+  $("#kaPlAll").onclick = () => { const n = singer(); K.plItems.forEach(s => K.queue.push({ song: slim(s), singer: n })); renderQueue(); save(); toast(`${K.plItems.length} Songs in der Warteschlange`); };
+  $("#kaOffAll").onclick = async () => { const n = await call("kara_offline_all"); toast(n ? `${n} Songs werden für unterwegs gespeichert …` : "Alles schon offline."); refresh(); };
+  $("#kaOpen").onclick = () => call("open_path", K.folder);
+  $("#kaStart").onclick = () => next();
+  $("#kaQClear").onclick = () => { K.queue = []; renderQueue(); save(); };
+  $("#kaSinger").onchange = () => { singer(); save(); };
+  return { enter };
+})();
+
 /* ---------------------------------------------------------------- Dateien & DVD */
 $("#btnFilesAdd").onclick = e => safe(e.currentTarget, async () => addFiles(await call("choose_files")));
 $("#btnFolderAdd").onclick = e => safe(e.currentTarget, async () => { const f = await call("choose_folder"); if (f) await addFiles([f]); });
@@ -1050,6 +1218,7 @@ $("#btnKeepLive").onclick = () => {
 
 /* ---------------------------------------------------------------- Neu in dieser Version (bei jeder Version ergänzen!) */
 const CHANGES = [
+  ["1.12.0", ["<b>Karaoke</b>: Karaoke-Videos von YouTube suchen und singen – ohne Werbung, mit fertigen Playlists (Schlager, 80er, Disney …)", "<b>Wer singt?</b> Sänger-Warteschlange mit „Jetzt singt …“ und „Als Nächstes …“", "<b>★ Favoriten offline</b>: werden im Ordner „Karaoke“ gespeichert und laufen auch ohne Internet – z. B. beim Camping"]],
   ["1.11.0", ["<b>Bildschirm aufnehmen</b>: Zoom, Teams, Webinar oder Live-Coaching als MP4-Video – ganzer Bildschirm oder nur ein Fenster, mit Vorschau", "Neue Lichtshows: <b>Nordlicht</b>, <b>Disco-Kugel</b>, <b>Lava-Lampe</b> und <b>Feuerwerk</b> (statt Tesla)", "Player: <b>rechte Leiste hochrollen</b> wie ein Rollo (Q) und <b>Bedienung einklappen</b> zu kleinen Knöpfen (H) – Drüberfahren zeigt alles, nach 1 Minute Ruhe passiert es von selbst", "<b>Bereich zeichnen</b>: nur einen Ausschnitt aufnehmen – z. B. nur das Video in YouTube, Zoom oder Teams", "Klar sichtbar, welcher Ton mit drauf ist: <b>Ton vom PC</b> und/oder <b>dein Mikrofon</b> – mit Pegelanzeige", "<b>Mikrofon während der Aufnahme an/aus</b> – z. B. nur kurz einschalten, um etwas zu sagen", "<b>Kleine Aufnahme-Leiste</b> oben rechts mit Uhr, Pause und Stopp – unter Windows im Video unsichtbar", "Fertiges Video direkt in SongGrabber ansehen – saubere Dateinamen ohne Emojis", "Pause, Verwerfen, auf Wunsch zusätzlich als MP3 – und beim Schließen geht keine laufende Aufnahme verloren"]],
   ["1.10.0", ["<b>SongGrabber für Linux</b>: Ubuntu, Mint, Debian, Fedora, Arch, openSUSE – mit <code>install.sh</code>, Startmenü-Eintrag, Papierkorb, Audio-CDs, Systemsound und „Alles am PC“ über MPRIS", "Update-Hinweis verlinkt automatisch die passende Datei für Windows bzw. Linux"]],
   ["1.9.1", ["<b>Mini-Player</b> friert nicht mehr ein – Fenster wird zuverlässig klein, bleibt im Vordergrund und kommt genau so zurück", "Knöpfe oben im Player bleiben bei jeder Fenstergröße sichtbar"]],
@@ -1087,7 +1256,7 @@ function showWhatsNew(from) {
 function verCmp(a, b) { const x = String(a).split(".").map(Number), y = String(b || "0").split(".").map(Number); for (let i = 0; i < 3; i++) { if ((x[i] || 0) !== (y[i] || 0)) return (x[i] || 0) - (y[i] || 0); } return 0; }
 
 /* ---------------------------------------------------------------- Hilfe */
-const HELP_FOR = { screen: "h-screen", radio: "h-radio", player: "h-player", abos: "h-abos", links: "h-links", cd: "h-cd", rec: "h-rec", files: "h-files", library: "h-library", queue: "h-queue", settings: "h-settings", help: "h-start" };
+const HELP_FOR = { karaoke: "h-karaoke", screen: "h-screen", radio: "h-radio", player: "h-player", abos: "h-abos", links: "h-links", cd: "h-cd", rec: "h-rec", files: "h-files", library: "h-library", queue: "h-queue", settings: "h-settings", help: "h-start" };
 (() => {
   const arts = $$("#helpBody article");
   $("#helpToc").innerHTML = arts.map(a => `<a href="#${a.id}" data-id="${a.id}">${esc(a.querySelector("h2").textContent)}</a>`).join("");
@@ -3359,6 +3528,19 @@ const Mock = (() => {
     { id: 1, kind: "rec", title: "Pink Floyd – The Wall (Seite A)", subtitle: "21:48 min aufgenommen", status: "fertig", progress: 1, stage: "Fertig · 6 Titel", outputs: ["x"], count: 6, error: "" },
   ];
   let t0 = 0, rec = "idle", w = [], scr = { state: "idle" };
+  const kThumb = (t, i) => { const c = document.createElement("canvas"); c.width = 320; c.height = 180; const g = c.getContext("2d");
+    const cols = [["#3a0ca3", "#f72585"], ["#023e8a", "#00b4d8"], ["#6a040f", "#f48c06"], ["#1b4332", "#52b788"], ["#240046", "#c77dff"], ["#03045e", "#48cae4"]][i % 6];
+    const gr = g.createLinearGradient(0, 0, 320, 180); gr.addColorStop(0, cols[0]); gr.addColorStop(1, cols[1]); g.fillStyle = gr; g.fillRect(0, 0, 320, 180);
+    g.fillStyle = "rgba(0,0,0,.35)"; g.fillRect(0, 118, 320, 62); g.fillStyle = "#fff"; g.font = "bold 20px sans-serif"; g.fillText(t.split(" (")[0].split(" – ").pop().slice(0, 24), 14, 145);
+    g.font = "13px sans-serif"; g.fillStyle = "rgba(255,255,255,.85)"; g.fillText("KARAOKE", 14, 166); g.font = "bold 46px sans-serif"; g.fillStyle = "rgba(255,255,255,.18)"; g.fillText("♪ ♫", 200, 80);
+    return c.toDataURL("image/jpeg", .8); };
+  const kSongs = q => [["Helene Fischer – Atemlos durch die Nacht (Karaoke Version)", "KaraFun Deutschland", 219], ["Atemlos durch die Nacht – Helene Fischer | Karaoke mit Text", "Sing King", 221],
+    ["Andreas Bourani – Auf uns (Karaoke)", "Karaoke Hits DE", 241], ["Wolfgang Petry – Wahnsinn (Karaoke Version)", "KaraFun Deutschland", 214], ["ABBA – Dancing Queen (Karaoke Version)", "Sing King", 232],
+    ["Bon Jovi – It's My Life (Karaoke Version)", "Sing King", 226], ["DJ Ötzi – Ein Stern (der deinen Namen trägt) Karaoke", "Karaoke Hits DE", 235], ["Udo Jürgens – Griechischer Wein (Karaoke)", "KaraFun Deutschland", 228],
+    ["Queen – Bohemian Rhapsody (Karaoke Version)", "Sing King", 356], ["Nena – 99 Luftballons (Karaoke)", "Zoom Karaoke", 232]]
+    .map(([t, ch, d], i) => ({ id: "k" + i + q.length, title: t, channel: ch, duration: d, thumb: kThumb(t, i), score: 5 }));
+  let kfav = [];
+
   const LIB = [["Rolling in the Deep", "Adele", "21", "Pop", "2011", 228], ["Someone Like You", "Adele", "21", "Pop", "2011", 285], ["Skyfall", "Adele", "Skyfall", "Pop", "2012", 286], ["99 Luftballons", "Nena", "Nena", "Pop", "1983", 232], ["Major Tom", "Peter Schilling", "Fehler im System", "Pop", "1983", 300], ["Bohemian Rhapsody", "Queen", "A Night at the Opera", "Rock", "1975", 355], ["Get Lucky", "Daft Punk", "Random Access Memories", "Electronic", "2013", 369], ["Atemlos durch die Nacht", "Helene Fischer", "Farbenspiel", "Schlager", "2013", 219], ["Wonderwall", "Oasis", "(What's the Story) Morning Glory?", "Rock", "1995", 258]].map(([title, artist, album, genre, year, duration], i) => ({ title, artist, album, genre, year, duration, track: 1, path: "C:\\Musik\\" + artist + " - " + title + ".mp3", mtime: Date.now() / 1000 - i * 86400 * 9, format: "MP3" }));
   return {
     init: () => ({ version: "1.0.0", presets: P, settings, tools: { ffmpeg: true, ffprobe: true, ytdlp: true, ffmpeg_version: "ffmpeg version 7.1 (libmp3lame 3.100)", ytdlp_version: "2026.10.10" }, windows: true }),
@@ -3403,6 +3585,16 @@ const Mock = (() => {
         source: o.source === "win:11" ? "Zoom Meeting" : o.source === "win:12" ? "Wochenmeeting Vertrieb | Microsoft Teams" : "Bildschirm 1",
         result: scr.state === "done" ? { mp4: "C:\\Users\\Pezhy\\Music\\SongGrabber\\Bildschirmaufnahmen\\2026-10-31 14-05 Zoom Meeting.mp4", mp3: o.mp3 ? "x.mp3" : "", duration: el, size: el * 92000, has_audio: !!(o.sys_audio || o.mic) } : null };
     },
+    kara_state: () => ({ favorites: kfav, singers: ["Kathy", "Pezhy"], queue: [], folder: "C:\\Users\\Pezhy\\Music\\SongGrabber\\Karaoke",
+      starters: [["Party-Hits"], ["Schlager"], ["Deutsche Hits"], ["80er"], ["90er"], ["2000er"], ["Rock-Klassiker"], ["Pop aktuell"], ["Disney"], ["Kinderlieder"], ["Balladen"], ["Weihnachten"]].map(([n]) => ({ name: n, query: n.toLowerCase() + " karaoke playlist" })) }),
+    kara_search: q => new Promise(r => setTimeout(() => r(kSongs(q)), 500)),
+    kara_playlists: q => new Promise(r => setTimeout(() => r(["Schlager Karaoke – die besten Party-Hits", "Deutsche Schlager zum Mitsingen", "Ballermann Karaoke 2026", "Schlager Klassiker Karaoke", "Après-Ski Karaoke", "Helene & Co. – Karaoke"].map((t, i) => ({ url: "pl" + i, title: t, channel: ["KaraFun Deutschland", "Sing King", "Karaoke Hits DE"][i % 3], count: 20 + i * 7, thumb: kThumb(t, i + 3) }))), 400)),
+    kara_playlist: () => new Promise(r => setTimeout(() => r(kSongs("schlager").slice(0, 8)), 400)),
+    kara_play: s => ({ src: Mock.__kvsrc || "", offline: !!(kfav.find(f => f.id === s.id) || {}).offline }),
+    kara_fav: (s, on) => { if (on) kfav.unshift({ ...s, offline: false, loading: 0.35 }); else kfav = kfav.filter(f => f.id !== s.id); return Mock.kara_state(); },
+    kara_remove: id => { kfav = kfav.filter(f => f.id !== id); return Mock.kara_state(); },
+    kara_offline_all: () => { kfav.forEach(f => { if (!f.offline) f.loading = 0.1; }); return kfav.length; },
+    kara_download: () => true, kara_queue: () => true,
     rec_privacy_settings: () => true,
     rec_start: () => { rec = "recording"; t0 = performance.now(); w = []; return {}; },
     rec_stop: () => { rec = "idle"; return {}; }, rec_pause: () => { rec = rec === "paused" ? "recording" : "paused"; }, rec_discard: () => { rec = "idle"; }, rec_gain: () => true,

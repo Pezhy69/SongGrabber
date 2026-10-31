@@ -100,6 +100,7 @@
       <button class="nav-item" data-page="library"><svg><use href="#i-lib"/></svg><span>Bibliothek</span><b class="count" id="libCount"></b></button>
       <button class="nav-item" data-page="player"><svg><use href="#i-phones"/></svg><span>Player</span><i class="eqbars" id="navEq"><b></b><b></b><b></b></i></button>
       <button class="nav-item" data-page="radio"><svg><use href="#i-radio"/></svg><span>Radio &amp; Podcasts</span></button>
+      <button class="nav-item" data-page="karaoke"><svg><use href="#i-stage"/></svg><span>Karaoke</span></button>
       <button class="nav-item" data-page="abos"><svg><use href="#i-bell"/></svg><span>Abos</span><b class="count" id="aboCount"></b></button>
       <div class="nav-sep"></div>
       <button class="nav-item" data-page="queue"><svg><use href="#i-queue"/></svg><span>Warteschlange</span><b class="badge" id="queueBadge" hidden>0</b></button>
@@ -466,6 +467,73 @@
           </div>
         </div>
         <div class="scr-err" id="scrErr" hidden><b>Das hat nicht geklappt</b><p id="scrErrT"></p><button class="ghost" id="scrErrNew">Zurück</button></div>
+      </div>
+    </section>
+
+    <!-- ---------- Karaoke ---------- -->
+    <section class="page" id="page-karaoke">
+      <header class="page-head">
+        <div><h1>Karaoke</h1><p>Karaoke-Videos von YouTube – ohne Werbung. Mit ★ gemerkte Songs werden gespeichert und laufen auch ohne Internet, z. B. beim Camping.</p></div>
+        <div class="seg" id="kaTabs"><button data-t="songs" class="active">Songs</button><button data-t="lists">Playlists</button><button data-t="favs">★ Favoriten <b id="kaFavN"></b></button></div>
+      </header>
+
+      <div class="ka-layout">
+        <div class="ka-main">
+          <div class="card ka-stage" id="kaStage" hidden>
+            <div class="ka-vid">
+              <video id="kaVideo" playsinline></video>
+              <div class="ka-over" id="kaOver"></div>
+              <div class="ka-load" id="kaLoad" hidden><i class="spin"></i><span>Video wird geladen …</span></div>
+            </div>
+            <div class="ka-ctrl">
+              <div class="ka-now"><b id="kaNowT">–</b><small id="kaNowS"></small></div>
+              <button class="pp-btn sm" id="kaPlay" title="Abspielen/Pause"><svg><use href="#i-pause"/></svg></button>
+              <button class="pp-btn sm" id="kaNext" title="Nächster Song aus der Warteschlange"><svg><use href="#i-next"/></svg></button>
+              <input type="range" id="kaVol" min="0" max="100" value="90" title="Lautstärke">
+              <button class="pp-btn sm" id="kaFav" title="Als Favorit merken und für unterwegs speichern"><svg><use href="#i-star"/></svg></button>
+              <button class="pp-btn sm" id="kaFull" title="Vollbild (F11)"><svg><use href="#i-full"/></svg></button>
+              <button class="pp-btn sm" id="kaClose" title="Beenden"><svg><use href="#i-x"/></svg></button>
+            </div>
+          </div>
+
+          <div id="kaSongs">
+            <div class="rp-bar">
+              <div class="search grow"><svg><use href="#i-search"/></svg><input id="kaQ" placeholder="Song oder Interpret – z. B. „Atemlos“, „ABBA“, „Bon Jovi“ …"></div>
+              <button class="primary" id="kaGo">Suchen</button>
+            </div>
+            <div class="ka-hint muted" id="kaHint">Tipp: Nur den Songtitel eingeben – „Karaoke“ hängt SongGrabber selbst an. Karaoke-Kanäle wie Sing King oder KaraFun kommen zuerst.</div>
+            <div class="ka-grid" id="kaList"></div>
+          </div>
+
+          <div id="kaLists" hidden>
+            <div class="rp-bar">
+              <div class="search grow"><svg><use href="#i-search"/></svg><input id="kaPQ" placeholder="Playlist suchen – z. B. „Schlager“, „80er“, „Disney“ …"></div>
+              <button class="primary" id="kaPGo">Suchen</button>
+            </div>
+            <div class="chips rp-tags" id="kaStarters"></div>
+            <div class="ka-plhead" id="kaPlHead" hidden><button class="link" id="kaPlBack">← zurück zu den Playlists</button><b id="kaPlTitle"></b><div class="grow"></div><button class="ghost sm" id="kaPlAll"><svg><use href="#i-plus"/></svg>Alle in die Warteschlange</button></div>
+            <div class="ka-grid" id="kaPl"></div>
+          </div>
+
+          <div id="kaFavs" hidden>
+            <div class="ka-offbar">
+              <svg><use href="#i-down"/></svg>
+              <div class="grow"><b id="kaOffT">Offline</b><small id="kaOffS"></small></div>
+              <button class="ghost sm" id="kaOffAll"><svg><use href="#i-down"/></svg>Alle offline holen</button>
+              <button class="ghost sm" id="kaOpen"><svg><use href="#i-folder"/></svg>Ordner</button>
+            </div>
+            <div class="ka-grid" id="kaFavList"></div>
+          </div>
+        </div>
+
+        <aside class="card ka-side">
+          <h4>Wer singt?</h4>
+          <div class="ka-singer"><input id="kaSinger" list="kaSingers" placeholder="Name eingeben"><datalist id="kaSingers"></datalist></div>
+          <small class="muted">Neue Songs kommen mit diesem Namen in die Warteschlange.</small>
+          <h4 class="mt">Warteschlange <span class="h-sub" id="kaQN"></span></h4>
+          <div class="ka-queue" id="kaQueue"></div>
+          <div class="ka-qact"><button class="primary" id="kaStart"><svg><use href="#i-play"/></svg>Los geht's</button><button class="link" id="kaQClear">leeren</button></div>
+        </aside>
       </div>
     </section>
 
@@ -855,6 +923,15 @@
 <li><b>Prüflesen</b> (Einstellungen) liest jeden Block doppelt und wiederholt bei Kratzern. Das ist langsamer, aber sicher. Am Ende meldet SongGrabber, ob Lesefehler korrigiert wurden.</li>
 <li><b>Ohne CD-Laufwerk</b>: <em>CD-Abbild öffnen</em> liest CUE-Abbilder (mit BIN, WAV, FLAC oder MP3) genau wie eine eingelegte CD. <em>Test-CD erzeugen</em> legt eine Beispiel-CD zum Ausprobieren an.</li></ul>
 <p class="note">CDs mit Kopierschutz („Copy Controlled“) dürfen in Deutschland nicht umgangen werden und werden nicht unterstützt.</p></article>
+
+<article id="h-karaoke"><h2>Karaoke</h2>
+<p>Karaoke-Videos von YouTube singen – <b>ohne Werbung</b>, weil SongGrabber nur Bild und Ton holt und nicht den YouTube-Player lädt.</p>
+<ul><li><b>Songs</b>: Titel oder Interpret eingeben, z. B. „Atemlos“. „Karaoke“ hängt SongGrabber selbst an; Karaoke-Kanäle wie Sing King oder KaraFun kommen zuerst, normale Musikvideos ohne Text werden aussortiert. Klick aufs Bild oder <em>Singen</em> startet sofort.</li>
+<li><b>Playlists</b>: Fertige Listen zum Loslegen (Party-Hits, Schlager, 80er, Disney, Kinderlieder …) oder eigene Suche. <em>Alle in die Warteschlange</em> übernimmt die ganze Liste.</li>
+<li><b>Wer singt?</b>: Namen eintragen – neue Songs kommen mit diesem Namen in die Warteschlange. Zu Beginn wird „Jetzt singt: …“ eingeblendet, kurz vor Schluss „Als Nächstes: …“. Nach dem Song geht es automatisch weiter.</li>
+<li><b>★ Favoriten & offline</b>: Ein Klick auf den Stern merkt den Song und speichert das Video (bis 720p) im Musik-Ordner unter <code>Karaoke</code>. Gespeicherte Favoriten laufen auch <b>ohne Internet</b> – praktisch beim Camping oder auf der Gartenparty. <em>Alle offline holen</em> lädt alle noch fehlenden auf einmal; der Fortschritt steht am Bild und in der Warteschlange.</li>
+<li><b>Vollbild</b>: Knopf, Doppelklick aufs Video oder <kbd>F11</kbd>; <kbd>Esc</kbd> beendet es. Die Bedienleiste unten wird im Vollbild fast unsichtbar, bis die Maus darüber fährt.</li>
+<li>Während Karaoke läuft, wird die Musik im Player angehalten.</li></ul></article>
 
 <article id="h-screen"><h2>Bildschirm aufnehmen (Zoom, Teams, Coaching)</h2>
 <p>Speichert ein Meeting, Webinar oder Live-Coaching als <b>MP4-Video mit Ton</b> – in deinem Musik-Ordner unter <code>Bildschirmaufnahmen</code>.</p>

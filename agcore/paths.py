@@ -8,7 +8,7 @@ import sys
 import threading
 
 APP_NAME = "SongGrabber"
-VERSION = "1.11.0"
+VERSION = "1.12.0"
 # Wo neue Versionen veröffentlicht werden. GitHub: "https://api.github.com/repos/<Name>/SongGrabber/releases/latest"
 # oder eine eigene JSON-Datei {"version": "1.9.0", "url": "https://…", "notes": "…"}. Leer = Prüfung aus.
 UPDATE_URL = "https://api.github.com/repos/Pezhy69/SongGrabber/releases/latest"

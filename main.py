@@ -17,7 +17,7 @@ import sys
 import threading
 import time
 
-from agcore import (bridge, cleanup, loudness, screenrec, cdrip, encoder, export, files, identify, library, links, lyrics, mediaserver, metadata,
+from agcore import (bridge, cleanup, karaoke, loudness, screenrec, cdrip, encoder, export, files, identify, library, links, lyrics, mediaserver, metadata,
                     musicbrainz, paths, pipeline, podcasts, radio, recorder, streaming, subs, sysaudio, tags, trim)
 from agcore.jobs import JobManager
 
@@ -41,6 +41,7 @@ class Api:
         self._radio_meta = {}
         self._clean = cleanup.Cleanup()
         self._screen = screenrec.ScreenRec()
+        self._kara = karaoke.Karaoke(self._media, self._jobs)
         self._close_ok = False
         self._ly_cache = {}
         self._jobs.listeners.append(self._job_done)
@@ -375,6 +376,37 @@ class Api:
             hidden = winwin.exclude_from_capture(bool(on)) and bool(on)
         ok = self.mini(bool(on), W=440, H=130, top=True)
         return {"ok": ok, "hidden": hidden}
+
+    # ------------------------------------------------------------ Karaoke
+    def kara_state(self):
+        return self._kara.state()
+
+    def kara_search(self, q):
+        return karaoke.search(q)
+
+    def kara_playlists(self, q):
+        return karaoke.playlists(q)
+
+    def kara_playlist(self, url):
+        return karaoke.playlist_items(url)
+
+    def kara_play(self, song):
+        return self._kara.play_url(song)
+
+    def kara_fav(self, song, on=True):
+        return self._kara.favorite(song, bool(on))
+
+    def kara_remove(self, vid, delete_file=False):
+        return self._kara.remove(vid, bool(delete_file))
+
+    def kara_offline_all(self):
+        return self._kara.download_all()
+
+    def kara_download(self, vid):
+        return self._kara.download(vid)
+
+    def kara_queue(self, q, singers=None):
+        return self._kara.save_queue(q, singers)
 
     def video_url(self, path):
         """Abspiel-Adresse für ein Video im eigenen Fenster (fertige Bildschirmaufnahme)."""
