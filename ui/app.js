@@ -1946,6 +1946,7 @@ const Viz = (() => {
     g.fillStyle = gr; g.fillRect(0, 0, 4, 128);
     return (raySprites[col] = c);
   }
+  let auC = null, auX = null;
   function aurora(p, bassV) {
     const g0 = x.createLinearGradient(0, 0, 0, H);
     g0.addColorStop(0, "#010208"); g0.addColorStop(.7, p.sky[0]); g0.addColorStop(1, "#03040a");
@@ -1953,26 +1954,29 @@ const Viz = (() => {
     const now = performance.now() / 1000;
     for (const s of stars) { x.globalAlpha = .2 + .45 * Math.abs(Math.sin(now * .6 + s[3])); x.fillStyle = "#fff"; x.fillRect(s[0] * W, s[1] * H * 1.4, s[2] * D * .8, s[2] * D * .8); }
     x.globalAlpha = 1;
-    const n = bars.length, hi = bandAvg(46, 72), cols = 150, cw = W / cols;
-    x.save(); x.globalCompositeOperation = "lighter";
+    // Lichtschleier klein zeichnen und weich hochskalieren – keine harten Streifen
+    const cw = Math.max(80, Math.round(W / 6)), ch = Math.max(50, Math.round(H / 6));
+    if (!auC || auC.width !== cw || auC.height !== ch) { auC = document.createElement("canvas"); auC.width = cw; auC.height = ch; auX = auC.getContext("2d"); }
+    auX.globalCompositeOperation = "source-over"; auX.clearRect(0, 0, cw, ch); auX.globalCompositeOperation = "lighter";
+    const n = bars.length, hi = bandAvg(46, 72);
     [[p.c[2] || p.c[0], .40, 0, [0, 24], .9], [p.c[0], .50, 2.1, [8, 40], 1], [p.c[1], .60, 4.2, [24, 60], .8]].forEach(([col, yb, ph, rg, str]) => {
       const lv = bandAvg(rg[0], rg[1]), spr = raySprite(col);
-      for (let i = 0; i < cols; i++) {
-        const t = i / cols;
-        // Vorhang-Linie: sanfte Falten, die langsam wandern
-        const fold = Math.sin(t * 7 + now * .3 + ph) * .06 + Math.sin(t * 17 - now * .55 + ph * 1.7) * .018 + Math.sin(t * 2.4 + now * .12 + ph) * .05;
-        const base = H * (yb + fold);
-        const b = bars[Math.min(n - 1, Math.floor(rg[0] + t * (rg[1] - rg[0])))] || 0;
-        const hgt = H * (.12 + .14 * Math.sin(t * 5 + now * .5 + ph) ** 2 + lv * .25 + b * .15 + bassV * .05);
-        // Helligkeit: Bänder im Vorhang + Flackern mit den Höhen
-        const band = .35 + .65 * Math.pow(Math.sin(t * 23 + now * 1.1 + ph * 3) * .5 + .5, 2);
-        const flick = 1 - hi * .6 * (Math.sin(i * 91.7 + now * 30) * .5 + .5);
-        const edge = Math.min(1, t * 6, (1 - t) * 6);
-        x.globalAlpha = Math.min(1, (.32 + lv * .8 + beat * .2) * band * flick * edge * str);
-        const x0 = Math.floor(i * cw); x.drawImage(spr, x0, base - hgt, Math.floor((i + 1) * cw) - x0, hgt * 1.08);
+      for (let i = 0; i < cw; i++) {
+        const t = i / cw;
+        const fold = Math.sin(t * 7 + now * .22 + ph) * .06 + Math.sin(t * 15 - now * .35 + ph * 1.7) * .02 + Math.sin(t * 2.4 + now * .1 + ph) * .05;
+        const base = ch * (yb + fold);
+        // Pegel über mehrere Bänder gemittelt → sanft statt zappelig
+        const k0 = rg[0] + t * (rg[1] - rg[0]), b = ((bars[Math.floor(k0)] || 0) + (bars[Math.min(n - 1, Math.floor(k0) + 1)] || 0) + (bars[Math.max(0, Math.floor(k0) - 1)] || 0)) / 3;
+        const hgt = ch * (.12 + .13 * Math.sin(t * 4 + now * .35 + ph) ** 2 + lv * .22 + b * .1 + bassV * .04);
+        const band = .45 + .55 * Math.pow(Math.sin(t * 9 + now * .45 + ph * 3) * .5 + .5, 1.5);
+        const shimmer = 1 + hi * .35 * Math.sin(now * 5 + t * 10 + ph);
+        const edge = Math.min(1, t * 5, (1 - t) * 5);
+        auX.globalAlpha = Math.min(1, (.32 + lv * .75 + beat * .15) * band * shimmer * edge * str);
+        auX.drawImage(spr, i, base - hgt, 1.6, hgt * 1.08);
       }
     });
-    x.restore();
+    x.save(); x.globalCompositeOperation = "lighter"; x.imageSmoothingEnabled = true; x.imageSmoothingQuality = "high";
+    x.drawImage(auC, 0, 0, W, H); x.restore();
     x.drawImage(mountains(p), 0, 0);
     x.save(); x.globalAlpha = .12 + energy * .2; x.globalCompositeOperation = "lighter";
     const rf = x.createLinearGradient(0, H * .86, 0, H); rf.addColorStop(0, rgba(p.c[0], .5)); rf.addColorStop(1, rgba(p.c[1], 0));
@@ -2010,6 +2014,7 @@ const Viz = (() => {
       x.fillStyle = g; x.fillRect(px - r * 2.2, py - r * 2.2, r * 4.4, r * 4.4);
     }
     x.restore();
+    if (mode === "party") { x.save(); x.globalAlpha = .8; laser(p, bassV, true); x.restore(); }
     // Aufhängung
     x.strokeStyle = "rgba(200,200,220,.35)"; x.lineWidth = 1.5 * D; x.beginPath(); x.moveTo(cx, 0); x.lineTo(cx, cy - R); x.stroke();
     // Kugel: echte Spiegelplättchen mit Fugen, spiegeln die Farben im Raum, Glanzpunkte funkeln im Takt
@@ -2051,7 +2056,7 @@ const Viz = (() => {
   }
 
   /* Laser-Show: scharfe Strahlen im Nebel – Muster wechseln im Takt, Bass lässt sie aufblitzen */
-  let lzPat = 0, lzBeats = 0, lzHold = 0, fogCv = null, fogKey = "";
+  let lzPat = 0, lzBeats = 0, fogCv = null, fogKey = "";
   function fog() {
     const key = W + "|" + H; if (fogCv && fogKey === key) return fogCv;
     const c = document.createElement("canvas"); c.width = W; c.height = H; const g = c.getContext("2d");
@@ -2062,37 +2067,51 @@ const Viz = (() => {
     }
     fogCv = c; fogKey = key; return c;
   }
-  function laser(p, bassV) {
-    const now = performance.now() / 1000;
-    x.fillStyle = "rgba(2,2,8,.55)"; x.fillRect(0, 0, W, H);
-    const fo = fog(), off = (now * 18 * D) % W;
-    x.globalAlpha = .7 + energy * .5; x.drawImage(fo, -off, 0); x.drawImage(fo, W - off, 0); x.globalAlpha = 1;
-    if (beat > .95) { lzBeats++; if (lzBeats % 8 === 0 || (bassV > .7 && now - lzHold > 4)) { lzPat = (lzPat + 1) % 4; lzHold = now; } }
+  let lzPrev = -1, lzFade = 1, lzE = 0, lzPh = 0, lzT = 0, lzSince = 0;
+  function lzBeams(pat, p, bassV, now) {
     const beams = [], cx = W * .42;
     const emit = (ex, ey, ang, col, len = Math.max(W, H) * 1.4) => beams.push([ex, ey, ex + Math.cos(ang) * len, ey + Math.sin(ang) * len, col]);
-    const spread = .55 + bassV * .35, sw = Math.sin(now * (.8 + energy * 1.4));
-    if (lzPat === 0) {                                    // Fächer von unten, schwenkt hin und her
-      [[cx, 0], [W * .12, 1], [W * .78, 2]].forEach(([ex, k]) => { const n = 7; for (let i = 0; i < n; i++) emit(ex, H * .96, -Math.PI / 2 + (i / (n - 1) - .5) * spread * 2 + sw * .45 * (k === 1 ? 1 : -1), p.c[(i + k) % 3]); });
-    } else if (lzPat === 1) {                             // Kreuzende Strahlen von links und rechts
-      for (let i = 0; i < 9; i++) { const a1 = -.15 - i * .07 + sw * .2; emit(0, H * (.35 + i * .07), a1, p.c[i % 3]); emit(W, H * (.35 + i * .07), Math.PI - a1, p.c[(i + 1) % 3]); }
-    } else if (lzPat === 2) {                             // Lichttunnel: rotierender Kegel von oben
-      const n = 18, rr = Math.min(W, H) * (.32 + bassV * .1);
-      for (let i = 0; i < n; i++) { const t = i / n * Math.PI * 2 + now * (.9 + energy); beams.push([cx, -10 * D, cx + Math.cos(t) * rr * 1.6, H * .9 + Math.sin(t) * rr * .25, p.c[i % 3]]); }
-    } else {                                              // Lichtfläche: viele Strahlen bilden eine Ebene, die auf und ab fährt
-      const yy = H * (.45 + Math.sin(now * .9) * .25);
-      for (let i = 0; i < 26; i++) beams.push([W * .04, H * .5, W * 1.05, yy + (i / 25 - .5) * H * .5 * spread, p.c[(i >> 2) % 3]]);
-      for (let i = 0; i < 26; i++) beams.push([W * .96, H * .5, -W * .05, yy + (i / 25 - .5) * H * .5 * spread, p.c[((i >> 2) + 1) % 3]]);
+    const spread = .5 + bassV * .12 + lzE * .15, sw = Math.sin(lzPh);
+    if (pat === 0) {                                      // Fächer von unten, schwenkt langsam hin und her
+      [[cx, 0], [W * .12, 1], [W * .78, 2]].forEach(([ex, k]) => { const n = 5; for (let i = 0; i < n; i++) emit(ex, H * .96, -Math.PI / 2 + (i / (n - 1) - .5) * spread * 2 + sw * .35 * (k === 1 ? 1 : -1), p.c[(i + k) % 3]); });
+    } else if (pat === 1) {                               // kreuzende Strahlen von links und rechts
+      for (let i = 0; i < 6; i++) { const a1 = -.18 - i * .08 + sw * .12; emit(0, H * (.38 + i * .09), a1, p.c[i % 3]); emit(W, H * (.38 + i * .09), Math.PI - a1, p.c[(i + 1) % 3]); }
+    } else if (pat === 2) {                               // Lichttunnel: langsam drehender Kegel von oben
+      const n = 12, rr = Math.min(W, H) * (.34 + bassV * .04);
+      for (let i = 0; i < n; i++) { const t = i / n * Math.PI * 2 + lzPh * .6; beams.push([cx, -10 * D, cx + Math.cos(t) * rr * 1.6, H * .9 + Math.sin(t) * rr * .25, p.c[i % 3]]); }
+    } else {                                              // Lichtfläche, die ruhig auf und ab gleitet
+      const yy = H * (.48 + Math.sin(lzPh * .7) * .2);
+      for (let i = 0; i < 16; i++) beams.push([W * .04, H * .5, W * 1.05, yy + (i / 15 - .5) * H * .42 * spread, p.c[(i >> 2) % 3]]);
+      for (let i = 0; i < 16; i++) beams.push([W * .96, H * .5, -W * .05, yy + (i / 15 - .5) * H * .42 * spread, p.c[((i >> 2) + 1) % 3]]);
     }
-    const strobe = beat > .9 ? 1.6 : 1, flick = .85 + Math.random() * .15;
+    return beams;
+  }
+  function laser(p, bassV, overlay) {
+    const now = performance.now() / 1000, dt = Math.min(.1, lzT ? now - lzT : 0); lzT = now;
+    lzE += (energy - lzE) * .02;                          // geglättete Lautstärke → ruhige Bewegung
+    lzPh += dt * (.28 + lzE * .3);
+    if (!overlay) {
+      x.fillStyle = "rgba(2,2,8,.6)"; x.fillRect(0, 0, W, H);
+      const fo = fog(), off = (now * 7 * D) % W;
+      x.globalAlpha = .7 + lzE * .4; x.drawImage(fo, -off, 0); x.drawImage(fo, W - off, 0); x.globalAlpha = 1;
+    }
+    // Muster wechseln: alle 16 Takte (frühestens nach 20 s), weich überblendet
+    if (beat > .95) lzBeats++;
+    if ((lzBeats >= 16 && now - lzSince > 20) || (!lzSince)) { if (lzSince) { lzPrev = lzPat; lzPat = (lzPat + 1) % 4; lzFade = 0; } lzBeats = 0; lzSince = now; }
+    lzFade = Math.min(1, lzFade + dt / 2.5);
+    const sets = [[lzBeams(lzPat, p, bassV, now), lzFade]];
+    if (lzFade < 1 && lzPrev >= 0) sets.push([lzBeams(lzPrev, p, bassV, now), 1 - lzFade]);
+    const glow = 1 + beat * .25;
     x.save(); x.globalCompositeOperation = "lighter"; x.lineCap = "round";
-    const pass = (w, al, white) => {
-      const by = {}; beams.forEach(b => (by[white ? "#ffffff" : b[4]] = by[white ? "#ffffff" : b[4]] || []).push(b));
-      for (const col in by) { x.strokeStyle = rgba(col, Math.min(1, al * strobe * flick)); x.lineWidth = w * D; x.beginPath(); by[col].forEach(([a1, b1, c1, d1]) => { x.moveTo(a1, b1); x.lineTo(c1, d1); }); x.stroke(); }
-    };
-    pass(9, .05 + energy * .05); pass(3.2, .22 + energy * .2); pass(1.1, .55 + beat * .3, true);
-    // Austrittspunkte leuchten
-    const src = {}; beams.forEach(b => src[Math.round(b[0]) + "," + Math.round(b[1])] = b);
-    Object.values(src).forEach(([ex, ey, , , col]) => { const r = (14 + beat * 18) * D, g = x.createRadialGradient(ex, ey, 0, ex, ey, r); g.addColorStop(0, "rgba(255,255,255,.9)"); g.addColorStop(.3, rgba(col, .5)); g.addColorStop(1, rgba(col, 0)); x.fillStyle = g; x.fillRect(ex - r, ey - r, r * 2, r * 2); });
+    for (const [beams, wgt] of sets) {
+      const pass = (w, al, white) => {
+        const by = {}; beams.forEach(b => (by[white ? "#ffffff" : b[4]] = by[white ? "#ffffff" : b[4]] || []).push(b));
+        for (const col in by) { x.strokeStyle = rgba(col, Math.min(1, al * glow * wgt)); x.lineWidth = w * D; x.beginPath(); by[col].forEach(([a1, b1, c1, d1]) => { x.moveTo(a1, b1); x.lineTo(c1, d1); }); x.stroke(); }
+      };
+      pass(8, .05 + lzE * .04); pass(3, .2 + lzE * .15); pass(1.1, .5 + beat * .12, true);
+      const src = {}; beams.forEach(b => src[Math.round(b[0]) + "," + Math.round(b[1])] = b);
+      Object.values(src).forEach(([ex, ey, , , col]) => { const r = (14 + beat * 6) * D, g = x.createRadialGradient(ex, ey, 0, ex, ey, r); g.addColorStop(0, rgba("#ffffff", .85 * wgt)); g.addColorStop(.3, rgba(col, .45 * wgt)); g.addColorStop(1, rgba(col, 0)); x.fillStyle = g; x.fillRect(ex - r, ey - r, r * 2, r * 2); });
+    }
     x.restore();
   }
 
@@ -2190,7 +2209,7 @@ const Viz = (() => {
     if (!$("#page-player").classList.contains("active")) { if (!SysMode.on()) sample(now); if (!a.paused) raf = requestAnimationFrame(frame); return; }
     resize();
     const bassV = sample(now), p = pal();
-    if (mode === "synth") synth(p, bassV); else if (mode === "bars") barsScene(p, bassV); else if (mode === "ring") ring(p, bassV); else if (mode === "wave") waveScene(p); else if (mode === "aurora") aurora(p, bassV); else if (mode === "disco") disco(p, bassV); else if (mode === "laser") laser(p, bassV); else if (mode === "fireworks") fireworks(p, bassV); else calm(p, bassV);
+    if (mode === "synth") synth(p, bassV); else if (mode === "bars") barsScene(p, bassV); else if (mode === "ring") ring(p, bassV); else if (mode === "wave") waveScene(p); else if (mode === "aurora") aurora(p, bassV); else if (mode === "disco" || mode === "party") disco(p, bassV); else if (mode === "laser") laser(p, bassV); else if (mode === "fireworks") fireworks(p, bassV); else calm(p, bassV);
     raf = requestAnimationFrame(frame);
   }
   function start() { Audio_.connect(); if (!fx) { drawStill(); return; } if (!raf) raf = requestAnimationFrame(frame); }
