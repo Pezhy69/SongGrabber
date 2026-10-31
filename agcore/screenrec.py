@@ -212,6 +212,24 @@ def _has_gfx():
     return _GFX
 
 
+_BROWSERS = r"Google Chrome|Brave|Mozilla Firefox|Firefox|Microsoft\u200b? Edge|Microsoft Edge|Opera|Vivaldi|Chromium"
+
+
+def file_label(text):
+    """Dateiname aus Fenstertitel: ohne Emojis/Sonderzeichen, ohne „(4)“-Zähler und Browsernamen."""
+    import unicodedata
+    t = str(text or "")
+    t = re.sub(r"^\(\d+\)\s*", "", t)                                   # (4) ungelesene Mitteilungen
+    t = re.sub(r"\s+[-–—|]\s+(" + _BROWSERS + r")\s*$", "", t)
+    t = re.sub(r"\s+[-–—|]\s+YouTube\s*$", "", t)
+    keep = " -_.,()&'+"
+    t = "".join(c if (unicodedata.category(c)[0] in "LN" or c in keep) else " " for c in t)
+    t = re.sub(r"\s+", " ", t).strip(" -_.,")
+    if len(t) > 80:
+        t = t[:80].rsplit(" ", 1)[0]
+    return t.strip(" -_.,") or "Bildschirm"
+
+
 def _variants(src):
     """Wege, eine Quelle aufzunehmen – der erste, der klappt, wird genommen."""
     gfx = ["gfx"] if paths.IS_WIN and _has_gfx() else []
@@ -588,8 +606,7 @@ class ScreenRec:
             folder = os.path.join(paths.ensure_output(paths.settings()["output_dir"]), "Bildschirmaufnahmen")
             os.makedirs(folder, exist_ok=True)
             src = o["src"]
-            label = src.get("title") or src.get("name") or "Bildschirm"
-            label = paths.clean(re.sub(r"\s+", " ", label))[:60].strip() or "Bildschirm"
+            label = paths.clean(file_label(src.get("title") or src.get("name") or "Bildschirm"))
             dst = paths.unique(os.path.join(folder, time.strftime("%Y-%m-%d %H-%M ") + label + ".mp4"))
             if len(parts) == 1:
                 shutil.move(parts[0], dst)

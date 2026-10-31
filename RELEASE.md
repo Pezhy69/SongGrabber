@@ -8,6 +8,7 @@
 - Klar sichtbar, welcher Ton mit drauf ist: **Ton vom PC** und/oder **dein Mikrofon** – jeweils mit Pegelanzeige
 - **Mikrofon während der Aufnahme an/aus** – z. B. nur kurz einschalten, um etwas zu sagen
 - **Kleine Aufnahme-Leiste** oben rechts mit Uhr, Pause und Stopp – unter Windows im Video unsichtbar, ideal für Laptops mit einem Bildschirm
+- Fertiges Video direkt in SongGrabber ansehen; saubere Dateinamen ohne Emojis
 - Pause, Verwerfen, auf Wunsch zusätzlich als MP3 – beim Schließen geht keine laufende Aufnahme verloren
 
 Windows zeigt beim ersten Start evtl. „Der Computer wurde durch Windows geschützt“ → *Weitere Informationen* → *Trotzdem ausführen*.

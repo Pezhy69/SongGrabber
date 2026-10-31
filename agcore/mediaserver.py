@@ -10,7 +10,7 @@ import urllib.parse
 
 MIME = {".mp3": "audio/mpeg", ".flac": "audio/flac", ".wav": "audio/wav", ".m4a": "audio/mp4",
         ".aac": "audio/aac", ".ogg": "audio/ogg", ".opus": "audio/ogg", ".webm": "audio/webm",
-        ".mka": "audio/x-matroska", ".jpg": "image/jpeg", ".png": "image/png"}
+        ".mka": "audio/x-matroska", ".mp4": "video/mp4", ".mkv": "video/x-matroska", ".jpg": "image/jpeg", ".png": "image/png"}
 
 
 class MediaServer:

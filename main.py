@@ -376,6 +376,10 @@ class Api:
         ok = self.mini(bool(on), W=440, H=130, top=True)
         return {"ok": ok, "hidden": hidden}
 
+    def video_url(self, path):
+        """Abspiel-Adresse für ein Video im eigenen Fenster (fertige Bildschirmaufnahme)."""
+        return self._media.url(path)
+
     def screen_close(self, keep=True):
         """Fenster trotz laufender Bildschirmaufnahme schließen (keep=True: vorher speichern)."""
         if keep:

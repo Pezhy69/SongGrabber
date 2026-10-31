@@ -770,7 +770,7 @@ const Scr = (() => {
     discardArm = 0; b.textContent = "Verwerfen"; clearTimeout(pollT);
     await call("screen_discard"); if (barOn) bar(false); $("#navScrDot").classList.remove("on"); toast("Aufnahme verworfen."); st = { state: "idle" }; show("setup"); enter();
   };
-  $("#scrPlay").onclick = () => st.result && call("open_file", st.result.mp4);
+  $("#scrPlay").onclick = () => st.result && playVideo(st.result.mp4);
   $("#scrShow").onclick = () => st.result && call("open_path", st.result.mp4);
   $("#scrNew").onclick = back; $("#scrErrNew").onclick = back;
   document.addEventListener("visibilitychange", () => { if (!document.hidden && active() && view === "setup") preview(true); });
@@ -788,6 +788,28 @@ const Scr = (() => {
   }
   return { enter, closeAsk, tick };
 })();
+
+/* ---------------------------------------------------------------- Video ansehen (schlicht, ohne Lichtshow) */
+async function playVideo(path) {
+  let src = "";
+  try { src = await call("video_url", path); } catch { }
+  if (!src) { call("open_file", path); return; }
+  const a = $("#audio");
+  if (a && !a.paused) Player.toggle();                       // Musik anhalten, solange das Video läuft
+  const name = path.split(/[\\/]/).pop();
+  const box = dialog({ title: name.replace(/\.mp4$/i, ""), icon: "i-play", wide: true,
+    body: `<video class="vid" src="${esc(src)}" controls autoplay playsinline></video>`,
+    buttons: [
+      { label: "Mit anderem Programm öffnen", fn: () => { box.querySelector("video").pause(); call("open_file", path); } },
+      { label: "Im Ordner zeigen", fn: () => call("open_path", path) },
+      { label: "Schließen", cls: "primary" },
+    ],
+    onClose: () => { const v = box.querySelector("video"); if (v) { v.pause(); v.removeAttribute("src"); v.load(); } } });
+  box.classList.add("vid-modal");
+  const v = box.querySelector("video");
+  v.addEventListener("error", () => { toast("Dieses Video lässt sich hier nicht abspielen – es wird mit einem anderen Programm geöffnet.", "err"); closeDialog(); call("open_file", path); });
+  v.addEventListener("dblclick", () => { if (document.fullscreenElement) document.exitFullscreen(); else v.requestFullscreen?.(); });
+}
 window.Scr = Scr;
 
 /* ---------------------------------------------------------------- Dateien & DVD */
@@ -930,7 +952,7 @@ $("#btnKeepLive").onclick = () => {
 
 /* ---------------------------------------------------------------- Neu in dieser Version (bei jeder Version ergänzen!) */
 const CHANGES = [
-  ["1.11.0", ["<b>Bildschirm aufnehmen</b>: Zoom, Teams, Webinar oder Live-Coaching als MP4-Video – ganzer Bildschirm oder nur ein Fenster, mit Vorschau", "Klar sichtbar, welcher Ton mit drauf ist: <b>Ton vom PC</b> und/oder <b>dein Mikrofon</b> – mit Pegelanzeige", "<b>Mikrofon während der Aufnahme an/aus</b> – z. B. nur kurz einschalten, um etwas zu sagen", "<b>Kleine Aufnahme-Leiste</b> oben rechts mit Uhr, Pause und Stopp – unter Windows im Video unsichtbar", "Pause, Verwerfen, auf Wunsch zusätzlich als MP3 – und beim Schließen geht keine laufende Aufnahme verloren"]],
+  ["1.11.0", ["<b>Bildschirm aufnehmen</b>: Zoom, Teams, Webinar oder Live-Coaching als MP4-Video – ganzer Bildschirm oder nur ein Fenster, mit Vorschau", "Klar sichtbar, welcher Ton mit drauf ist: <b>Ton vom PC</b> und/oder <b>dein Mikrofon</b> – mit Pegelanzeige", "<b>Mikrofon während der Aufnahme an/aus</b> – z. B. nur kurz einschalten, um etwas zu sagen", "<b>Kleine Aufnahme-Leiste</b> oben rechts mit Uhr, Pause und Stopp – unter Windows im Video unsichtbar", "Fertiges Video direkt in SongGrabber ansehen – saubere Dateinamen ohne Emojis", "Pause, Verwerfen, auf Wunsch zusätzlich als MP3 – und beim Schließen geht keine laufende Aufnahme verloren"]],
   ["1.10.0", ["<b>SongGrabber für Linux</b>: Ubuntu, Mint, Debian, Fedora, Arch, openSUSE – mit <code>install.sh</code>, Startmenü-Eintrag, Papierkorb, Audio-CDs, Systemsound und „Alles am PC“ über MPRIS", "Update-Hinweis verlinkt automatisch die passende Datei für Windows bzw. Linux"]],
   ["1.9.1", ["<b>Mini-Player</b> friert nicht mehr ein – Fenster wird zuverlässig klein, bleibt im Vordergrund und kommt genau so zurück", "Knöpfe oben im Player bleiben bei jeder Fenstergröße sichtbar"]],
   ["1.9.0", ["<b>Überblenden</b>: sanfte Übergänge zwischen Titeln (2–12 s) – Alben am Stück bleiben nahtlos", "<b>Lautstärke angleichen</b>: leise und laute Titel klingen gleich laut", "<b>Mini-Player</b>: mit einem Klick als kleine Leiste unten rechts, immer im Vordergrund – mit Songtext-Zeile und Lichtshow", "<b>Bibliothek aufräumen</b>: doppelte Titel, fehlende Cover/Angaben, leere Ordner", "<b>Update-Hinweis</b>: SongGrabber sagt Bescheid, wenn es eine neue Version gibt"]],
@@ -3093,7 +3115,7 @@ const Mock = (() => {
     screen_stop: () => { if (scr.state === "recording") scr.acc += (performance.now() - scr.t) / 1000; scr.state = "finishing"; scr.f = performance.now(); return Mock.screen_status(); },
     screen_mic: v => { scr.o = { ...scr.o, mic: v }; scr.micT = performance.now(); return Mock.screen_status(); },
     screen_discard: () => { scr = { state: "idle" }; return { state: "idle" }; },
-    screen_close: () => true, open_file: () => true, screen_bar: () => ({ ok: true, hidden: true }),
+    screen_close: () => true, open_file: () => true, video_url: () => "https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.mp4", screen_bar: () => ({ ok: true, hidden: true }),
     screen_status: () => {
       if (scr.state === "finishing" && performance.now() - scr.f > 2600) scr.state = "done";
       const el = scr.acc + (scr.state === "recording" ? (performance.now() - scr.t) / 1000 : 0) + (scr.fake || 0), t = performance.now() / 1000, o = scr.o || {}, lv = {};
