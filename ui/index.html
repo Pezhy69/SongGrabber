@@ -64,6 +64,7 @@
     <symbol id="i-down" viewBox="0 0 24 24"><path d="M12 4v12M6 11l6 6 6-6M5 20h14"/></symbol>
     <symbol id="i-heart" viewBox="0 0 24 24"><path d="M12 20s-7-4.4-9.2-9A5 5 0 0 1 12 6a5 5 0 0 1 9.2 5C19 15.6 12 20 12 20z"/></symbol>
     <symbol id="i-screen" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="12" rx="2"/><path d="M8 20h8M12 16v4"/><circle cx="12" cy="10" r="2.2" fill="currentColor" stroke="none"/></symbol>
+    <symbol id="i-micoff" viewBox="0 0 24 24"><path d="M9 9v2a3 3 0 0 0 5.1 2.1M15 10.5V6a3 3 0 0 0-5.7-1.3M5.5 11a6.5 6.5 0 0 0 10.6 5M18.5 11a6.4 6.4 0 0 1-.6 2.7M12 17.5V21M3 3l18 18"/></symbol>
     <symbol id="i-window" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 8.5h18"/><circle cx="6" cy="6.3" r=".6"/><circle cx="8.3" cy="6.3" r=".6"/></symbol>
     <symbol id="i-pc" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="12" rx="2"/><path d="M8 20h8M12 16v4"/></symbol>
     <symbol id="i-plug" viewBox="0 0 24 24"><path d="M9 3v5M15 3v5M6 8h12v3a6 6 0 0 1-12 0zM12 17v4"/></symbol>
@@ -390,7 +391,7 @@
             <label class="scr-audio" id="scrMicRow">
               <input type="checkbox" id="scrMic">
               <span class="ico"><svg><use href="#i-mic"/></svg></span>
-              <span class="txt"><b>Mein Mikrofon</b><small>Was <u>du</u> sagst. Ohne Mikrofon hört man in der Aufnahme nur die anderen, nicht dich.</small></span>
+              <span class="txt"><b>Mein Mikrofon</b><small>Was <u>du</u> sagst. Ohne Mikrofon hört man in der Aufnahme nur die anderen, nicht dich. Lässt sich während der Aufnahme jederzeit ein- und ausschalten.</small></span>
               <span class="yes">wird aufgenommen</span><span class="no">wird nicht aufgenommen</span>
               <span class="lvl"><i id="scrMicLv"></i></span>
             </label>
@@ -430,11 +431,12 @@
       <!-- Läuft -->
       <div class="card scr-live" id="scrLive" hidden>
         <div class="scr-live-top"><i class="led on" id="scrLed"></i><b id="scrLiveState">Aufnahme läuft</b><span class="muted" id="scrLiveSrc"></span></div>
+        <div class="scr-vwarn" id="scrVErr" hidden><svg><use href="#i-screen"/></svg><span><b>Achtung: Das Bild wird nicht mehr aufgenommen.</b> <small id="scrVErrT"></small></span></div>
         <div class="timer" id="scrTimer">00:00:00</div>
         <div class="muted scr-size" id="scrSize">0 MB</div>
         <div class="scr-meters">
-          <div class="scr-meter" id="scrMSys"><span><svg><use href="#i-vol"/></svg>Ton vom PC</span><div class="bar"><i></i></div><em></em></div>
-          <div class="scr-meter" id="scrMMic"><span><svg><use href="#i-mic"/></svg>Mein Mikrofon</span><div class="bar"><i></i></div><em></em></div>
+          <div class="scr-meter" id="scrMSys"><span><svg><use href="#i-vol"/></svg>Ton vom PC</span><div class="bar"><i></i></div><em></em><span></span></div>
+          <div class="scr-meter" id="scrMMic"><span><svg><use href="#i-mic"/></svg>Mein Mikrofon</span><div class="bar"><i></i></div><em></em><button class="mic-tog" id="scrMicTog"></button></div>
         </div>
         <div class="transport">
           <button class="round ghost" id="scrPause" title="Pause"><svg><use href="#i-pause"/></svg></button>
@@ -842,7 +844,8 @@
 <ol><li><b>Was soll aufgenommen werden?</b> <em>Ganzer Bildschirm</em> nimmt alles auf, was dort zu sehen ist (auch Hinweise und andere Fenster). <em>Ein Fenster / Programm</em> nimmt nur z. B. das Zoom- oder Teams-Fenster auf – es darf verschoben, aber nicht minimiert werden. Rechts siehst du eine <b>Vorschau</b>. Fehlt ein Programm in der Liste: erst starten, dann <em>Neu suchen</em>.</li>
 <li><b>Welcher Ton soll mit drauf?</b> <em>Ton vom PC</em> = was die anderen sagen, Videos, Musik. <em>Mein Mikrofon</em> = was du sagst. Bei jedem steht klar <b>„wird aufgenommen“</b> oder <b>„wird nicht aufgenommen“</b>, der Balken zeigt, ob Ton ankommt. Ohne Mikrofon hört man in der Aufnahme nur die anderen.</li>
 <li><b>Qualität</b>: <em>Normal</em> und 30 Bilder/s passen fast immer; für lange Meetings spart <em>Platz sparen</em> mit 15 Bilder/s viel Speicher. <em>Zusätzlich nur den Ton als MP3</em> legt eine Hördatei daneben.</li></ol>
-<ul><li>Unter <b>So wird aufgenommen</b> steht vor dem Start noch einmal in Klartext, was ins Video kommt.</li>
+<ul><li><b>Mikrofon unterwegs an/aus</b>: Während der Aufnahme schaltet der Knopf <em>Mikro an / Mikro aus</em> (bzw. das Mikrofon-Symbol in der kleinen Leiste) dein Mikrofon jederzeit ein oder aus – z. B. nur kurz einschalten, um etwas zu sagen. Ist es aus, ist das Mikrofon wirklich zu; beim Einschalten zeigt der Knopf kurz gelb „geht an …“, bis der Ton ankommt.</li>
+<li>Unter <b>So wird aufgenommen</b> steht vor dem Start noch einmal in Klartext, was ins Video kommt.</li>
 <li>Während der Aufnahme: <b>Pause</b> (die Pause fehlt später im Video), <b>Stopp</b> speichert, <b>Verwerfen</b> löscht alles. Ist <em>Während der Aufnahme nur eine kleine Leiste zeigen</em> an (Standard), wird SongGrabber nach dem Start zu einer schmalen Leiste oben rechts mit Uhr, Pegel, Pause und Stopp – praktisch auf dem Laptop mit nur einem Bildschirm. Unter Windows 10/11 ist diese Leiste <b>im Video nicht zu sehen</b>. Der Pfeil-Knopf holt das große Fenster zurück. SongGrabber darf auch ganz minimiert sein; der rote Punkt in der Seitenleiste zeigt, dass aufgenommen wird. Beim Schließen fragt SongGrabber, ob gespeichert werden soll.</li>
 <li><b>Einverständnis</b>: Bitte nur aufnehmen, wenn alle Beteiligten einverstanden sind – am besten zu Beginn kurz fragen.</li>
 <li><b>Linux</b>: funktioniert in einer Xorg-Sitzung (beim Anmelden „… auf Xorg“ wählen). Unter Wayland erlaubt Linux Fremdprogrammen keine Bildschirmaufnahme.</li></ul></article>
@@ -1093,7 +1096,8 @@
     <div class="scrbar" id="scrBar">
       <i class="led on" id="sbLed"></i>
       <div class="sb-meta"><b id="sbTime">00:00:00</b><span id="sbState">Aufnahme läuft</span></div>
-      <div class="sb-lv" title="Pegel: Ton vom PC / Mikrofon"><i id="sbSys"></i><i id="sbMic"></i></div>
+      <div class="sb-lv" title="Pegel: Ton vom PC / Mikrofon"><i id="sbSys"></i><i id="sbMicLv"></i></div>
+      <button class="sb-btn sb-mic" id="sbMic" title="Mikrofon an/aus"><svg><use href="#i-mic"/></svg></button>
       <button class="sb-btn" id="sbPause" title="Pause"><svg><use href="#i-pause"/></svg></button>
       <button class="sb-btn stop" id="sbStop" title="Stopp &amp; speichern"><svg><use href="#i-stop"/></svg></button>
       <button class="sb-btn" id="sbBig" title="Großes Fenster"><svg><use href="#i-expand"/></svg></button>

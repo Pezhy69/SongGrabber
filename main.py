@@ -354,6 +354,9 @@ class Api:
     def screen_resume(self):
         return self._screen.resume()
 
+    def screen_mic(self, on):
+        return self._screen.set_mic(on)
+
     def screen_stop(self):
         return self._screen.stop()
 

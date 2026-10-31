@@ -188,12 +188,33 @@ def _find(src_id):
     raise RuntimeError("Diese Quelle gibt es nicht mehr – bitte neu auswählen.")
 
 
+def _why(log):
+    """Die aussagekräftigste ffmpeg-Zeile (Fehler statt Statistik)."""
+    bad = [x for x in (log or []) if re.search(r"error|fail|invalid|cannot|can't|could not|unable|denied|not found", x, re.I)]
+    return bad[-1] if bad else ""
+
+
+def _variants(src):
+    """Wege, eine Quelle aufzunehmen – der erste, der klappt, wird genommen."""
+    if paths.IS_WIN and src["id"].startswith("win:"):
+        v = ["hwnd", "title"]
+        if src.get("w", 0) >= 32 and src.get("h", 0) >= 32 and not src.get("minimized"):
+            v.append("region")                             # notfalls: den Bildschirmbereich des Fensters
+        return v
+    return ["main"]
+
+
 def _video_input(src, fps, cursor, by_title=False):
-    """ffmpeg-Eingabe für Bildschirm/Fenster."""
+    """ffmpeg-Eingabe für Bildschirm/Fenster. by_title: False/True (alt) oder eine Variante aus _variants()."""
     fps, cur = str(int(fps)), "1" if cursor else "0"
+    how = {False: "hwnd", True: "title"}.get(by_title, by_title)
     if paths.IS_WIN:
+        if src["id"].startswith("win:") and how == "region":
+            w, h = src["w"] // 2 * 2, src["h"] // 2 * 2
+            return ["-f", "gdigrab", "-framerate", fps, "-draw_mouse", cur, "-offset_x", str(src["x"]), "-offset_y", str(src["y"]),
+                    "-video_size", f"{w}x{h}", "-i", "desktop"]
         if src["id"].startswith("win:"):                   # ältere ffmpeg-Versionen kennen nur „title=“
-            target = f"title={src.get('title', '')}" if by_title else f"hwnd={src['id'][4:]}"
+            target = f"title={src.get('title', '')}" if how == "title" else f"hwnd={src['id'][4:]}"
             return ["-f", "gdigrab", "-framerate", fps, "-draw_mouse", cur, "-i", target]
         return ["-f", "gdigrab", "-framerate", fps, "-draw_mouse", cur, "-offset_x", str(src["x"]), "-offset_y", str(src["y"]),
                 "-video_size", f"{src['w']}x{src['h']}", "-i", "desktop"]
@@ -207,11 +228,11 @@ def _video_input(src, fps, cursor, by_title=False):
 def preview(src_id, width=480):
     """Ein Standbild der Quelle (JPEG als data-URL) – damit man sieht, was aufgenommen würde."""
     src = _find(src_id)
-    for by_title in (False, True):
-        args = [paths.ffmpeg(), "-hide_banner", "-loglevel", "error"] + _video_input(src, 5, True, by_title) + \
+    for how in _variants(src):
+        args = [paths.ffmpeg(), "-hide_banner", "-loglevel", "error"] + _video_input(src, 5, True, how) + \
                ["-frames:v", "1", "-vf", f"scale={width}:-2", "-f", "image2", "-c:v", "mjpeg", "-q:v", "5", "pipe:1"]
         r = paths.run(args, timeout=15)
-        if r.returncode == 0 or not (paths.IS_WIN and src["id"].startswith("win:")):
+        if r.returncode == 0 and r.stdout:
             break
     if r.returncode != 0 or not r.stdout:
         raise RuntimeError((r.stderr.decode("utf-8", "replace").strip().splitlines() or ["Kein Bild"])[-1])
@@ -278,6 +299,7 @@ class ScreenRec:
     def __init__(self):
         self.state, self.opts, self.segs, self.seg, self.folder = "idle", {}, [], None, ""
         self.error, self.result, self.lock, self.progress = "", None, threading.Lock(), 0.0
+        self.video_error, self.how = "", None
 
     # --- Steuerung
     def start(self, opts):
@@ -290,7 +312,7 @@ class ScreenRec:
             self.opts = dict(opts, src=src)
             self.folder = os.path.join(paths.temp_dir(), "bildschirm_" + time.strftime("%Y%m%d_%H%M%S"))
             os.makedirs(self.folder, exist_ok=True)
-            self.segs, self.error, self.result, self.progress = [], "", None, 0.0
+            self.segs, self.error, self.result, self.progress, self.video_error, self.how = [], "", None, 0.0, "", None
             self._begin()
             self.state = "recording"
             return self.status()
@@ -338,14 +360,44 @@ class ScreenRec:
                 except OSError:
                     pass
         lv = {}
+        if self.seg and self.state == "recording" and self.seg.proc and self.seg.proc.poll() is not None and not self.video_error:
+            self.video_error = (_why(self.seg.log) or "Die Bildaufnahme wurde unerwartet beendet.")[:200]
+            paths.log.warning("Bildschirmaufnahme: Bild bricht ab: %s", "\n".join(self.seg.log[-8:]))
         if self.seg:
             for a in self.seg.audio:
+                if a.stop_evt.is_set():
+                    continue
                 lv[a.kind] = round(float(a.level), 1)
                 if a.error:
                     lv[a.kind + "_error"] = a.error
         return {"state": self.state, "elapsed": round(elapsed, 1), "size": size, "levels": lv, "error": self.error,
                 "result": self.result, "progress": round(self.progress, 2),
+                "video_error": self.video_error,
+                "mic_on": bool(self.opts.get("mic")), "sys_on": bool(self.opts.get("sys_audio")),
+                "mic_ready": bool(self.seg and any(x.kind == "mic" and x.t0 and not x.stop_evt.is_set() for x in self.seg.audio)),
                 "source": (self.opts.get("src") or {}).get("title") or (self.opts.get("src") or {}).get("name") or ""}
+
+    def _mic_piece(self, seg):
+        k = sum(1 for a in seg.audio if a.kind == "mic") + 1
+        return _Audio("mic", self.opts.get("mic_device") or "", os.path.join(self.folder, f"teil{seg.n:02d}_mikro{k}.wav"))
+
+    def set_mic(self, on):
+        """Mikrofon während der Aufnahme ein-/ausschalten. Jedes Einschalten nimmt ein eigenes Stück auf,
+        das beim Zusammenfügen an die richtige Stelle gelegt wird – dazwischen ist das Mikro wirklich zu."""
+        with self.lock:
+            on = bool(on)
+            self.opts["mic"] = on
+            seg = self.seg
+            if seg and self.state == "recording":
+                live = [a for a in seg.audio if a.kind == "mic" and not a.stop_evt.is_set()]
+                if on and not live:
+                    a = self._mic_piece(seg)
+                    seg.audio.append(a)
+                    a.start()
+                elif not on:
+                    for a in live:
+                        a.stop_evt.set()
+            return self.status()
 
     def wait(self, timeout=120):
         """Wartet, bis das Fertigstellen durch ist."""
@@ -363,49 +415,89 @@ class ScreenRec:
         self.wait(120)
 
     # --- Abschnitte
-    def _begin(self, by_title=False):
+    def _begin(self, by_title=None):
         o = self.opts
         seg = _Segment(self.folder, len(self.segs) + 1)
         if o.get("sys_audio"):
             seg.audio.append(_Audio("sys", "", os.path.join(self.folder, f"teil{seg.n:02d}_pc.wav")))
         if o.get("mic"):
-            seg.audio.append(_Audio("mic", o.get("mic_device") or "", os.path.join(self.folder, f"teil{seg.n:02d}_mikro.wav")))
+            seg.audio.append(self._mic_piece(seg))
         for a in seg.audio:
             a.start()
+        tried = [self.how] if getattr(self, "how", None) else []
+        tried += [v for v in _variants(o["src"]) if v not in tried]
+        err = ""
+        for how in tried:
+            err = self._video(seg, how)
+            if not err:
+                self.how = how
+                break
+            paths.log.warning("Bildschirmaufnahme (%s) startet nicht: %s", how, err)
+        else:
+            for a in seg.audio:
+                a.stop_evt.set()
+            raise RuntimeError("Das Bild lässt sich nicht aufnehmen: " + err[:200])
+        seg.started = time.time()
+        self.seg = seg
+
+    def _video(self, seg, how):
+        """ffmpeg für das Bild starten. Gibt "" zurück, wenn es wirklich läuft, sonst die Fehlermeldung."""
+        o = self.opts
         crf = QUALITY.get(o.get("quality") or "normal", 25)
         fps = int(o.get("fps") or 30)
+        try:
+            os.remove(seg.video)
+        except OSError:
+            pass
         # ohne -nostdin: ffmpeg wird mit „q“ über die Eingabe sauber beendet (Datei bleibt vollständig)
         args = [paths.ffmpeg(), "-hide_banner", "-loglevel", "info", "-thread_queue_size", "512"] + \
-               _video_input(o["src"], fps, o.get("cursor", True), by_title) + \
+               _video_input(o["src"], fps, o.get("cursor", True), how) + \
                ["-vf", "scale=trunc(iw/2)*2:trunc(ih/2)*2", "-c:v", "libx264", "-preset", "veryfast", "-crf", str(crf),
                 "-pix_fmt", "yuv420p", "-g", str(fps * 2), "-y", seg.video]
         seg.proc = subprocess.Popen(args, stdin=subprocess.PIPE, stdout=subprocess.DEVNULL, stderr=subprocess.PIPE,
                                     creationflags=paths.CREATE_NO_WINDOW)
-        seg.log = []
+        seg.log, seg.t_video, seg.frames = [], None, 0
         ready = threading.Event()
+        proc = seg.proc
 
         def watch():
-            for raw in seg.proc.stderr:
-                line = raw.decode("utf-8", "replace")
-                seg.log.append(line)
-                del seg.log[:-40]
-                if seg.t_video is None and ("Press [q]" in line or "frame=" in line):
-                    seg.t_video = time.time()
-                    ready.set()
+            buf = b""
+            while True:
+                ch = proc.stderr.read1(4096) if hasattr(proc.stderr, "read1") else proc.stderr.read(1)
+                if not ch:
+                    break
+                buf += ch
+                parts = re.split(rb"[\r\n]", buf)
+                buf = parts.pop()
+                if seg.proc is not proc:                  # ein verworfener Startversuch
+                    return
+                for raw in parts:
+                    line = raw.decode("utf-8", "replace").strip()
+                    if not line:
+                        continue
+                    m = re.match(r"frame=\s*(\d+)", line)
+                    if m:
+                        seg.frames = int(m.group(1))
+                        if seg.frames > 0 and seg.t_video is None:
+                            seg.t_video = time.time()      # erstes Bild ist wirklich da
+                        if seg.frames > 0:
+                            ready.set()
+                        continue
+                    seg.log.append(line)
+                    del seg.log[:-40]
+                    if seg.t_video is None and "Press [q]" in line:
+                        seg.t_video = time.time()
             ready.set()
         threading.Thread(target=watch, daemon=True).start()
-        ready.wait(15)
-        if seg.proc.poll() is not None and seg.t_video is None:
-            for a in seg.audio:
-                a.stop_evt.set()
-            if paths.IS_WIN and o["src"]["id"].startswith("win:") and not by_title:
-                for a in seg.audio:
-                    a.join(3)
-                return self._begin(by_title=True)
-            msg = next((x.strip() for x in reversed(seg.log) if x.strip()), "unbekannter Fehler")
-            raise RuntimeError("Bildaufnahme startet nicht: " + msg[:200])
-        seg.started = time.time()
-        self.seg = seg
+        ready.wait(12)
+        time.sleep(0.3)
+        if proc.poll() is None and seg.t_video is not None:
+            return ""
+        try:
+            proc.kill()
+        except Exception:
+            pass
+        return _why(seg.log) or "keine Rückmeldung von ffmpeg"
 
     def _end(self):
         seg, self.seg = self.seg, None
@@ -439,10 +531,10 @@ class ScreenRec:
             labels.append(f"[a{i}]")
         if labels:
             if len(labels) > 1:
-                filt.append("".join(labels) + f"amix=inputs={len(labels)}:duration=longest:normalize=0[aout]")
-                amap = "[aout]"
+                filt.append("".join(labels) + f"amix=inputs={len(labels)}:duration=longest:normalize=0,apad[aout]")
             else:
-                amap = labels[0]
+                filt.append(labels[0] + "apad[aout]")                 # Ton bis zum Videoende auffüllen (-shortest)
+            amap = "[aout]"
             args += ["-filter_complex", ";".join(filt), "-map", "0:v", "-map", amap, "-c:a", "aac", "-b:a", "160k", "-shortest"]
         else:
             args += ["-map", "0:v"]
@@ -463,7 +555,9 @@ class ScreenRec:
                 self._mux(seg, p)
                 parts.append(p)
             if not parts:
-                raise RuntimeError("Es wurde nichts aufgenommen.")
+                why = next((_why(s_.log) for s_ in reversed(self.segs) if s_.log), "")
+                paths.log.warning("Bildschirmaufnahme ohne Bild. ffmpeg: %s", "\n".join(l for s_ in self.segs for l in (s_.log or [])[-10:]))
+                raise RuntimeError("Es wurde kein Bild aufgenommen." + (f" ffmpeg meldet: {why[:200]}" if why else ""))
             folder = os.path.join(paths.ensure_output(paths.settings()["output_dir"]), "Bildschirmaufnahmen")
             os.makedirs(folder, exist_ok=True)
             src = o["src"]

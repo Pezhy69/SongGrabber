@@ -684,8 +684,17 @@ const Scr = (() => {
       em.textContent = !on ? "nicht dabei" : err ? "Fehler" : paused ? "Pause" : v === undefined || v < -58 ? "still" : Math.round(v) + " dB";
       em.title = err || "";
     };
-    meter("#scrMSys", "sys", st.levels ? "sys" in lv || "sys_error" in lv || (o.sys_audio && !Object.keys(lv).length) : o.sys_audio);
-    meter("#scrMMic", "mic", st.levels ? "mic" in lv || "mic_error" in lv || (o.mic && !Object.keys(lv).length) : o.mic);
+    const sysOn = st.sys_on ?? o.sys_audio, micOn = st.mic_on ?? o.mic, micWait = micOn && !paused && st.mic_ready === false;
+    meter("#scrMSys", "sys", sysOn);
+    meter("#scrMMic", "mic", micOn);
+    if (micWait) $("#scrMMic em").textContent = "geht an …";
+    if (!micOn) $("#scrMMic em").textContent = "";
+    const t = $("#scrMicTog");
+    t.className = "mic-tog " + (micWait ? "wait" : micOn ? "on" : "off");
+    t.innerHTML = micOn ? `<svg><use href="#i-mic"/></svg>Mikro an` : `<svg><use href="#i-micoff"/></svg>Mikro aus`;
+    t.title = micOn ? "Mikrofon ausschalten – ab jetzt hört man dich nicht mehr" : "Mikrofon einschalten – ab jetzt hört man dich im Video";
+    $("#scrVErr").hidden = !st.video_error;
+    $("#scrVErrT").textContent = st.video_error ? st.video_error + " – bitte stoppen und neu starten." : "";
   }
   /* --- kleine Leiste während der Aufnahme */
   async function bar(v) {
@@ -704,11 +713,17 @@ const Scr = (() => {
     if (!barOn) return;
     const paused = st.state === "paused", lv = st.levels || {}, o = opts();
     $("#scrBar").classList.toggle("paused", paused);
+    $("#scrBar").classList.toggle("vbad", !!st.video_error);
+    const micOn = st.mic_on ?? o.mic, micWait = micOn && !paused && st.mic_ready === false, mb_ = $("#sbMic");
+    mb_.className = "sb-btn sb-mic " + (micWait ? "wait" : micOn ? "on" : "off");
+    mb_.innerHTML = `<svg><use href="#${micOn ? "i-mic" : "i-micoff"}"/></svg>`;
+    mb_.title = micOn ? "Mikrofon ist AN – klicken zum Ausschalten" : "Mikrofon ist AUS – klicken zum Einschalten";
     $("#sbTime").textContent = fmtClock(st.elapsed);
-    $("#sbState").textContent = paused ? "Pausiert – nichts wird aufgenommen" : "Aufnahme läuft" + (st.source ? " · " + st.source : "");
+    $("#sbState").textContent = st.video_error ? "Bild wird nicht aufgenommen!" : paused ? "Pausiert – nichts wird aufgenommen"
+      : ((st.mic_on ?? o.mic) ? "Mikro an" : "Mikro aus") + (st.source ? " · " + st.source : "");
     $("#sbPause").innerHTML = `<svg><use href="#${paused ? "i-play" : "i-pause"}"/></svg>`;
     $("#sbPause").title = paused ? "Weiter aufnehmen" : "Pause";
-    [["#sbSys", "sys", o.sys_audio], ["#sbMic", "mic", o.mic]].forEach(([id, k, on]) => {
+    [["#sbSys", "sys", st.sys_on ?? o.sys_audio], ["#sbMicLv", "mic", st.mic_on ?? o.mic]].forEach(([id, k, on]) => {
       const el = $(id); el.classList.toggle("off", !on); el.style.height = Math.max(2, (paused ? 0 : db2w(lv[k])) * .26) + "px";
       el.title = on ? (k === "sys" ? "Ton vom PC" : "Mikrofon") : (k === "sys" ? "Ton vom PC: aus" : "Mikrofon: aus");
     });
@@ -738,6 +753,12 @@ const Scr = (() => {
   $("#scrHintOk").onclick = () => { $("#scrHint").hidden = true; save({ screen_hint_ok: true }); };
   $("#scrPause").onclick = () => safe($("#scrPause"), async () => { st = await call(st.state === "paused" ? "screen_resume" : "screen_pause"); renderLive(); renderBar(); });
   $("#sbPause").onclick = () => $("#scrPause").click();
+  async function micToggle() {
+    const v = !(st.mic_on ?? opts().mic);
+    try { st = await call("screen_mic", v); renderLive(); renderBar(); toast(v ? "Mikrofon an – ab jetzt hört man dich im Video." : "Mikrofon aus – ab jetzt hört man dich nicht mehr."); } catch (e) { toast(String(e.message || e), "err"); }
+  }
+  $("#scrMicTog").onclick = micToggle;
+  $("#sbMic").onclick = micToggle;
   $("#sbStop").onclick = () => $("#scrStop").click();
   $("#scrToBar").onclick = () => bar(true);
   $("#sbBig").onclick = () => { bar(false); go("screen"); };
@@ -909,7 +930,7 @@ $("#btnKeepLive").onclick = () => {
 
 /* ---------------------------------------------------------------- Neu in dieser Version (bei jeder Version ergänzen!) */
 const CHANGES = [
-  ["1.11.0", ["<b>Bildschirm aufnehmen</b>: Zoom, Teams, Webinar oder Live-Coaching als MP4-Video – ganzer Bildschirm oder nur ein Fenster, mit Vorschau", "Klar sichtbar, welcher Ton mit drauf ist: <b>Ton vom PC</b> und/oder <b>dein Mikrofon</b> – mit Pegelanzeige", "<b>Kleine Aufnahme-Leiste</b> oben rechts mit Uhr, Pause und Stopp – unter Windows im Video unsichtbar", "Pause, Verwerfen, auf Wunsch zusätzlich als MP3 – und beim Schließen geht keine laufende Aufnahme verloren"]],
+  ["1.11.0", ["<b>Bildschirm aufnehmen</b>: Zoom, Teams, Webinar oder Live-Coaching als MP4-Video – ganzer Bildschirm oder nur ein Fenster, mit Vorschau", "Klar sichtbar, welcher Ton mit drauf ist: <b>Ton vom PC</b> und/oder <b>dein Mikrofon</b> – mit Pegelanzeige", "<b>Mikrofon während der Aufnahme an/aus</b> – z. B. nur kurz einschalten, um etwas zu sagen", "<b>Kleine Aufnahme-Leiste</b> oben rechts mit Uhr, Pause und Stopp – unter Windows im Video unsichtbar", "Pause, Verwerfen, auf Wunsch zusätzlich als MP3 – und beim Schließen geht keine laufende Aufnahme verloren"]],
   ["1.10.0", ["<b>SongGrabber für Linux</b>: Ubuntu, Mint, Debian, Fedora, Arch, openSUSE – mit <code>install.sh</code>, Startmenü-Eintrag, Papierkorb, Audio-CDs, Systemsound und „Alles am PC“ über MPRIS", "Update-Hinweis verlinkt automatisch die passende Datei für Windows bzw. Linux"]],
   ["1.9.1", ["<b>Mini-Player</b> friert nicht mehr ein – Fenster wird zuverlässig klein, bleibt im Vordergrund und kommt genau so zurück", "Knöpfe oben im Player bleiben bei jeder Fenstergröße sichtbar"]],
   ["1.9.0", ["<b>Überblenden</b>: sanfte Übergänge zwischen Titeln (2–12 s) – Alben am Stück bleiben nahtlos", "<b>Lautstärke angleichen</b>: leise und laute Titel klingen gleich laut", "<b>Mini-Player</b>: mit einem Klick als kleine Leiste unten rechts, immer im Vordergrund – mit Songtext-Zeile und Lichtshow", "<b>Bibliothek aufräumen</b>: doppelte Titel, fehlende Cover/Angaben, leere Ordner", "<b>Update-Hinweis</b>: SongGrabber sagt Bescheid, wenn es eine neue Version gibt"]],
@@ -3070,6 +3091,7 @@ const Mock = (() => {
     screen_pause: () => { scr.acc += (performance.now() - scr.t) / 1000; scr.state = "paused"; return Mock.screen_status(); },
     screen_resume: () => { scr.t = performance.now(); scr.state = "recording"; return Mock.screen_status(); },
     screen_stop: () => { if (scr.state === "recording") scr.acc += (performance.now() - scr.t) / 1000; scr.state = "finishing"; scr.f = performance.now(); return Mock.screen_status(); },
+    screen_mic: v => { scr.o = { ...scr.o, mic: v }; scr.micT = performance.now(); return Mock.screen_status(); },
     screen_discard: () => { scr = { state: "idle" }; return { state: "idle" }; },
     screen_close: () => true, open_file: () => true, screen_bar: () => ({ ok: true, hidden: true }),
     screen_status: () => {
@@ -3077,7 +3099,7 @@ const Mock = (() => {
       const el = scr.acc + (scr.state === "recording" ? (performance.now() - scr.t) / 1000 : 0) + (scr.fake || 0), t = performance.now() / 1000, o = scr.o || {}, lv = {};
       if (o.sys_audio) lv.sys = scr.state === "recording" ? -14 - Math.random() * 12 * (Math.sin(t * 1.7) > 0) : -90;
       if (o.mic) lv.mic = scr.state === "recording" && Math.sin(t * 2.3) > .3 ? -18 - Math.random() * 9 : -66;
-      return { state: scr.state, elapsed: el, size: el * 92000, levels: lv, error: "", progress: scr.state === "finishing" ? Math.min(.98, (performance.now() - scr.f) / 2600) : 0,
+      return { state: scr.state, elapsed: el, mic_on: !!o.mic, sys_on: !!o.sys_audio, mic_ready: !!o.mic && performance.now() - (scr.micT || 0) > 600, video_error: "", size: el * 92000, levels: lv, error: "", progress: scr.state === "finishing" ? Math.min(.98, (performance.now() - scr.f) / 2600) : 0,
         source: o.source === "win:11" ? "Zoom Meeting" : o.source === "win:12" ? "Wochenmeeting Vertrieb | Microsoft Teams" : "Bildschirm 1",
         result: scr.state === "done" ? { mp4: "C:\\Users\\Pezhy\\Music\\SongGrabber\\Bildschirmaufnahmen\\2026-10-31 14-05 Zoom Meeting.mp4", mp3: o.mp3 ? "x.mp3" : "", duration: el, size: el * 92000, has_audio: !!(o.sys_audio || o.mic) } : null };
     },
