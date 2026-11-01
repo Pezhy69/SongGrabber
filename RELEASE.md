@@ -1,9 +1,10 @@
-## SongGrabber 1.12.0 – Karaoke 🎤
+## SongGrabber 1.12.0 – Karaoke 🎤 · now in English
 
 **Windows:** `SongGrabber-Setup-1.12.0.exe` herunterladen und starten (einfach über die alte Version installieren).
 **Linux:** `SongGrabber-1.12.0-linux.tar.gz` herunterladen, entpacken, im Ordner `./install.sh` ausführen. *(Erscheint hier automatisch ein paar Minuten nach der Veröffentlichung.)*
 
 ### Neu
+- **English / Englisch**: SongGrabber richtet sich nach der Sprache von Windows – Deutsch oder Englisch, umschaltbar unter *Einstellungen → Sprache*, inklusive kompletter englischer Hilfe. *SongGrabber now speaks English: it follows your Windows language, switch any time under Settings → Language (help included).*
 - **Karaoke**: Karaoke-Videos von YouTube suchen und singen – ohne Werbung. Karaoke-Kanäle wie Sing King und KaraFun kommen zuerst
 - **Fertige Playlists** zum Loslegen: Party-Hits, Schlager, Deutsche Hits, 80er, 90er, Rock, Disney, Kinderlieder, Weihnachten …
 - **Wer singt?** – Sänger-Warteschlange mit Einblendung „Jetzt singt …“ und „Als Nächstes …“, Vollbild für den Fernseher

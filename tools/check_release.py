@@ -16,7 +16,7 @@ read = lambda p: open(os.path.join(ROOT, p), encoding="utf-8-sig").read()  # noq
 FEATURES = [
     "Sofort mitschneiden", "Radio-Mitschnitte", "Karaoke", "Wer singt?", "Alle offline holen", "Best-of", "Mich aufnehmen", "Songliste",
     "Bildschirm aufnehmen", "Ton vom PC", "Mein Mikrofon", "Ein Fenster / Programm", "Einverständnis", "kleine Leiste", "Bereich zeichnen", "Rechte Leiste wegschieben", "Bedienung einklappen", "Mikrofon unterwegs an/aus",
-    "install.sh", "MPRIS",
+    "install.sh", "MPRIS", "Sprache",
     "Überblenden", "Lautstärke angleichen", "Mini-Player", "Aufräumen", "Doppelte Titel", "Leere Ordner", "Nach Updates suchen",
     "Speicherort beim Installieren",
     "Nordlicht", "Disco", "Lava", "Feuerwerk", "Grundton",
@@ -76,11 +76,28 @@ def main():
         if f.lower() not in help_text.lower():
             problems.append(f"Funktion „{f}“ kommt in der Hilfe nicht vor")
 
+    # 5. Englisch: Hilfe vollständig, alle Oberflächentexte übersetzt, ui/i18n.js aktuell
+    sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "i18n"))
+    import build as i18n
+    en_help = html[html.index('<template id="helpEn">'):html.index("</template>", html.index('<template id="helpEn">'))]
+    en_arts = set(re.findall(r'<article id="([\w-]+)"', en_help))
+    for a in sorted(articles - en_arts - {"h-new"}):
+        problems.append(f"Englische Hilfe: Abschnitt „{a}“ fehlt im <template id=\"helpEn\">")
+    en_keys = set(" ".join(re.findall(r'data-help-key="([^"]+)"', en_help)).split())
+    for k in sorted(help_keys - en_keys):
+        problems.append(f"Englische Hilfe: Einstellung „{k}“ fehlt")
+    for t in i18n.missing():
+        problems.append(f"Keine englische Übersetzung (tools/i18n/en.txt): {t}")
+    cur = read("ui/i18n.js")
+    i18n.build()
+    if read("ui/i18n.js") != cur:
+        problems.append("ui/i18n.js war veraltet – wurde eben neu gebaut (tools/i18n/build.py), bitte mit einchecken")
+
     if problems:
         print("WARNUNG – bitte vor dem Verkauf beheben:\n  " + "\n  ".join(problems))
         sys.exit(1)
     print(f"Version {version}: Programm, Setup und Hilfe passen zusammen · {len(pages)} Bereiche, "
-          f"{len(help_keys)} Einstellungen, {len(FEATURES)} Funktionen in der Hilfe geprüft.")
+          f"{len(help_keys)} Einstellungen, {len(FEATURES)} Funktionen in der Hilfe geprüft · Englisch vollständig.")
 
 
 if __name__ == "__main__":

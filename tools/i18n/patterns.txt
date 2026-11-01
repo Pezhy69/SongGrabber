@@ -1,0 +1,74 @@
+# Muster für Texte mit Zahlen oder Namen: JS-RegExp|Ersatz (in dieser Reihenfolge, global; $1 = erste Klammer)
+Lese Titel (\d+) von CD …|Reading track $1 from CD …
+Titel (\d+) umwandeln|Converting track $1
+Erkenne Titel (\d+)/(\d+) …|Recognizing track $1/$2 …
+Fertig · (\d+) von (\d+)|Done · $1 of $2
+Fertig · |Done · 
+Fertig: |Done: 
+Fehler: |Error: 
+(\d+) Fehler\b|$1 errors
+Lädt herunter … ([\d.]+) MB|Downloading … $1 MB
+Lädt … ([\d.]+) MB|Loading … $1 MB
+Tags von (\d+) Titeln bearbeiten|Edit tags of $1 tracks
+(\d+) von (\d+) Titeln|$1 of $2 tracks
+(\d+) von (\d+) ausgewählt|$1 of $2 selected
+(\d+) von (\d+) Favoriten offline gespeichert|$1 of $2 favorites saved offline
+(\d+) werden geladen|$1 loading
+Song (\d+) von (\d+)|Song $1 of $2
+ca\. (\d+) MB als|approx. $1 MB as
+vor (\d+) Min\.|$1 min ago
+vor (\d+) Std\.|$1 h ago
+vor (\d+) Tagen|$1 days ago
+vor 1 Tag|1 day ago
+(\d+) Titel geladen|$1 tracks downloaded
+Geprüft |Checked 
+zuletzt neu|last new
+ohne Live|without live
+gehört ✓|played ✓
+Stimme ([+\-]?\d+) dB|Voice $1 dB
+🔊 Systemsound – |🔊 System sound – 
+DVD-Titel (\d+)|DVD title $1
+Übertragen: |Transfer: 
+Tags für (.+?) werden nicht unterstützt\.|Tags are not supported for $1.
+Zu wenig Platz: ([\d.,]+) GB nötig, ([\d.,]+) GB frei\.|Not enough space: $1 GB needed, $2 GB free.
+Laufwerk (\S+) kann nicht geöffnet werden|Drive $1 can't be opened
+Ist dein Benutzer in der Gruppe „cdrom“ bzw\. „optical“\?|Is your user in the group “cdrom” or “optical”?
+Titel enthält „(.+?)“|Title contains “$1”
+yt-dlp ist aktuell|yt-dlp is up to date
+\((\d+) Titel\)|($1 tracks)
+(\d+) Titel\b|$1 tracks
+(\d+) Dateien\b|$1 files
+\bTitel (\d+)/(\d+)|Track $1/$2
+\bTitel (\d+)\b|Track $1
+(\d+) Eingänge, (\d+) Ausgänge|$1 inputs, $2 outputs
+Aufnahme (\d+)|Recording $1
+^Laufwerk |Drive 
+\(empfohlen\)|(recommended)
+· maximal$|· maximum
+\(leise\)|(quiet)
+\(Rauschen\)|(noise)
+\(Seitenende\)|(end of side)
+Bildschirm (\d+)|Screen $1
+min aufgenommen|min recorded
+über (iTunes|MusicBrainz|Deezer)|via $1
+^Gefunden: |Found: 
+^Abbild: |Image: 
+· minimiert|· minimized
+([\d.,]+ \w?B) bisher|$1 so far
+lädt (\d+) %|loading $1 %
+Playlist „(.+?)“ erstellt|Playlist “$1” created
+(\d+) Playlists erstellt|$1 playlists created
+· noch |· remaining 
+… und (\d+) weitere|… and $1 more
+^Abonniert: |Subscribed: 
+“ abonniert|” subscribed
+Empfohlen · |Recommended · 
+GB frei ·|GB free ·
+· Live-Auftritt|· live performance
+· klein$|· small
+(\d+) Bit\b|$1 bit
+44,1 kHz|44.1 kHz
+\(CD-Qualität\)|(CD quality)
+Abtastrate wie Quelle|sample rate as source
+· verlustfrei|· lossless
+\(Hauptbildschirm\)|(main screen)

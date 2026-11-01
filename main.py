@@ -77,7 +77,7 @@ class Api:
                           "ffmpeg_version": self._versions.get("ffmpeg"),
                           "ytdlp_version": self._versions.get("ytdlp"),
                           "bin_dirs": paths.bin_dirs()},
-                "windows": paths.IS_WIN, "data_dir": paths.data_dir()}
+                "windows": paths.IS_WIN, "data_dir": paths.data_dir(), "sys_lang": paths.system_lang()}
 
     def output_check(self):
         """Ist der Zielordner erreichbar? (läuft im Hintergrund – Netzlaufwerke können Sekunden brauchen)"""

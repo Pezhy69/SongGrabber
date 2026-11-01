@@ -111,6 +111,7 @@ DEFAULTS = {
     "xfade": 4,                    # Player: Überblenden in Sekunden (0 = aus)
     "pp_side_off": False,          # Player: rechte Leiste (Warteschlange/Songtext) weggeschoben
     "pp_side_auto": True,          # Player: nach 1 Minute ohne Bedienung Leiste hochrollen + Bedienung einklappen
+    "lang": "auto",  # auto | de | en
     "pp_ctl_off": False,           # Player: Bedienung unten eingeklappt (kleine Knöpfe)
     "screen_hint_ok": False,       # Bildschirmaufnahme: Einverständnis-Hinweis gelesen
     "screen_opts": {},             # Bildschirmaufnahme: zuletzt gewählte Einstellungen
@@ -396,3 +397,18 @@ def log_tail(lines=60):
             return "".join(f.readlines()[-lines:])
     except OSError:
         return ""
+
+
+def system_lang():
+    """Sprache des Betriebssystems: "de" oder "en" (alles außer Deutsch → Englisch)."""
+    code = ""
+    try:
+        if IS_WIN:
+            import ctypes
+            lid = ctypes.windll.kernel32.GetUserDefaultUILanguage()
+            return "de" if (lid & 0x3FF) == 0x07 else "en"
+        import locale
+        code = os.environ.get("LANGUAGE") or os.environ.get("LC_ALL") or os.environ.get("LC_MESSAGES") or os.environ.get("LANG") or (locale.getlocale()[0] or "")
+    except Exception:
+        pass
+    return "de" if code.lower().startswith("de") else "en"

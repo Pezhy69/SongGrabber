@@ -84,7 +84,10 @@ function renderSettings() {
     else if (document.activeElement !== el) el.value = s[el.dataset.key] ?? "";
   });
   namePreview();
+  $("#setLang").value = s.lang || "auto";
+  I18N.set(s.lang || "auto", S.sysLang);
 }
+$("#setLang").onchange = e => { I18N.set(e.target.value, S.sysLang); save({ lang: e.target.value }); };
 $$("[data-key]").forEach(el => {
   el.addEventListener(el.type === "checkbox" ? "change" : "input", () => {
     clearTimeout(el._t);
@@ -1352,7 +1355,7 @@ $("#btnKeepLive").onclick = () => {
 
 /* ---------------------------------------------------------------- Neu in dieser Version (bei jeder Version ergänzen!) */
 const CHANGES = [
-  ["1.12.0", ["<b>Karaoke</b>: Karaoke-Videos von YouTube suchen und singen – ohne Werbung, mit fertigen Playlists (Schlager, 80er, Disney …)", "<b>Wer singt?</b> Sänger-Warteschlange mit „Jetzt singt …“ und „Als Nächstes …“", "<b>★ Favoriten offline</b>: werden im Ordner „Karaoke“ gespeichert und laufen auch ohne Internet – z. B. beim Camping", "<b>Mich aufnehmen</b>: Stimme + Musik als MP3 (auf Wunsch MP4), Stimme nachträglich lauter/leiser", "<b>Best-of &amp; Mixe</b>: lange Karaoke-Videos mit Songliste – ⏭ bzw. N springt zum nächsten Song im Video", "Zeitleiste mit Restzeit, Tasten (Leertaste, ←/→, ↑/↓, N)", "Radio: <b>Sofort mitschneiden</b> – der laufende Song von Anfang an (stoppt am Songende) oder ab jetzt, auch im Mini-Player"]],
+  ["1.12.0", ["<b>English</b>: SongGrabber gibt es jetzt auch auf Englisch – automatisch wie Windows oder unter Einstellungen → Sprache umschalten (mit englischer Hilfe)", "<b>Karaoke</b>: Karaoke-Videos von YouTube suchen und singen – ohne Werbung, mit fertigen Playlists (Schlager, 80er, Disney …)", "<b>Wer singt?</b> Sänger-Warteschlange mit „Jetzt singt …“ und „Als Nächstes …“", "<b>★ Favoriten offline</b>: werden im Ordner „Karaoke“ gespeichert und laufen auch ohne Internet – z. B. beim Camping", "<b>Mich aufnehmen</b>: Stimme + Musik als MP3 (auf Wunsch MP4), Stimme nachträglich lauter/leiser", "<b>Best-of &amp; Mixe</b>: lange Karaoke-Videos mit Songliste – ⏭ bzw. N springt zum nächsten Song im Video", "Zeitleiste mit Restzeit, Tasten (Leertaste, ←/→, ↑/↓, N)", "Radio: <b>Sofort mitschneiden</b> – der laufende Song von Anfang an (stoppt am Songende) oder ab jetzt, auch im Mini-Player"]],
   ["1.11.0", ["<b>Bildschirm aufnehmen</b>: Zoom, Teams, Webinar oder Live-Coaching als MP4-Video – ganzer Bildschirm oder nur ein Fenster, mit Vorschau", "Neue Lichtshows: <b>Nordlicht</b>, <b>Disco-Kugel</b>, <b>Lava-Lampe</b> und <b>Feuerwerk</b> (statt Tesla)", "Player: <b>rechte Leiste hochrollen</b> wie ein Rollo (Q) und <b>Bedienung einklappen</b> zu kleinen Knöpfen (H) – Drüberfahren zeigt alles, nach 1 Minute Ruhe passiert es von selbst", "<b>Bereich zeichnen</b>: nur einen Ausschnitt aufnehmen – z. B. nur das Video in YouTube, Zoom oder Teams", "Klar sichtbar, welcher Ton mit drauf ist: <b>Ton vom PC</b> und/oder <b>dein Mikrofon</b> – mit Pegelanzeige", "<b>Mikrofon während der Aufnahme an/aus</b> – z. B. nur kurz einschalten, um etwas zu sagen", "<b>Kleine Aufnahme-Leiste</b> oben rechts mit Uhr, Pause und Stopp – unter Windows im Video unsichtbar", "Fertiges Video direkt in SongGrabber ansehen – saubere Dateinamen ohne Emojis", "Pause, Verwerfen, auf Wunsch zusätzlich als MP3 – und beim Schließen geht keine laufende Aufnahme verloren"]],
   ["1.10.0", ["<b>SongGrabber für Linux</b>: Ubuntu, Mint, Debian, Fedora, Arch, openSUSE – mit <code>install.sh</code>, Startmenü-Eintrag, Papierkorb, Audio-CDs, Systemsound und „Alles am PC“ über MPRIS", "Update-Hinweis verlinkt automatisch die passende Datei für Windows bzw. Linux"]],
   ["1.9.1", ["<b>Mini-Player</b> friert nicht mehr ein – Fenster wird zuverlässig klein, bleibt im Vordergrund und kommt genau so zurück", "Knöpfe oben im Player bleiben bei jeder Fenstergröße sichtbar"]],
@@ -1371,16 +1374,26 @@ const CHANGES = [
   ["1.4.0", ["Full-Album-Videos in einzelne Titel teilen", "Musikerkennung per Fingerabdruck", "Tag-Editor, Songtexte, Übertragen auf USB/Handy, Abos, Anfang/Ende kürzen"]],
   ["1.3.0", ["Live-Auftritte erkennen und Original vorschlagen", "Hilfe (F1) und Begrüßung"]],
 ];
+// English change notes (recent versions only – older ones are summarized)
+const CHANGES_EN = [
+  ["1.12.0", ["<b>English</b>: SongGrabber now speaks English – automatically like Windows, or switch under Settings → Language (help included)", "<b>Karaoke</b>: search and sing karaoke videos from YouTube – without ads, with ready-made playlists (party hits, 80s, Disney …)", "<b>Who's singing?</b> Singer queue with “Now singing …” and “Up next …”", "<b>★ Favorites offline</b>: saved in the “Karaoke” folder and play without internet too – e.g. when camping", "<b>Record me</b>: voice + music as MP3 (optionally MP4), make the voice louder/quieter afterwards", "<b>Best-of &amp; mixes</b>: long karaoke videos with a song list – ⏭ or N jumps to the next song within the video", "Timeline with remaining time, keys (space, ←/→, ↑/↓, N)", "Radio: <b>Record right away</b> – the current song from its beginning (stops at the end of the song) or from now on, also in the mini player"]],
+  ["1.11.0", ["<b>Record screen</b>: Zoom, Teams, webinars or live coaching as MP4 video – whole screen or just one window, with preview", "New light shows: <b>Aurora</b>, <b>Disco ball</b>, <b>Lava lamp</b> and <b>Fireworks</b> (instead of Tesla)", "Player: <b>roll up the right bar</b> like a blind (Q) and <b>collapse the controls</b> into small buttons (H) – hovering shows everything, after 1 minute of inactivity it happens by itself", "<b>Draw an area</b>: record only part of the screen – e.g. just the video in YouTube, Zoom or Teams", "Clearly visible which sound is included: <b>PC sound</b> and/or <b>your microphone</b> – with level meter", "<b>Microphone on/off during recording</b>", "<b>Small recording bar</b> at the top right with clock, pause and stop – invisible in the video on Windows", "Watch the finished video right in SongGrabber – clean file names without emojis", "Pause, discard, optionally also as MP3 – and a running recording is never lost when closing"]],
+  ["1.10.0", ["<b>SongGrabber for Linux</b>: Ubuntu, Mint, Debian, Fedora, Arch, openSUSE – with <code>install.sh</code>, start menu entry, trash, audio CDs, system sound and “Everything on the PC” via MPRIS", "The update note automatically links the right file for Windows or Linux"]],
+  ["1.3 – 1.9", ["Player with light shows, equalizer, crossfade, lyrics and mini player · radio &amp; podcasts · play YouTube without download · audio CD ripping with MusicBrainz · vinyl/cassette recording · tag editor, library clean-up, transfer to USB/phone · subscriptions · music recognition. Details: release notes on GitHub."]],
+];
+const changes = () => I18N.lang === "en" ? CHANGES_EN : CHANGES;
+window.addEventListener("langchange", () => renderChanges($("#btnAllChanges").parentElement.hidden));
 function renderChanges(all) {
-  const list = all ? CHANGES : CHANGES.slice(0, 1);
+  const C = changes(), list = all ? C : C.slice(0, 1);
   $("#newVer").textContent = CHANGES[0][0];
+  $("#newList").setAttribute("data-noi18n", "");
   $("#newList").innerHTML = list.map(([v, items], i) => (all && i ? `<h3>Version ${v}</h3>` : "") + `<ul>${items.map(x => `<li>${x}</li>`).join("")}</ul>`).join("");
   $("#btnAllChanges").parentElement.hidden = all;
 }
 $("#btnAllChanges").onclick = () => renderChanges(true);
 renderChanges(false);
 function showWhatsNew(from) {
-  const newer = CHANGES.filter(([v]) => verCmp(v, from) > 0);
+  const newer = I18N.lang === "en" ? CHANGES_EN.filter(([v]) => /^\d+\.\d+\.\d+$/.test(v) && verCmp(v, from) > 0) : CHANGES.filter(([v]) => verCmp(v, from) > 0);
   if (!newer.length) return;
   const box = dialog({ title: `SongGrabber wurde aktualisiert – Version ${CHANGES[0][0]}`, icon: "i-wand",
     body: newer.map(([v, items]) => `<h4 class="muted" style="margin:6px 0 8px;font-size:12px;letter-spacing:1px">VERSION ${v}</h4><ul style="margin:0 0 10px;padding-left:20px">${items.map(x => `<li>${x}</li>`).join("")}</ul>`).join(""),
@@ -3675,7 +3688,7 @@ async function openShow(feed) {
 async function boot() {
   if (booted) return; booted = true;
   const i = await refreshTools();
-  S.presets = i.presets; S.settings = i.settings;
+  S.presets = i.presets; S.settings = i.settings; S.sysLang = i.sys_lang || "";
   Player.setVolume(S.settings.volume ?? .8);
   $("#xfSel").value = String(S.settings.xfade ?? 4); $("#normPlay").checked = S.settings.norm_play !== false;
   Colors.load(S.settings); SideBar.load(S.settings); Viz.setMode({ tesla: "aurora", laser: "lava" }[S.settings.viz_mode] || S.settings.viz_mode || "synth"); Viz.setTheme(THEMES[S.settings.viz_theme] ? S.settings.viz_theme : "synth"); Viz.setFx(S.settings.viz_fx !== false); InfoMin.set(S.settings.pp_info_min !== false); EQ.load(S.settings);

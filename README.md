@@ -7,6 +7,19 @@
 - **Windows 10/11:** `SongGrabber-Setup-<Version>.exe` starten.
 - **Linux** (Ubuntu, Mint, Debian, Fedora, Arch, openSUSE): `SongGrabber-<Version>-linux.tar.gz` entpacken, im Ordner `./install.sh` ausführen. Danach steht SongGrabber im Startmenü.
 
+## 🇬🇧 English
+**SongGrabber is a free audio grabber and music player for Windows and Linux – now fully in English.** It follows your Windows language automatically; switch any time under *Settings → Language* (the built-in help is translated too).
+
+- **Links & streams** – YouTube, SoundCloud, Bandcamp, Mixcloud, playlists, internet radio → MP3 (LAME), WAV or FLAC with ID3 tags, cover, album info and lyrics
+- **Audio CD** – bit-exact ripping, track info and cover from MusicBrainz
+- **Recording** – vinyl, cassette, system sound or microphone with level meter, auto start and automatic track splitting
+- **Screen recording** – Zoom, Teams, webinars as MP4, whole screen, one window or a drawn area, with PC sound and/or microphone
+- **Karaoke** – sing karaoke videos from YouTube without ads, ★ favorites work offline, record your voice + music
+- **Player** – nine light shows, equalizer, crossfade, synced lyrics, mini player, radio & podcasts, quick radio recording
+- **Library** – search, tag editor, clean-up of duplicates, playlists, transfer to USB stick/phone
+
+Download: **[latest release](https://github.com/Pezhy69/SongGrabber/releases/latest)** – free, no ads, no account. Please only save content you have the rights to.
+
 ## So sieht es aus
 
 <p align="center"><img src="docs/screenshots/player.png" width="900" alt="Player mit Lichtshow „Synthwave“"></p>

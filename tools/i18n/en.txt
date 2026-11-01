@@ -1,0 +1,1127 @@
+# SongGrabber – Deutsch|English. Eine Zeile pro Text, links genau wie in index.html/app.js/Python.
+# Nach Änderungen: python tools/i18n/build.py  (schreibt ui/i18n.js)
+(ohne Zeitmarken)|(without timestamps)
+(Paket entpacken und|(unpack the package and run
++ über 1.000 Seiten|+ over 1,000 sites
+. Dafür brauchst du einmalig einen eigenen Schlüssel:|. For this you need your own key once:
+. Die Update-Prüfung ist in dieser Ausgabe noch nicht eingerichtet.|. The update check isn't set up in this edition yet.
+.cue-Datei hier loslassen|Drop .cue file here
+001 - Interpret - Titel.mp3 – Autoradios spielen dann in der richtigen Reihenfolge|001 - Artist - Title.mp3 – car stereos then play in the right order
+1 Stunde|1 hour
+12 Stunden|12 hours
+15 Bilder/s – reicht für Meetings|15 fps – enough for meetings
+16 Bit · 44,1 kHz (CD-Qualität)|16 bit · 44.1 kHz (CD quality)
+24 Stunden|24 hours
+3 Stunden|3 hours
+30 Bilder/s – flüssig|30 fps – smooth
+6 Stunden|6 hours
+60 Bilder/s – für Spiele & Animationen|60 fps – for games & animations
+Ab jetzt aufnehmen – bis ich stoppe|Record from now – until I stop
+Abbild-Datei nicht lesbar:|Image file not readable:
+Abbild:|Image:
+Abbild: Test-CD|Image: test CD
+Abbrechen|Cancel
+abgebrochen|cancelled
+Abo beendet|Subscription ended
+Abo entfernen|Remove subscription
+Abo entfernen? Bereits geladene Titel bleiben erhalten.|Remove subscription? Tracks already downloaded are kept.
+Abonnieren|Subscribe
+Abonniert ✓|Subscribed ✓
+Abos|Subscriptions
+Abschnitte zusammenfügen fehlgeschlagen:|Merging the parts failed:
+Abspielen|Play
+Abspielen/Pause|Play/pause
+Abspielen/Pause (Leertaste)|Play/pause (space)
+Achtung: Das Bild wird nicht mehr aufgenommen.|Warning: the picture is no longer being recorded.
+AcoustID-Schlüssel|AcoustID key
+AcoustID-Schlüssel ungültig – bitte in den Einstellungen prüfen.|AcoustID key invalid – please check in the settings.
+Aktiv|Active
+Aktualisieren|Update
+Akzent|Accent
+Alben & CDs|Albums & CDs
+Album|Album
+Album / Titel|Album / Title
+Album, Genre, Jahr & Cover online ergänzen|Add album, genre, year & cover online
+Album, Jahr, Genre und Cover anhand von Interpret + Titel suchen|Search album, year, genre and cover by artist + title
+Album-Interpret für alle Titel|Album artist for all tracks
+Albumcover statt Video-Vorschaubild|Album cover instead of video thumbnail
+alle|all
+Alle als Audio herunterladen?|Download all as audio?
+Alle angezeigten übertragen|Transfer all shown
+Alle Aufträge laufen nacheinander im Hintergrund – du kannst währenddessen weiterarbeiten.|All jobs run one after another in the background – you can keep working meanwhile.
+Alle auswählen|Select all
+Alle herunterladen|Download all
+Alle in die Warteschlange|Add all to queue
+Alle jetzt prüfen|Check all now
+Alle Länder|All countries
+Alle offline holen|Make all available offline
+Alle Titel|All tracks
+alle Titel|all tracks
+Alle Titel haben Cover, Album, Genre und Jahr. 🎉|All tracks have cover, album, genre and year. 🎉
+Alle umwandeln|Convert all
+alle Änderungen anzeigen|show all changes
+Alles am PC|Everything on the PC
+Alles in deinem Zielordner – suchen, abspielen und Playlists automatisch erstellen.|Everything in your output folder – search, play and create playlists automatically.
+Alles in einem Ordner: Interpret - Titel|All in one folder: Artist - Title
+Alles ist bereits richtig einsortiert.|Everything is already sorted correctly.
+Alles klar|Got it
+Alles markieren|Select all
+Alles schon offline.|Everything is already offline.
+Alles zufällig|Shuffle all
+Alles, was auf diesem Bildschirm zu sehen ist – auch Hinweise und andere Fenster.|Everything visible on this screen – including notifications and other windows.
+Alles, was der PC abspielt|Everything the PC plays
+alles, was dort landet, wird automatisch umgewandelt|everything that lands there is converted automatically
+Alles, was in den letzten Tagen dazugekommen ist, neueste zuerst.|Everything added in the last days, newest first.
+Als Album taggen (Titelnummern)|Tag as album (track numbers)
+Als Favorit merken und für unterwegs speichern|Add to favorites and save for offline use
+Als Favorit merken und offline speichern|Add to favorites and save offline
+Als kleine Leiste|As a small bar
+Als Nächstes abspielen|Play next
+Als Nächstes:|Up next:
+Als Playlist speichern|Save as playlist
+Als Playlist speichern …|Save as playlist …
+Als Werkzeug-Ordner übernehmen|Use as tools folder
+Als Zielordner übernehmen|Use as output folder
+Als Übergabe-Ordner übernehmen|Use as hand-over folder
+an Pausen ab|at pauses from
+An Wiedergabeliste anhängen|Append to playlist
+Analysiere …|Analyzing …
+Analysieren|Analyze
+Anderer Ordner …|Other folder …
+Anfang & Ende kürzen|Trim start & end
+Anfang anhören|Listen to start
+Anfang ziehen|drag start
+Anfang/Ende kürzen …|Trim start/end …
+Anhören|Listen
+Anzahl Titel|Number of tracks
+Anzeigen|Show
+API key einfügen|paste API key
+Audio aus Videos, DVDs und beliebigen Formaten holen – Tags werden übernommen und lassen sich bearbeiten.|Get audio from videos, DVDs and any format – tags are kept and can be edited.
+Audio- und Videodateien, ganze Ordner oder einen DVD-Ordner (VIDEO_TS)|Audio and video files, whole folders or a DVD folder (VIDEO_TS)
+Audio-CD|Audio CD
+Audio/Video kommt nach „Dateien & DVD“, Playlists in den Player|Audio/video goes to “Files & DVD”, playlists to the player
+Auf acoustid.org mit einem Konto anmelden → „Register an application“ → Name z. B. „SongGrabber“ → den angezeigten|Sign in with an account on acoustid.org → “Register an application” → name e.g. “SongGrabber” → paste the displayed
+Auf dem Bildschirm|On the screen
+Auf USB-Stick oder Handy übertragen|Transfer to USB stick or phone
+Auf USB-Stick/Handy übertragen|Transfer to USB stick/phone
+Auf USB-Stick/Handy übertragen …|Transfer to USB stick/phone …
+Aufgenommen wird nur:|Only this is recorded:
+Aufnahme|Recording
+Aufnahme gelöscht.|Recording deleted.
+Aufnahme gespeichert|Recording saved
+Aufnahme läuft|Recording
+Aufnahme läuft – du kannst SongGrabber jetzt minimieren.|Recording – you can minimize SongGrabber now.
+Aufnahme starten|Start recording
+Aufnahme startet nicht:|Recording doesn't start:
+Aufnahme verwerfen|Discard recording
+Aufnahme verworfen.|Recording discarded.
+Aufnahme wird gespeichert …|Saving recording …
+Aufnahme wirklich verwerfen?|Really discard the recording?
+Aufnahme zu kurz – nichts gespeichert.|Recording too short – nothing saved.
+Aufnahmen|Recordings
+Aufnahmen automatisch erkennen|Recognize recordings automatically
+Aufräumen|Clean up
+Aufteilen|Split
+Auftrag|Job
+Aufträge|Jobs
+aus|off
+Aus|Off
+Aus Auswahl|From selection
+Aus den Favoriten entfernt.|Removed from favorites.
+Aus der Browser-Adresszeile, oder eine .url-/.txt-Datei mit Links|From the browser address bar, or a .url/.txt file with links
+Aus der Warteschlange entfernen|Remove from queue
+Aus Favoriten entfernen|Remove from favorites
+Aus Favoriten entfernt|Removed from favorites
+Aus Zwischenablage einfügen|Paste from clipboard
+Aus: das Video wird als ein einziger Titel gespeichert.|Off: the video is saved as a single track.
+Ausgehend von|Based on
+ausgewählt|selected
+Ausgewählte löschen (Entf)|Delete selected (Del)
+Ausgewählte Titel rippen|Rip selected tracks
+Ausschneiden|Cut
+Auswahl|Selection
+Auswahl abspielen|Play selection
+Auswahl als Playlist|Selection as playlist
+Auswahl übertragen|Transfer selection
+Auswerfen|Eject
+Automatik|Automatic
+automatisch|automatic
+Automatisch (wie Windows)|Automatic (like Windows)
+Automatisch in Titel teilen|Split into tracks automatically
+Autoradio-sicher: MP3 192 kbps, 44,1 kHz|Car-stereo safe: MP3 192 kbps, 44.1 kHz
+Autostart aus|Autostart off
+Bedienung einklappen (H) – unten bleiben kleine Knöpfe|Collapse controls (H) – small buttons stay at the bottom
+Bedienung wieder ausklappen (H)|Expand controls again (H)
+Bedienung – Drüberfahren zeigt alles|Controls – hover to show everything
+Beenden|Exit
+BEHALTEN|KEEP
+bei den Dateien|next to the files
+Bei einem Song auf ★ klicken – dann wird er gemerkt und für unterwegs gespeichert.|Click ★ on a song – it's remembered and saved for offline use.
+Bei Live-Auftritten nach dem Original fragen|Ask for the original on live performances
+Bei „|For “
+Beim Abonnieren laden|When subscribing, download
+Beim Start nach Updates suchen|Check for updates at startup
+Beliebt|Popular
+Bereich zeichnen|Draw an area
+Bereich ändern|Change area
+Bereit|Ready
+Best-of & Mixe|Best-of & mixes
+Bibliothek|Library
+Bibliothek aufräumen|Clean up library
+Bibliothek ergänzen|Complete library
+Bibliothek wird geprüft …|Checking library …
+Bibliothek wird neu eingelesen …|Rescanning library …
+Bild|Picture
+Bild als CD-Cover übernehmen|Use image as CD cover
+Bild als Cover übernehmen|Use image as cover
+Bild wird geladen …|Loading picture …
+Bild wird nicht aufgenommen!|Picture is not being recorded!
+Bild wählen|Choose image
+Bilder kannst du auf ein Cover ziehen (CD oder Tags bearbeiten).|You can drag images onto a cover (CD or edit tags).
+Bildschirm|Screen
+Bildschirm aufnehmen|Record screen
+Bildschirmaufnahme gespeichert:|Screen recording saved:
+Bildschirmaufnahme ist hier nicht möglich|Screen recording isn't possible here
+Bildschirmaufnahme läuft noch|Screen recording is still running
+Bildschirmaufnahmen|Screen recordings
+Bitte beim Anmelden die Sitzung „… auf Xorg“ wählen|Please choose the “… on Xorg” session when logging in
+Bitte Dateien, Ordner oder einen Link hierher ziehen.|Please drag files, folders or a link here.
+Bitte ein Bild (JPG/PNG) ablegen.|Please drop an image (JPG/PNG).
+Bitte ein Ziel (USB-Stick oder Ordner) wählen.|Please choose a target (USB stick or folder).
+Bitte einen Kanal- oder Playlist-Link einfügen.|Please paste a channel or playlist link.
+Bitte einen Link einfügen.|Please paste a link.
+Bitte einen Ordner ablegen.|Please drop a folder.
+Bitte Interpret und Titel eintragen.|Please enter artist and title.
+Bitte noch den Bereich zeichnen.|Please draw the area first.
+Bitte nur aufnehmen, wenn alle Beteiligten einverstanden sind – am besten zu Beginn kurz fragen.|Please only record if everyone involved agrees – best to ask briefly at the start.
+Bitte nur Inhalte speichern, für die du die Rechte hast (eigene CDs, freie Inhalte, Privatkopie im erlaubten Rahmen).|Please only save content you have the rights to (your own CDs, free content, private copies within the legal limits).
+Bitte oben auswählen, was aufgenommen werden soll.|Please choose above what should be recorded.
+Bitte zuerst ein Rechteck ziehen.|Please drag a rectangle first.
+Bitte zuerst einen Link einfügen.|Please paste a link first.
+Bitte zuerst Titel anhaken.|Please tick tracks first.
+Blendet am Ende sanft aus und pausiert.|Fades out gently at the end and pauses.
+by Pezhy · kostenlos|by Pezhy · free
+CD einlegen und „CD lesen“ klicken|Insert a CD and click “Read CD”
+CD lesen|Read CD
+CD nach dem Rippen auswerfen|Eject CD after ripping
+CD-Abbild|CD image
+CD-Abbild (CUE/BIN) wie eine CD lesen – auch ohne Laufwerk|Read a CD image (CUE/BIN) like a CD – even without a drive
+CD-Abbild einlesen|Read CD image
+CD-Abbild öffnen|Open CD image
+CD-Auslesen ist nur unter Windows verfügbar.|CD ripping is only available on Windows.
+Cover in MP3/FLAC einbetten|Embed cover in MP3/FLAC
+Cover übernommen|Cover applied
+damit Abos auch ohne Zutun geprüft werden|so subscriptions are checked without you doing anything
+Damit nutzen beide Programme dieselbe|This way both programs use the same
+Das Bild lässt sich nicht aufnehmen:|The picture can't be recorded:
+Das hat nicht geklappt|That didn't work
+Das ist kein Podcast-Feed.|This is not a podcast feed.
+Das sieht nach einem Live-Auftritt aus|This looks like a live performance
+Datei|File
+Datei ist zu kurz.|The file is too short.
+Datei kann nicht abgespielt werden:|File can't be played:
+Datei konnte nicht gelesen werden.|The file could not be read.
+Datei nicht gefunden.|File not found.
+Datei passend umbenennen & einsortieren|Rename & sort file accordingly
+Datei passend umbenennen &amp; einsortieren|Rename & sort file accordingly
+Datei zum Abbild fehlt:|File for the image is missing:
+Datei(en) neu einsortiert|file(s) reorganized
+Datei(en) ohne Tonspur übersprungen|file(s) without audio track skipped
+Datei(en) werden verschoben, z. B.:|file(s) will be moved, e.g.:
+Dateien|Files
+Dateien & DVD|Files & DVD
+Dateien hinzufügen|Add files
+Dateien werden ins eingestellte Format umgewandelt und einsortiert|Files are converted to the selected format and sorted in
+Dateien werden umgewandelt|files are being converted
+Dateien ·|files ·
+Dateien öffnen|Open files
+Dateien …|Files …
+Dauer|Duration
+Dauer (Min.)|Duration (min)
+Dauer in Minuten (0 = bis du stoppst)|Duration in minutes (0 = until you stop)
+Declicker + Trittschallfilter|Declicker + rumble filter
+Dein Mikrofon|Your microphone
+Dein Mikrofon – nein|Your microphone – no
+Den angezeigten|Copy the displayed
+der aktive leuchtet grün|the active one glows green
+Der Equalizer wirkt, sobald ein Titel aus SongGrabber läuft · Doppelklick setzt auf 0 dB|The equalizer works as soon as a track from SongGrabber is playing · double-click sets 0 dB
+der letzten Tage|of the last days
+Der verbleibende Teil ist zu kurz.|The remaining part is too short.
+Deutschland|Germany
+Die Bibliothek ist noch leer.|The library is still empty.
+Die Bildaufnahme wurde unerwartet beendet.|The picture recording ended unexpectedly.
+Die CUE-Datei enthält keine Titel.|The CUE file contains no tracks.
+Die Datei enthält keine Tonspur.|The file contains no audio track.
+Die Dateien werden in den|The files are moved to the
+Die Erkennung per Audio-Fingerabdruck nutzt den kostenlosen Dienst|Recognition via audio fingerprint uses the free service
+Die gespeicherte Videodatei kann dabei gelöscht oder behalten werden.|The saved video file can be deleted or kept.
+die letzten 10 Titel|the last 10 tracks
+die letzten 3 Titel|the last 3 tracks
+Die markierten Titel aus der Liste als eigene Playlist.|The selected tracks from the list as their own playlist.
+Die neue Version|The new version
+Die Warteschlange ist leer.|The queue is empty.
+Diese Aufnahme kann nicht mehr angepasst werden.|This recording can no longer be adjusted.
+Diese CD enthält keine Audiotitel.|This CD contains no audio tracks.
+Diese CD ist bei MusicBrainz nicht bekannt – bitte Titel eintragen.|This CD is not known to MusicBrainz – please enter the titles.
+Diese Datei kann SongGrabber nicht verwenden.|SongGrabber can't use this file.
+Diese Leiste ist im Video nicht zu sehen|This bar is not visible in the video
+Diese Quelle gibt es nicht mehr – bitte neu auswählen.|This source no longer exists – please choose again.
+Diese Version überspringen|Skip this version
+Diesen Sender aufnehmen|Record this station
+Diesen Song aufnehmen – von Anfang an|Record this song – from the start
+Diesen Song mitschneiden (von Anfang an)|Record this song (from the start)
+diesen Titel|this track
+Dieser Kanal ist schon abonniert.|This channel is already subscribed.
+dieser Sitzung|of this session
+Dieses Fenster ist minimiert – bitte vorher öffnen.|This window is minimized – please open it first.
+Dieses Video lässt sich hier nicht abspielen – es wird mit einem anderen Programm geöffnet.|This video can't be played here – it will be opened with another program.
+Dieses Video lässt sich nicht laden:|This video can't be loaded:
+Digital Bit für Bit auslesen, Trackinfos und Cover automatisch von MusicBrainz.|Read digitally bit by bit, track info and cover automatically from MusicBrainz.
+Disco-Kugel mit Lichtpunkten und Strahlen|Disco ball with light spots and beams
+Doppelte Titel (|Duplicate tracks (
+Doppelte Titel, fehlende Cover/Angaben und leere Ordner|Duplicate tracks, missing covers/info and empty folders
+Download gestartet|Download started
+Download gestartet – siehe Warteschlange|Download started – see queue
+Downloads gestartet|downloads started
+Dreht alle Farben gemeinsam – sie passen weiter zusammen|Rotates all colors together – they still match
+du|you
+Du hast|You have
+Du hast SongGrabber|You have SongGrabber
+DVD-Titel gefunden|DVD titles found
+Eigene Einstellung|Custom setting
+Eigene Farben|Custom colors
+Eigene Farben für die Lichtshow wählen|Choose your own colors for the light show
+Eigene Vorlage|Custom pattern
+eigener bin-Ordner|own bin folder
+Ein Fenster / Programm|A window / program
+eine Playlist je Künstler|one playlist per artist
+Eine Playlist pro Album in der richtigen Titelreihenfolge – ideal für Autoradio und Handy.|One playlist per album in the right track order – ideal for car stereo and phone.
+Einfach hierher ziehen: MP4, MKV, WEBM, MOV, AVI, VOB, FLAC, WAV, M4A, OGG, OPUS, WMA … – auch ganze Ordner oder einen DVD-Ordner.|Just drag them here: MP4, MKV, WEBM, MOV, AVI, VOB, FLAC, WAV, M4A, OGG, OPUS, WMA … – also whole folders or a DVD folder.
+Einfügen|Paste
+Einfügen & analysieren|Paste & analyze
+Eingänge|Inputs
+Eingänge – Line-In, Plattenspieler, Mikrofon|Inputs – line-in, turntable, microphone
+Einstellungen|Settings
+Einzelne Farben feinjustieren|Fine-tune individual colors
+Einzelne Karaoke-Songs|Single karaoke songs
+Einzelne Songs|Single songs
+Einzelne Titel landen direkt mit Cover und ID3-Tags im Zielordner. Bei Playlists wählst du die Titel aus.|Single tracks go straight to your output folder with cover and ID3 tags. For playlists you pick the tracks.
+Einzeltitel|Single tracks
+Elektro|Electro
+Ende|End
+Ende anhören|Listen to end
+Ende ziehen|drag end
+Entf|Del
+Entfernen|Remove
+Entfernen & Datei löschen|Remove & delete file
+Ergänze|Completing
+Erst eine CD lesen.|Read a CD first.
+Erste Schritte zeigen|Show first steps
+Erstellen|Create
+Es kam kein Ton an – Mikrofon und Ton vom PC prüfen.|No sound came in – check the microphone and PC sound.
+Es kommt kein Ton an – nur digitale Stille|No sound is coming in – only digital silence
+Es läuft bereits ein Mitschnitt.|A recording is already running.
+Es läuft bereits eine Aufnahme.|A recording is already running.
+Es läuft schon eine Aufnahme.|A recording is already running.
+Es singt:|Singing:
+Es wurde kein Bild aufgenommen.|No picture was recorded.
+Es wurde nichts aufgenommen.|Nothing was recorded.
+Falscher Eingang, Mikrofon stummgeschaltet oder von Windows blockiert. Rechts unter „Eingänge“ prüfen, welcher beim Sprechen ausschlägt.|Wrong input, microphone muted or blocked by Windows. Check on the right under “Inputs” which one moves when you speak.
+Farben|Colors
+Farben vom Cover|Colors from cover
+Farbwelt|Color theme
+Favorit entfernen|Remove favorite
+Favorit – gespeichert für offline|Favorite – saved for offline use
+Favoriten|Favorites
+Favoriten offline gespeichert|favorites saved offline
+Feed-Adresse|Feed address
+Fehlende Angaben (|Missing info (
+Fehler|Error
+fehler|error
+Fehlerbericht kopieren|Copy error report
+Fehlerbericht kopiert – jetzt einfach einfügen und verschicken|Error report copied – now just paste and send it
+fehlt – ffmpeg.exe in den Ordner bin legen|missing – put ffmpeg.exe into the bin folder
+fehlt – yt-dlp.exe in den Ordner bin legen|missing – put yt-dlp.exe into the bin folder
+Feld leeren|Clear field
+Fenster „|Window “
+fertig|done
+Fertig|Done
+Fertige entfernen|Remove finished
+Fertige Titel in der Warteschlange oder Bibliothek abspielen – und Playlists erstellen.|Play finished tracks in the queue or library – and create playlists.
+Feuerwerk|Fireworks
+Feuerwerk – Raketen im Takt|Fireworks – rockets to the beat
+ffmpeg fehlt|ffmpeg missing
+ffmpeg fehlt – ohne ffmpeg ist keine Bildschirmaufnahme möglich.|ffmpeg is missing – screen recording isn't possible without ffmpeg.
+Fingerabdruck konnte nicht berechnet werden.|The fingerprint could not be calculated.
+Flüssigkeit|Smoothness
+Folge herunterladen|Download episode
+Folge wird heruntergeladen – siehe Warteschlange|Episode is being downloaded – see queue
+Folgen|Episodes
+Format wählen|Choose a format
+Fortgesetzt bei|Resumed at
+Fortsetzen|Resume
+Frankreich|France
+Funktion nicht verfügbar:|Feature not available:
+für Autoradios und Player, die keine eingebetteten Texte lesen|for car stereos and players that can't read embedded lyrics
+Für CDs bitte eine .cue-Datei ablegen – Audiodateien wandle ich unter „Dateien & DVD“ um.|For CDs please drop a .cue file – I convert audio files under “Files & DVD”.
+Für die Erkennung fehlt fpcalc.exe im bin-Ordner (build.bat lädt es automatisch).|Recognition needs fpcalc.exe in the bin folder (build.bat downloads it automatically).
+Für die Erkennung wird ein kostenloser AcoustID-Schlüssel benötigt (Einstellungen).|Recognition needs a free AcoustID key (Settings).
+Für Podcasts gibt es keinen Songtext.|There are no lyrics for podcasts.
+für unterwegs speichern|save for offline use
+Für „|For “
+Ganze Bibliothek|Whole library
+Ganzer Bildschirm|Whole screen
+Ganzes Bild|Whole picture
+gefunden|found
+Gefunden:|Found:
+geht an …|turning on …
+Gekürzt – neue Länge|Trimmed – new length
+gelöscht|deleted
+gelöscht ·|deleted ·
+Gemeinsamer Werkzeug-Ordner (optional)|Shared tools folder (optional)
+Genre|Genre
+Genre / Interpret / Album / 01 - Titel|Genre / Artist / Album / 01 - Title
+Geprüft|Checked
+gerade eben|just now
+Geräte neu laden|Reload devices
+geschätzt – bei Bedarf Zeile anklicken|estimated – click a line if needed
+Gespeichert in:|Saved in:
+gespeichert ·|saved ·
+Gestochen scharf (ca. 12 MB pro Minute)|Crystal clear (approx. 12 MB per minute)
+Gilt für alle Lichtshows – Synthwave, Spektrum, Kreis, Welle und Ruhig – und wird gemerkt.|Applies to all light shows – Synthwave, Spectrum, Circle, Wave and Calm – and is remembered.
+Gitter, Balken, Leuchten|Grid, bars, glow
+Groß in der Mitte anzeigen|Show large in the center
+Großbritannien|United Kingdom
+Großen Player öffnen|Open big player
+Großes Fenster|Big window
+Grundton|Base hue
+Gruppiert nach dem Genre-Tag. Fehlende Genres ergänzt SongGrabber bei neuen Downloads automatisch.|Grouped by the genre tag. SongGrabber adds missing genres automatically for new downloads.
+Größer|Bigger
+Gute Nacht – Wiedergabe pausiert 🌙|Good night – playback paused 🌙
+Hauptbildschirm|main screen
+Hauptfarbe|Main color
+Herunterladen|Download
+Herunterladen & umwandeln|Download & convert
+Herunterladen (als MP3 …)|Download (as MP3 …)
+hier einfügen.|here.
+Hier erscheinen Downloads, CD-Rips, Aufnahmen und Umwandlungen mit ihrem Fortschritt.|Downloads, CD rips, recordings and conversions appear here with their progress.
+Hilfe|Help
+Hilfe jederzeit mit|Help at any time with
+Hilfe zu dieser Seite (F1)|Help for this page (F1)
+Hilfe zum Player (F1)|Player help (F1)
+Hilfe öffnen|Open help
+hilfreich bei Anleitungen|helpful for tutorials
+Himmel|Sky
+Hintergrund|Background
+Hinweis: Diese Leiste ist im Video zu sehen|Note: this bar is visible in the video
+Hinzufügen|Add
+Horizont, Spitzen, Welle|Horizon, peaks, wave
+höchstens einmal am Tag – es wird nichts automatisch installiert|at most once a day – nothing is installed automatically
+Hörbuch|Audiobook
+Hörspiel|Radio play
+Ignorieren|Ignore
+Im Browser öffnen|Open in browser
+Im Ordner anzeigen|Show in folder
+Im Ordner zeigen|Show in folder
+In den Papierkorb|Move to recycle bin
+in den Papierkorb verschoben|moved to the recycle bin
+in der Warteschlange|in the queue
+In der Warteschlange|Queued
+In der Warteschlange:|In the queue:
+In die Bibliothek übernehmen|Add to library
+In die Warteschlange|Add to queue
+In drei Schritten zu deiner Musik:|Your music in three steps:
+In einem Fenster|In a window
+in Titelreihenfolge|in track order
+Instrumental – kein Songtext.|Instrumental – no lyrics.
+Instrumental – kein Text.|Instrumental – no lyrics.
+Internetradio|Internet radio
+Interpret|Artist
+Interpret & Titel per Audio-Fingerabdruck (AcoustID)|Artist & title via audio fingerprint (AcoustID)
+Interpret / Album / 01 - Titel (empfohlen)|Artist / Album / 01 - Title (recommended)
+Interpret / Interpret - Titel|Artist / Artist - Title
+Interpret, Titel oder Album …|Artist, title or album …
+ist aktuell.|is up to date.
+ist das Netzlaufwerk, NAS oder die externe Festplatte eingeschaltet und verbunden? (Zielordner unten rechts ändern)|is the network drive, NAS or external drive switched on and connected? (change the output folder bottom right)
+Italien|Italy
+iTunes-Katalog, Ersatz: MusicBrainz|iTunes catalog, fallback: MusicBrainz
+Jahr|Year
+Jedes Kapitel wird ein eigener Titel – mit Nummer, Album und Cover.|Each chapter becomes its own track – with number, album and cover.
+Jedes Kapitel wird ein eigener Titel – mit Nummer, Album und Cover. Titel lassen sich hier ändern.|Each chapter becomes its own track – with number, album and cover. Titles can be changed here.
+Jetzt prüfen|Check now
+Jetzt singt:|Now singing:
+Kanal konnte nicht gelesen werden|The channel could not be read
+Kanal oder Playlist abonnieren|Subscribe to channel or playlist
+Kanal oder Playlist – z. B. https://www.youtube.com/@LALELU-Traumwelt|Channel or playlist – e.g. https://www.youtube.com/@LALELU-Traumwelt
+Kanal- oder Playlist-Link oben einfügen. Neue Videos landen dann automatisch als Audio in deiner Bibliothek – z. B. jede neue Folge eines Podcasts oder die neuesten Lieder eines Künstlers.|Paste a channel or playlist link above. New videos then land in your library as audio automatically – e.g. every new episode of a podcast or an artist's latest songs.
+kannst du einfach über die alte installieren|can simply be installed over the old one
+Kanäle und Playlists beobachten – neue Titel werden automatisch als Audio geladen, solange SongGrabber läuft.|Follow channels and playlists – new tracks are downloaded as audio automatically while SongGrabber is running.
+Kapitel gefunden|Chapters found
+Karaoke|Karaoke
+Karaoke-Aufnahme|Karaoke recording
+Karaoke-Video mit deiner Stimme|Karaoke video with your voice
+Karaoke-Videos von YouTube – ohne Werbung. Mit ★ gemerkte Songs werden gespeichert und laufen auch ohne Internet, z. B. beim Camping.|Karaoke videos from YouTube – without ads. Songs marked with ★ are saved and work without internet too, e.g. when camping.
+Kassette|Cassette
+Kein Bild:|No picture:
+Kein Bildschirm gefunden.|No screen found.
+Kein CD/DVD-Laufwerk gefunden|No CD/DVD drive found
+Kein DVD-Video gefunden (Ordner VIDEO_TS mit VTS_xx_x.VOB).|No DVD video found (VIDEO_TS folder with VTS_xx_x.VOB).
+Kein Internet? Deine|No internet? Your
+Kein Laufwerk gefunden – du kannst ein CD-Abbild öffnen.|No drive found – you can open a CD image.
+Kein Laufwerk?|No drive?
+Kein Mikrofon gefunden|No microphone found
+Kein sicherer Vorschlag – bitte von Hand setzen.|No reliable suggestion – please set by hand.
+Kein Songtext gefunden.|No lyrics found.
+Kein Songtext gespeichert.|No lyrics saved.
+Kein Songtext – „Songtext suchen“ oder hier einfügen|No lyrics – “Find lyrics” or paste here
+Kein Systemsound-Eingang gefunden (PulseAudio/PipeWire-„Monitor“).|No system sound input found (PulseAudio/PipeWire “monitor”).
+Kein Video: Während der Aufnahme wurde pausiert oder gespult.|No video: playback was paused or seeked during the recording.
+Keine abspielbare Tonspur gefunden.|No playable audio track found.
+Keine abspielbaren Audiodateien gefunden.|No playable audio files found.
+Keine abspielbaren Musikdateien gefunden.|No playable music files found.
+Keine Antwort von YouTube – Internetverbindung prüfen.|No answer from YouTube – check your internet connection.
+Keine Audio-CD gefunden – bitte CD einlegen.|No audio CD found – please insert a CD.
+Keine Aufnahmequelle gefunden.|No recording source found.
+Keine doppelten Titel gefunden. 🎉|No duplicate tracks found. 🎉
+keine Duplikate bei erneutem Download|no duplicates when downloading again
+Keine Eingänge gefunden.|No inputs found.
+Keine Internetverbindung – Titel bitte manuell eintragen.|No internet connection – please enter the titles manually.
+Keine leeren Ordner. 🎉|No empty folders. 🎉
+Keine neuen Titel|No new tracks
+Keine offenen Fenster gefunden – starte zuerst Zoom, Teams oder das Programm, das du aufnehmen willst, und klicke dann auf „Neu suchen“.|No open windows found – first start Zoom, Teams or the program you want to record, then click “Search again”.
+Keine passenden Titel gefunden (Mindestanzahl pro Playlist beachten).|No matching tracks found (mind the minimum per playlist).
+Keine Playlists gefunden.|No playlists found.
+keine Rückmeldung von ffmpeg|no response from ffmpeg
+Keine Sender gefunden.|No stations found.
+Keine Titel ausgewählt.|No tracks selected.
+Keine Titel in der Bibliothek.|No tracks in the library.
+Keine Titel zum Übertragen.|No tracks to transfer.
+Keine Treffer.|No results.
+Keine Verbindung zum Update-Server:|No connection to the update server:
+Kinderlieder|Children's songs
+Klang & Tags|Sound & tags
+Klassik|Classical
+Klein oben links anzeigen|Show small at top left
+Kleiner|Smaller
+Klicken oder Bild hierher ziehen, um ein eigenes Cover zu wählen|Click or drag an image here to choose your own cover
+klicken.|on a song.
+Knackser & Rumpeln entfernen|Remove clicks & rumble
+Knackser weg, Titel trennen|Remove clicks, split tracks
+kodiert neu (minimal), sonst verlustfreier Schnitt|re-encodes (minimal), otherwise lossless cut
+Kopieren|Copy
+kopieren und hier einfügen:|and paste it here:
+Kopiert Version, Werkzeuge, Geräte und die letzten Meldungen – einfach in WhatsApp oder eine E-Mail einfügen.|Copies version, tools, devices and the latest messages – just paste into WhatsApp or an email.
+Kopplung mit dem Multi Video Downloader|Link with Multi Video Downloader
+kostenlos – einmalig anlegen|free – create once
+Kreis|Circle
+Kreis um das Cover|Circle around the cover
+Kurze Anleitung zu allen Bereichen. Tipp:|Short guide to all areas. Tip:
+können frei werden. Vorgeschlagen wird jeweils die beste Fassung (FLAC/WAV vor MP3, höhere Bitrate, mit Cover). Häkchen = in den Papierkorb.|can be freed. The best version is suggested each time (FLAC/WAV before MP3, higher bitrate, with cover). Tick = move to recycle bin.
+Kürzen|Trim
+Lade Cover …|Loading cover …
+Lade Folgen …|Loading episodes …
+Lade Sender …|Loading stations …
+Lade „|Loading “
+LAME-Encoder bereit|LAME encoder ready
+Lange Videos mit vielen Songs und Songliste – z. B. „Love Rock Best Of“ (1 Std.)|Long videos with many songs and a song list – e.g. “Love Rock Best Of” (1 hr)
+Lange Videos mit vielen Songs, oft eine Stunde und mehr. Hat das Video eine Songliste, springt ⏭ bzw. N zum nächsten Song im Video.|Long videos with many songs, often an hour or more. If the video has a song list, ⏭ or N jumps to the next song in the video.
+Lass sie dir über „Playlists erstellen“ automatisch anlegen – nach Interpret, Album, Genre, Jahrzehnt oder als Zufallsmix.|Let them be created automatically via “Create playlists” – by artist, album, genre, decade or as a random mix.
+laufen auch offline.|play offline too.
+Laufwerk|Drive
+Laufwerke neu suchen|Rescan drives
+Lautheit angleichen (-14 LUFS)|Match loudness (-14 LUFS)
+Lautstärke|Volume
+Lautstärke (↑ ↓)|Volume (↑ ↓)
+Lautstärke (↑/↓)|Volume (↑/↓)
+Lautstärke angleichen|Normalize volume
+Lautstärke: unverändert|Volume: unchanged
+Lava|Lava
+Lava-Lampe – zähe Wachsblasen steigen und sinken|Lava lamp – thick wax blobs rise and sink
+Leer|Empty
+leer|empty
+Leere Ordner (|Empty folders (
+leere Ordner entfernt|empty folders removed
+leeren|clear
+Legt für jeden Interpreten eine Playlist an, sortiert nach Album und Titelnummer.|Creates a playlist for each artist, sorted by album and track number.
+leise|quiet
+leise und laute Titel klingen gleich laut|quiet and loud tracks sound equally loud
+Leiste hochrollen (Q) – kommt zurück per Klick auf den Griff oder wenn die Maus darüber fährt|Roll up bar (Q) – comes back by clicking the handle or hovering over it
+Lese ein …|Scanning …
+Lichter an|Lights on
+Lichter aus|Lights off
+Lichtshow & Effekte an/aus (B) – aus: ruhiges Bild, spart Leistung|Light show & effects on/off (B) – off: calm picture, saves power
+Lichtshow an|Light show on
+Lichtshow aus – nur Musik, ruhiges Bild|Light show off – just music, calm picture
+Lichtshow für alles, was läuft|Light show for everything playing
+Lichtshow für Spotify & Co.|Light show for Spotify & co.
+Lichtshow und Steuerung für Musik aus SongGrabber|Light show and controls for music from SongGrabber
+Lichtshow, Titel und Steuerung für Spotify, YouTube im Browser & alles, was am PC läuft|Light show, title and controls for Spotify, YouTube in the browser & everything playing on the PC
+Lieder liegen mehrfach vor –|songs exist more than once –
+Liefert nur digitale Stille – stummgeschaltet, nicht angeschlossen oder von Windows blockiert|Delivers only digital silence – muted, not connected or blocked by Windows
+Link abspielen|Play link
+Link abspielen …|Play link …
+Link einfügen und loslegen|Paste a link to get started
+Link einfügen – Video, Playlist, Kanal oder Radio-Stream …|Paste link – video, playlist, channel or radio stream …
+Link einfügen, CD lesen, Schallplatte aufnehmen oder Datei hinzufügen.|Paste a link, read a CD, record vinyl or add a file.
+Link eingefügt – mit „Abonnieren“ bestätigen.|Link pasted – confirm with “Subscribe”.
+Link hier loslassen|Drop link here
+Link in der Zwischenablage erkannt|Link detected in clipboard
+Link konnte nicht gelesen werden|The link could not be read
+Link loslassen|Drop link
+Link nicht abspielbar|Link can't be played
+Link-Playlists automatisch als Playlist speichern|Save link playlists as playlists automatically
+Links & Streams|Links & Streams
+Links gefunden|links found
+Links in der Zwischenablage erkennen|Detect links in the clipboard
+Links werden abgespielt|links are playing
+Liste leeren|Clear list
+Live mitschneiden|Record live
+Live-Auftritte überspringen|Skip live performances
+Live-Version behalten|Keep live version
+Live-Version wird verwendet – als „(Live)“ gekennzeichnet|Using live version – marked as “(Live)”
+Lizenzen & verwendete Dienste|Licenses & services used
+Los geht's|Let's go
+Loslassen zum Abspielen|Drop to play
+Loslassen zum Umwandeln|Drop to convert
+lädt|loading
+Lädt herunter …|Downloading …
+Länger aufnehmen (Dauer wählen) …|Record longer (choose duration) …
+läuft|running
+läuft mit|synced
+läuft mit (ungefähr)|synced (roughly)
+Löschen|Delete
+LÖSCHEN|DELETE
+Löschen …|Delete …
+Man hört nur die anderen, nicht dich.|Only the others can be heard, not you.
+Manuell|Manual
+markierte in den Papierkorb|move selected to recycle bin
+markierte Titel|selected tracks
+Mauszeiger zeigen|Show mouse pointer
+Mehr|More
+Mehr von „|More from “
+Mein Mikrofon|My microphone
+Meine Playlist|My playlist
+Meine Podcasts|My podcasts
+Mich jetzt aufnehmen (Stimme + Musik)|Record me now (voice + music)
+Mikro an|Mic on
+Mikro aus|Mic off
+Mikrofon|Microphone
+Mikrofon an – ab jetzt hört man dich im Video.|Microphone on – from now on you'll be heard in the video.
+Mikrofon an/aus|Microphone on/off
+Mikrofon aus – ab jetzt hört man dich nicht mehr.|Microphone off – from now on you won't be heard.
+Mikrofon ausschalten – ab jetzt hört man dich nicht mehr|Turn microphone off – from now on you won't be heard
+Mikrofon einschalten – ab jetzt hört man dich im Video|Turn microphone on – from now on you'll be heard in the video
+Mikrofon ist AN – klicken zum Ausschalten|Microphone is ON – click to turn off
+Mikrofon ist AUS – klicken zum Einschalten|Microphone is OFF – click to turn on
+Mikrofon: aus|Microphone: off
+Mindestens Titel pro Playlist|Minimum tracks per playlist
+Mini-Player – kleines Fenster, immer im Vordergrund|Mini player – small window, always on top
+Minuten|minutes
+Mit Album:|With album:
+Mit anderem Programm öffnen|Open with another program
+mit Ton|with sound
+Mit Windows starten (minimiert)|Start with Windows (minimized)
+mit Zeitmarken|with timestamps
+Mitschneiden|Record
+Mitschneiden geht hier nicht – der Sender liefert keinen direkten Ton (nur bei normalen Internetradios).|Recording isn't possible here – the station doesn't deliver direct audio (only works with normal internet radio).
+Mitschneiden …|Record …
+Mitschnitt beenden|Stop recording
+Mitschnitt fehlgeschlagen:|Recording failed:
+Mitschnitt läuft|Recording in progress
+Mitschnitt läuft – beenden unter Links & Streams|Recording – stop it under Links & Streams
+Mitschnitt läuft – bis du stoppst.|Recording – until you stop.
+Mitschnitt läuft – der Song wird von Anfang an aufgenommen und stoppt am Songende.|Recording – the song is recorded from the start and stops at the end of the song.
+MP3 wird mit LAME in höchster Algorithmus-Qualität kodiert, Tags als ID3v2.3 + ID3v1 (kompatibel mit Autoradios und Windows).|MP3 is encoded with LAME at the highest algorithm quality, tags as ID3v2.3 + ID3v1 (compatible with car stereos and Windows).
+MusicBrainz antwortet nicht|MusicBrainz is not responding
+Musik|Music
+Musik aus der Bibliothek abspielen, Dateien öffnen oder eine Playlist laden.|Play music from the library, open files or load a playlist.
+Musik aus YouTube, SoundCloud, Bandcamp, Mixcloud, Vimeo, Playlists und Internetradio – als MP3, WAV oder FLAC.|Music from YouTube, SoundCloud, Bandcamp, Mixcloud, Vimeo, playlists and internet radio – as MP3, WAV or FLAC.
+Musik, Ordner oder Playlists – oder einen YouTube-Link|Music, folders or playlists – or a YouTube link
+Musikerkennung einrichten|Set up music recognition
+nach|after
+nach 1 Minute ohne Maus und Tastatur – kommen per Klick, beim Drüberfahren oder mit Q / H zurück|after 1 minute without mouse and keyboard – come back with a click, on hover or with Q / H
+nach Album|by album
+nach deiner Ordnerstruktur (Interpret / Album / Titel)|according to your folder structure (Artist / Album / Title)
+Nach diesem Titel|After this track
+nach Genre|by genre
+nach Interpret|by artist
+nach Jahrzehnt|by decade
+nach Titel|after track
+Nach Updates suchen|Check for updates
+Nachtmodus (leise Lautheit)|Night mode (quiet loudness)
+Name|Name
+Name eingeben|Enter name
+Namens-Präfix|Name prefix
+Neon-Spektrum|Neon spectrum
+Neu einlesen|Rescan
+Neu gemischt.|Remixed.
+Neu hinzugefügt|Recently added
+Neu in Version|New in version
+Neu suchen|Search again
+Neue Aufnahme|New recording
+Neue Länge|New length
+Neue Songs kommen mit diesem Namen in die Warteschlange.|New songs are added to the queue under this name.
+neue Titel gefunden|new tracks found
+Neue Version|New version
+Neueste|Newest
+nicht dabei|not included
+nicht gefunden – optional|not found – optional
+Nicht jedes Lied ist bei lrclib.net eingetragen – bei Wortbeiträgen, Werbung oder Nachrichten gibt es keinen.|Not every song is listed on lrclib.net – there are none for talk, ads or news.
+nicht möglich:|not possible:
+nicht verfügbar|not available
+Nichts Abspielbares gefunden.|Nothing playable found.
+Nichts ausgewählt|Nothing selected
+Nichts ausgewählt.|Nothing selected.
+Nichts gefunden – anders schreiben oder nur den Interpreten suchen.|Nothing found – try a different spelling or search just for the artist.
+Nichts gefunden – Schreibweise prüfen.|Nothing found – check the spelling.
+Nichts gefunden.|Nothing found.
+Nichts in der Wiedergabe|Nothing playing
+Nichts kürzen|Don't trim
+Nichts markiert|Nothing selected
+Nichts zu kürzen gefunden.|Nothing to trim found.
+nie|never
+Niederlande|Netherlands
+Nimmt auf, bis du stoppst. Klick = stoppen.|Records until you stop. Click = stop.
+Nimmt diesen Song auf – stoppt am Songende von selbst. Klick = jetzt stoppen.|Records this song – stops at the end of the song by itself. Click = stop now.
+Noch keine Abos|No subscriptions yet
+Noch keine Aufträge|No jobs yet
+Noch keine Favoriten|No favorites yet
+Noch keine Playlists|No playlists yet
+Noch keine Playlists vorhanden.|No playlists yet.
+Noch keine Podcasts abonniert – oben suchen und „Abonnieren“.|No podcasts subscribed yet – search above and “Subscribe”.
+Noch keine Titel im Zielordner. Sobald du etwas herunterlädst, rippst oder aufnimmst, erscheint es hier.|No tracks in the output folder yet. As soon as you download, rip or record something, it appears here.
+Noch leer – bei einem Song auf|Still empty – click
+Noch nichts in der Wiedergabe|Nothing playing yet
+Nordlicht|Aurora
+Nordlichter – wehende Lichtschleier über Bergen|Aurora – flowing veils of light over mountains
+Normal (ca. 5 MB pro Minute)|Normal (approx. 5 MB per minute)
+Normalisieren auf -1 dB|Normalize to -1 dB
+Nur Cover|Cover only
+Nur den ersten öffnen|Open only the first one
+Nur dieser Bereich|Only this area
+Nur dieses eine Fenster. Es darf verschoben werden, aber nicht minimiert sein.|Only this one window. It may be moved but must not be minimized.
+Nur einen Bereich aufnehmen|Record only an area
+Nur entfernen|Just remove
+Nur Genre|Genre only
+Nur Interpret|Artist only
+nur neue Titel ab jetzt|only new tracks from now on
+nur online|online only
+nur Synthwave|Synthwave only
+Nächster Song (N)|Next song (N)
+Nächster Song im Video (N)|Next song in the video (N)
+oben rechts, mit Uhr, Pause und Stopp – so ist SongGrabber nicht im Weg|top right, with clock, pause and stop – so SongGrabber stays out of the way
+oder|or
+oder ein CD-Abbild (CUE/BIN) öffnen.|or open a CD image (CUE/BIN).
+oder SongGrabber minimieren – die Aufnahme läuft weiter.|or minimize SongGrabber – recording continues.
+Offline|Offline
+Offline gespeichert|Saved offline
+Offline speichern|Save offline
+Ohne Album:|Without album:
+Ohne bekanntes Album landet ein Titel unter|Without a known album, a track goes to
+Ohne Jahr|No year
+ohne Ton|without sound
+Ohne Ton – es wird nur das Bild aufgenommen.|No sound – only the picture is recorded.
+ohne Zeitangaben|without timestamps
+Online ergänzen|Complete online
+Online suchen|Search online
+Online suchen & einbetten|Search online & embed
+Online suchen (YouTube)|Search online (YouTube)
+Online suchen (YouTube) …|Search online (YouTube) …
+optional nach Genre/Interpret|optionally by genre/artist
+Ordner|Folder
+Ordner hier loslassen|Drop folder here
+Ordner mit ffmpeg.exe / yt-dlp.exe|Folder with ffmpeg.exe / yt-dlp.exe
+Ordner übernommen|Folder applied
+Ordner …|Folder …
+Ordnername auf dem Ziel|Folder name on target
+Ordnerstruktur|Folder structure
+Ordnerstruktur gespeichert – gilt für neue Titel|Folder structure saved – applies to new tracks
+Original nehmen|Use original
+Original zusätzlich behalten|Also keep the original
+Original-Aufnahme (WAV) zusätzlich behalten|Also keep the original recording (WAV)
+Originaldatei nach dem Umwandeln löschen|Delete original file after converting
+Ozean|Ocean
+Papierkorb|recycle bin
+Pause|Pause
+Pausiert nach diesem Titel|Pauses after this track
+Pausiert – gerade wird nichts aufgenommen|Paused – nothing is being recorded right now
+Pausiert – nichts wird aufgenommen|Paused – nothing is being recorded
+Pegel|Level
+Pegel: Ton vom PC / Mikrofon|Level: PC sound / microphone
+Pfad kopieren|Copy path
+Platz sparen (ca. 2 MB pro Minute)|Save space (approx. 2 MB per minute)
+Platzhalter:|Placeholders:
+Player|Player
+Player öffnen|Open player
+Player: Leiste und Bedienung von selbst ausblenden|Player: hide bar and controls automatically
+Playlist (.m3u8) für Alben anlegen|Create playlist (.m3u8) for albums
+Playlist aus diesem Interpreten|Playlist from this artist
+Playlist hinzufügen|Add playlist
+Playlist ist leer.|Playlist is empty.
+Playlist suchen – z. B. „Schlager“, „80er“, „Disney“ …|Search playlists – e.g. “Disney”, “80s”, “Rock” …
+Playlist „|Playlist “
+Playlist …|Playlist …
+Playlist-Ordner|Playlist folder
+Playlists|Playlists
+Playlists erstellen|Create playlists
+Playlists erstellt|playlists created
+Playlists werden automatisch angepasst. Fortfahren?|Playlists are adjusted automatically. Continue?
+Podcast suchen – z. B. „Gemischtes Hack“, „Tagesschau“, „Fest & Flauschig“ …|Search podcasts – e.g. “The Daily”, “Radiolab”, “99% Invisible” …
+Podcast-Feed hinzufügen|Add podcast feed
+Pop, Rock, Schlager …|Pop, Rock, Country …
+Pro Album|Per album
+Pro Genre|Per genre
+Pro Interpret|Per artist
+Pro Jahrzehnt|Per decade
+Probleme melden|Report problems
+Protokoll öffnen|Open log
+Prüfe Encoder …|Checking encoders …
+Prüfe gerade …|Checking …
+Prüfen alle|Check every
+Prüfen fehlgeschlagen:|Check failed:
+Prüflesen (jeden Block doppelt lesen, Fehler wiederholen)|Verify reading (read every block twice, retry errors)
+Qualität|Quality
+Quelle|Source
+Quelle wählen|Choose a source
+Radio & Podcasts|Radio & Podcasts
+Radio hören|Listen to radio
+Radiosender …|Radio station …
+REC · Mikro fehlt|REC · no mic
+REC · Mikro sehr leise?|REC · mic very quiet?
+RSS-Adresse des Podcasts|Podcast RSS address
+RSS-Feed direkt hinzufügen|Add RSS feed directly
+Ruhig|Calm
+sagst. Ohne Mikrofon hört man in der Aufnahme nur die anderen, nicht dich. Lässt sich während der Aufnahme jederzeit ein- und ausschalten.|say. Without a microphone the recording only has the others, not you. Can be switched on and off at any time during recording.
+Sanft ein- und ausblenden|Fade in and out smoothly
+sanfter Übergang zum nächsten Titel|smooth transition to the next track
+Schallplatte|Vinyl
+Schallplatte, Kassette, Systemsound oder Mikrofon – mit Pegelanzeige, Auto-Start und automatischer Titeltrennung.|Vinyl, cassette, system sound or microphone – with level meter, auto start and automatic track splitting.
+Schlaf-Timer|Sleep timer
+Schlaf-Timer:|Sleep timer:
+Schließen|Close
+Schlüssel holen|Get key
+Schon vorhanden – übersprungen|Already there – skipped
+Schweiz|Switzerland
+Schwelle|Threshold
+Sender meldet noch den alten Titel|Station still reports the old title
+Sender mitschneiden|Record station
+Sender suchen – z. B. „1LIVE“, „Jazz“, „Bayern 3“ …|Search stations – e.g. “BBC Radio 1”, “Jazz”, “KEXP” …
+Senderverzeichnis nicht erreichbar – Internetverbindung prüfen.|Station directory not reachable – check your internet connection.
+Singen|Sing
+So wird aufgenommen|What gets recorded
+Sobald der Sender den Titel meldet, erscheint hier der Songtext (wenn vorhanden).|As soon as the station reports the title, the lyrics appear here (if available).
+Sofort anhören, ohne herunterzuladen|Listen right away without downloading
+Soll die Aufnahme vor dem Schließen gespeichert werden?|Should the recording be saved before closing?
+Song oder Interpret – z. B. „Atemlos“, „ABBA“, „Bon Jovi“ …|Song or artist – e.g. “Dancing Queen”, “ABBA”, “Bon Jovi” …
+SongGrabber liest das Inhaltsverzeichnis, berechnet die Disc-ID und holt Interpret, Album, Titel und Cover.|SongGrabber reads the table of contents, calculates the disc ID and fetches artist, album, titles and cover.
+SongGrabber pausiert – die Lichtshow folgt jetzt dem Ton vom PC|SongGrabber paused – the light show now follows the PC sound
+SongGrabber wurde aktualisiert – Version|SongGrabber has been updated – version
+SongGrabber.exe "datei.mp4"|SongGrabber.exe "file.mp4"
+Songliste|Song list
+Songliste (|Song list (
+Songliste dieses Videos – Klick auf einen Song springt dorthin|Song list of this video – click a song to jump there
+Songs|Songs
+Songs in der Warteschlange|songs in the queue
+Songs werden für unterwegs gespeichert …|Saving songs for offline use …
+Songtext|Lyrics
+Songtext angepasst – läuft ab hier mit|Lyrics adjusted – synced from here
+Songtext suchen & einbetten|Find & embed lyrics
+Songtexte & Musikerkennung|Lyrics & music recognition
+Songtexte automatisch einbetten|Embed lyrics automatically
+Songtexte werden gesucht – siehe Warteschlange|Searching lyrics – see queue
+Sonne oben|Sun top
+Sonne unten|Sun bottom
+Sonnenuntergang|Sunset
+Sortiert nach Erscheinungsjahr in 70er, 80er, 90er … – braucht das Jahr im Tag.|Sorted by release year into 70s, 80s, 90s … – needs the year in the tag.
+Spanien|Spain
+Speichern|Save
+Speichern & erkennen|Save & recognize
+Speichern & schließen|Save & close
+Speichern …|Saving …
+Speicherort & Dateinamen|Location & file names
+Speichert …|Saving …
+Spektrum|Spectrum
+Spiel etwas ab – der Songtext erscheint hier automatisch.|Play something – the lyrics appear here automatically.
+Spiel etwas ab …|Play something …
+spielt nichts|nothing playing
+Spotify, YouTube im Browser, Apple Music …|Spotify, YouTube in the browser, Apple Music …
+Spotify, YouTube im Browser, Spiele – die Lichtshow tanzt mit|Spotify, YouTube in the browser, games – the light show dances along
+Sprache|Language
+Sprache & Instrumente|Voice & instruments
+Sprache · Language|Language · Sprache
+Spulen (← →)|Seek (← →)
+Später|Later
+Start bei Signal|Start on signal
+starten)|)
+Startet ab jetzt mit dem Computer (minimiert)|Now starts with the computer (minimized)
+Steuert die App, die gerade Musik abspielt. Lautstärke regelst du in der App oder in Windows.|Controls the app that is currently playing music. Set the volume in the app or in Windows.
+Stille am Anfang/Ende entfernen|Remove silence at start/end
+Stimme|Voice
+Stimme + Musik als MP3|Voice + music as MP3
+Stimme +6 dB|Voice +6 dB
+Stimme / Hörbuch|Voice / audiobook
+Stimme lauter oder leiser als die Musik|Voice louder or quieter than the music
+Stopp|Stop
+Stopp & speichern|Stop & save
+Stopp nach Stille|Stop after silence
+Stream-Adresse kopieren|Copy stream address
+Strg+A|Ctrl+A
+Strg+C|Ctrl+C
+Strg+V|Ctrl+V
+Strg+X|Ctrl+X
+Stumm|Mute
+stumm|muted
+Stumm (M)|Mute (M)
+Suchbegriff eingeben und Enter drücken.|Enter a search term and press Enter.
+Suche Album, Genre & Cover …|Looking up album, genre & cover …
+Suche Bildschirme und Fenster …|Looking for screens and windows …
+Suche Eingänge …|Looking for inputs …
+Suche fehlgeschlagen – Internetverbindung und yt-dlp prüfen.|Search failed – check your internet connection and yt-dlp.
+Suche Karaoke-Versionen von „|Searching karaoke versions of “
+Suche Laufwerke …|Looking for drives …
+Suche nicht möglich – die Live-Version wird verwendet.|Search not possible – using the live version.
+Suche Pausen zwischen den Titeln …|Looking for pauses between tracks …
+Suche Playlists …|Searching playlists …
+Suche Songtext …|Looking for lyrics …
+Suche Stille, Rauschen, Applaus und Ausblendungen …|Looking for silence, noise, applause and fade-outs …
+Suche Studioaufnahme und offizielles Video …|Looking for studio recording and official video …
+Suche …|Searching …
+Suchen|Search
+Suchen nach Titel, Interpret, Album, Genre …|Search by title, artist, album, genre …
+Suchergebnisse|Search results
+sucht Studioaufnahme bzw. offizielles Video|looks for the studio recording or official video
+Synthwave-Landschaft|Synthwave landscape
+Systemsound|System sound
+Systemsound nicht erreichbar:|System sound not reachable:
+Tagen|days
+Tags|Tags
+Tags bearbeiten|Edit tags
+Tags bearbeiten …|Edit tags …
+Tags von|Tags of
+Test-CD erzeugen und ausprobieren|Create a test CD and try it out
+Test-CD wird erzeugt …|Creating test CD …
+Text kommt zu früh → später anzeigen|Lyrics too early → show later
+Text kommt zu spät → früher anzeigen|Lyrics too late → show earlier
+Thema oder Interpret – z. B. „Love Rock“, „Schlager Party“, „80er“ …|Topic or artist – e.g. “Love Rock”, “Party”, “80s” …
+Tipp: Mit Kopfhörer oder Headset klingt die Aufnahme am besten.|Tip: the recording sounds best with headphones or a headset.
+Tipp: Nur den Songtitel eingeben – „Karaoke“ hängt SongGrabber selbst an. Karaoke-Kanäle wie Sing King oder KaraFun kommen zuerst.|Tip: just type the song title – SongGrabber adds “karaoke” itself. Karaoke channels like Sing King or KaraFun come first.
+Titel|Title
+Titel abspielen|Play track
+Titel als Nächstes|tracks next
+Titel angehängt|tracks appended
+Titel angezeigt|tracks shown
+Titel aus dem CD-Text übernommen|Titles taken from CD-Text
+Titel durchnummerieren|Number tracks
+Titel erkennen|Recognize tracks
+Titel erkennen (Fingerabdruck)|Recognize track (fingerprint)
+Titel gespeichert|tracks saved
+Titel herunterladen & umwandeln|Download & convert tracks
+Titel hinzufügen|Add tracks
+Titel löschen …|Delete tracks …
+Titel löschen?|Delete tracks?
+Titel trennen, Auto-Stopp|Split tracks, auto stop
+Titel werden abgespielt|tracks are playing
+Titel werden ergänzt – läuft in der Warteschlange|Tracks are being completed – running in the queue
+Titel werden erkannt – siehe Warteschlange|Recognizing tracks – see queue
+Titel werden gerippt|tracks are being ripped
+Titel ·|tracks ·
+Titel-Anzeige ist auf diesem PC nicht verfügbar – Steuerung über Medientasten|Title display isn't available on this PC – control via media keys
+Titel-Nr.|Track no.
+Titel-Nr. (z. B. 3/12)|Track no. (e.g. 3/12)
+Titeln|tracks
+Titeln bearbeiten|tracks edit
+Titeln bearbeiten …|tracks edit …
+Titeln ·|tracks ·
+Ton läuft ✓|Sound playing ✓
+Ton und Bild werden zusammengefügt – gleich geschafft.|Merging sound and picture – almost done.
+Ton vom PC|PC sound
+Ton vom PC – nein|PC sound – no
+Ton vom PC: aus|PC sound: off
+Tonspur|Audio track
+Trackinfos & Cover von MusicBrainz|Track info & cover from MusicBrainz
+Türkei|Turkey
+Umwandeln|Convert
+Unbekannt|Unknown
+unbekannt|unknown
+unbekannter Fehler|unknown error
+Unbekannter Fehler.|Unknown error.
+und|and
+Unten links: MP3, WAV oder FLAC. Album, Genre und Cover kommen automatisch.|Bottom left: MP3, WAV or FLAC. Album, genre and cover come automatically.
+Unter Datenschutz ist „Desktop-Apps Zugriff auf das Mikrofon erlauben“ ausgeschaltet – deshalb kommt kein Ton an.|Under Privacy, “Let desktop apps access your microphone” is turned off – that's why no sound comes through.
+Unter Datenschutz ist „Desktop-Apps Zugriff auf das Mikrofon erlauben“ ausgeschaltet – deshalb kommt kein Ton an. Nach dem Einschalten SongGrabber neu starten.|Under Privacy, “Let desktop apps access your microphone” is turned off – that's why no sound comes through. Restart SongGrabber after turning it on.
+Unter Wayland erlaubt Linux Bildschirmaufnahmen nur über eigene Freigabe-Dialoge.|Under Wayland, Linux only allows screen recording through its own sharing dialogs.
+Unter „Dateien & DVD“ hinzugefügt.|Added under “Files & DVD”.
+unverändert|unchanged
+Unverändert kopieren|Copy unchanged
+Unverändert kopieren (schnell)|Copy unchanged (fast)
+Update-Prüfung fehlgeschlagen.|Update check failed.
+verfügbar|available
+Verläufe, Kreis, Knöpfe|Gradients, circle, buttons
+verschoben und lassen sich von dort wiederherstellen. Playlists überspringen gelöschte Titel automatisch.|and can be restored from there. Playlists skip deleted tracks automatically.
+Verstanden|Got it
+Verwerfen|Discard
+Verwerfen & schließen|Discard & close
+Veröffentlichung|Release
+Video konnte nicht erstellt werden.|The video could not be created.
+Video lässt sich nicht laden – Internetverbindung prüfen. Weiter mit dem nächsten Song …|Video can't be loaded – check your internet connection. Continuing with the next song …
+Video nicht abspielbar|Video can't be played
+Video wird fertiggestellt …|Finishing video …
+Video wird geladen …|Loading video …
+Video wird gesucht …|Searching video …
+Video-Vorschaubilder quadratisch zuschneiden|Crop video thumbnails to square
+Volksmusik|Folk music
+Vollbild|Fullscreen
+Vollbild (F11)|Fullscreen (F11)
+Vollbild aus|Exit fullscreen
+Vom Mikrofon kam nichts an – richtiges Mikro unter „Bildschirm“ wählen.|Nothing came from the microphone – choose the right mic under “Screen”.
+von|of
+von lrclib.net – mitlaufend, wenn verfügbar|from lrclib.net – synced, if available
+vor 1 Tag|1 day ago
+Vorhandene Dateien jetzt so ordnen|Reorganize existing files now
+Vorhandene Titel überspringen|Skip existing tracks
+Vorschau|Preview
+Vorschlag|Suggestion
+Warteschlange|Queue
+Warteschlange & Songtext herunterrollen (Q)|Roll down queue & lyrics (Q)
+Warteschlange als Playlist speichern|Save queue as playlist
+Warteschlange ist leer – das war's! 🎤|Queue is empty – that's it! 🎤
+Warteschlange leeren|Clear queue
+Warteschlange leeren?|Clear queue?
+Warteschlange · Songtext|Queue · Lyrics
+wartet|waiting
+Wartet auf Signal …|Waiting for signal …
+wartet, bis die Nadel aufsetzt|waits until the needle drops
+Was|What
+Was die anderen im Meeting sagen, Videos, Musik – alles, was aus deinen Lautsprechern oder Kopfhörern kommt.|What the others say in the meeting, videos, music – everything that comes out of your speakers or headphones.
+Was soll aufgenommen werden?|What should be recorded?
+Was soll die Lichtshow zeigen?|What should the light show show?
+Webseite des Senders|Station website
+Wechseldatenträger|Removable drive
+Weiter|Next
+Weiter (N)|Next (N)
+Weiter aufnehmen|Continue recording
+weitere|more
+weiterer Bildschirm|other screen
+Welcher Ton soll mit drauf?|Which sound should be included?
+Welle|Wave
+Wellen für Bass, Mitten und Höhen|Waves for bass, mids and highs
+Wenn ein Link nicht mehr funktioniert, hilft meist „Aktualisieren“ – Webseiten ändern sich häufig.|If a link stops working, “Update” usually helps – websites change often.
+Wer singt?|Who's singing?
+werden abgespielt|are playing
+Werkzeuge|Tools
+wie Album|like album
+Wiedergabe beenden|Stop playback
+Wiedergabeliste|Playlist
+Wiederholen: alle (R)|Repeat: all (R)
+Wiederholen: alle Titel|Repeat: all tracks
+Wiederholen: aus|Repeat: off
+Wiederholen: aus (R)|Repeat: off (R)
+Wiederholen: diesen Titel|Repeat: this track
+Wiederholen: diesen Titel (R)|Repeat: this track (R)
+Willkommen bei SongGrabber|Welcome to SongGrabber
+Windows blockiert den Mikrofonzugriff|Windows is blocking microphone access
+Windows blockiert den Mikrofonzugriff für Desktop-Programme. Einstellung öffnen, Zugriff erlauben, Aufnahme neu starten.|Windows is blocking microphone access for desktop programs. Open the setting, allow access, restart the recording.
+Windows-Einstellung öffnen|Open Windows setting
+Wird abgespielt – ohne Download|Playing – without download
+Wird als MP4-Video gespeichert in:|Saved as MP4 video in:
+wird aufgenommen|is recorded
+Wird automatisch gespeichert.|Saved automatically.
+wird automatisch gesucht|is searched automatically
+Wird für unterwegs gespeichert …|Saving for offline use …
+wird je Titel automatisch gesucht|is searched automatically for each track
+wird nicht aufgenommen|is not recorded
+Wird umgewandelt und landet danach in der Bibliothek – unten auf „Umwandeln“ klicken.|Will be converted and then added to the library – click “Convert” below.
+wird unter „Links & Streams“ geöffnet|opens under “Links & Streams”
+Wirklich verwerfen? Nochmal klicken|Really discard? Click again
+Wähle, worin der Bereich liegt – dann ziehst du ein Rechteck darum, z. B. nur um das Video in Zoom, Teams oder YouTube.|Choose where the area is – then drag a rectangle around it, e.g. just the video in Zoom, Teams or YouTube.
+Wählen|Choose
+Während der Aufnahme nur eine kleine Leiste zeigen|Show only a small bar while recording
+YouTube-, SoundCloud-, Bandcamp-Link …|YouTube, SoundCloud, Bandcamp link …
+yt-dlp wurde nicht gefunden (bin\yt-dlp.exe).|yt-dlp was not found (bin\yt-dlp.exe).
+z. B. Handy-Ordner, Netzwerk|e.g. phone folder, network
+z. B. Radio Bremen 1|e.g. BBC Radio 1
+Zeile anklicken, die gerade gesungen wird|Click the line that is being sung right now
+Zeitraum (Tage)|Period (days)
+Ziehe mit der Maus ein Rechteck um das, was aufgenommen werden soll – z. B. nur das Video. An den Ecken ziehen ändert die Größe, in der Mitte ziehen verschiebt.|Drag a rectangle with the mouse around what should be recorded – e.g. just the video. Drag the corners to resize, drag the middle to move.
+Ziehen zum Anpassen · Doppelklick setzt ein Band auf 0 dB|Drag to adjust · double-click sets a band to 0 dB
+Ziel|Target
+Zielordner|Output folder
+Zielordner nicht erreichbar:|Output folder not reachable:
+Zielordner ändern (oder Ordner hierher ziehen)|Change output folder (or drag a folder here)
+Zielordner öffnen|Open output folder
+Zoom, Teams, Webinar oder Live-Coaching als Video speichern – mit dem Ton vom PC und auf Wunsch mit deinem Mikrofon.|Save Zoom, Teams, webinars or live coaching as video – with the PC's sound and, if you like, your microphone.
+Zu Favoriten|Add to favorites
+Zufallsmix|Random mix
+Zufällig|Random
+Zufällig abspielen|Shuffle
+Zufällige Auswahl – optional auf ein Genre oder einen Interpreten beschränkt.|Random selection – optionally limited to a genre or an artist.
+Zufällige Reihenfolge|Shuffle
+Zufällige Reihenfolge (S)|Shuffle (S)
+Zufällige Reihenfolge an|Shuffle on
+Zufällige Reihenfolge aus|Shuffle off
+Zufällige, passende Farben|Random matching colors
+Zuletzt gehört|Recently played
+zum Nachhören unterwegs|to listen to on the go
+Zur Bibliothek|Go to library
+zur Warteschlange hinzugefügt|added to the queue
+Zurück|Back
+Zurück (P)|Previous (P)
+Zurück zum Anfang des Songs|Back to the start of the song
+Zurück zum großen Fenster (oder Doppelklick)|Back to the big window (or double-click)
+Zurück zum vorigen Song im Video|Back to the previous song in the video
+Zurücksetzen|Reset
+Zusammenfügen fehlgeschlagen:|Merging failed:
+Zusätzlich .lrc-Datei speichern|Also save a .lrc file
+Zusätzlich nur den Ton als MP3|Also save the sound as MP3
+Zweite Farbe|Second color
+Zwischenablage ist leer.|Clipboard is empty.
+· bitte Ziel wählen|· please choose a target
+· mit Cover|· with cover
+· „/“ erzeugt Unterordner|· “/” creates subfolders
+Ältere Versionen:|Older versions:
+Ändert alles auf einmal: Himmel, Sonne, Gitter und Leuchten bleiben aufeinander abgestimmt.|Changes everything at once: sky, sun, grid and glow stay matched.
+Öffnen|Open
+öffnet die Hilfe passend zur aktuellen Seite.|opens the help for the current page.
+Österreich|Austria
+Über|About
+über|over
+Über 30.000 Internetradios weltweit und alle großen Podcasts – mit Lichtshow, Equalizer, Songtext und Mitschnitt.|Over 30,000 internet radio stations worldwide and all the big podcasts – with light show, equalizer, lyrics and recording.
+Über dieses Ausgabegerät läuft gerade kein Ton|No sound is currently playing through this output device
+Über „Hinzufügen“ oder per Rechtsklick in der Bibliothek füllen.|Fill it via “Add” or by right-clicking in the library.
+Überblenden|Crossfade
+Überblenden aus|Crossfade off
+Übergabe(n) vom anderen Programm angenommen|hand-over(s) accepted from the other program
+Übergabe-Ordner|Hand-over folder
+Übergabe-Ordner überwachen|Watch hand-over folder
+Übernehmen|Use
+Übertragen|Transfer
+Übertragung läuft – siehe Warteschlange|Transfer running – see queue
+– bitte anhören, bevor du kürzt.|– please listen before trimming.
+– bitte stoppen und neu starten.|– please stop and start again.
+– das sieht nach einem kompletten Album aus|– this looks like a complete album
+– Einstellungen, Bibliothek und Musik bleiben erhalten.|– settings, library and music are kept.
+– ich suche die Originalversion …|– looking for the original version …
+– kein Original gefunden, die Live-Version wird verwendet.|– no original found, using the live version.
+– möchtest du lieber das Original?|– would you prefer the original?
+“ aus den Favoriten nehmen?|” from favorites?
+“ gespeichert|” saved
+“ in den Favoriten|” in favorites
+“ löschen? (Die Musikdateien bleiben erhalten.)|”? (The music files are kept.)
+“ sind alle Fassungen markiert – mindestens eine muss bleiben.|” all versions are selected – at least one must stay.
+“ wird im Hintergrund aufgenommen und danach im eingestellten Format gespeichert – auch wenn du weiterhörst oder den Sender wechselst.|” is recorded in the background and then saved in the selected format – even if you keep listening or switch stations.
+“ wurde kein Songtext gefunden.|” no lyrics were found.
+„Schlüssel holen“ öffnet acoustid.org – dort mit Google/GitHub o. ä. anmelden.|“Get key” opens acoustid.org – sign in there with Google/GitHub or similar.
+… und|… and
+‹verschiedene Werte – bleiben erhalten›|‹different values – kept›
+← zurück zu den Playlists|← back to playlists
+★ Favorit – wird für unterwegs gespeichert (Karaoke-Ordner).|★ Favorite – saved for offline use (Karaoke folder).
+★ Favoriten|★ Favorites
+✓ Gefunden|✓ Found
+✓ Musikdaten gefunden|✓ Music data found
+✓ offline|✓ offline
+🎙 Mitschnitt gespeichert:|🎙 Recording saved:
+🎤 Aufnahme gespeichert:|🎤 Recording saved:
+🔴 Beim Singen aufnehmen|🔴 Record while singing
+Album-Interpret|Album artist
+Interpret/Singles/|Artist/Singles/
+Rolling in the Deep|Rolling in the Deep

@@ -627,7 +627,9 @@
 
     <!-- ---------- Einstellungen ---------- -->
     <section class="page" id="page-settings">
-      <header class="page-head"><div><h1>Einstellungen</h1><p>Wird automatisch gespeichert.</p></div></header>
+      <header class="page-head"><div><h1>Einstellungen</h1><p>Wird automatisch gespeichert.</p></div>
+        <div class="head-actions"><label class="lang-pick" title="Sprache · Language"><svg><use href="#i-globe"/></svg><span>Sprache</span><select id="setLang" data-noi18n>
+          <option value="auto">Automatisch · Auto</option><option value="de">Deutsch</option><option value="en">English</option></select></label></div></header>
       <div class="settings">
         <div class="card">
           <h4>Speicherort &amp; Dateinamen</h4>
@@ -902,7 +904,8 @@
   <em>Dateien &amp; DVD</em> → umwandeln (auch Ordner und DVD-Ordner) · <em>Player</em> → abspielen bzw. anhängen (Musik, Ordner, Playlists, YouTube-Links) · <em>Audio-CD</em> → .cue-Abbild einlesen · <em>Links &amp; Streams</em> → Link öffnen (auch .url- und .txt-Dateien mit Links) · <em>Abos</em> → Kanal-Link übernehmen · <em>Bibliothek</em> → umwandeln und einsortieren.
   Bilder lassen sich auf ein <b>Cover</b> ziehen (CD, Tags bearbeiten), Ordner auf die Ordner-Felder in den <em>Einstellungen</em> und auf den Zielordner unten rechts. Überall sonst landen Audio und Video unter <em>Dateien &amp; DVD</em>.</li>
 <li><b>Anhören</b>: Fertige Titel landen in der <em>Bibliothek</em>. Ein Doppelklick spielt sie im <em>Player</em> ab, mit Lichtshow, Equalizer und Songtext.</li></ol>
-<p>Gespeichert wird im <b>Zielordner</b> (unten rechts) als <code>Interpret / Album / 01 - Titel.mp3</code>. Die Hilfe öffnest du jederzeit mit <kbd>F1</kbd> oder dem <b>?</b> neben jeder Überschrift; sie springt dann direkt zum passenden Abschnitt.</p></article>
+<p>Gespeichert wird im <b>Zielordner</b> (unten rechts) als <code>Interpret / Album / 01 - Titel.mp3</code>. Die Hilfe öffnest du jederzeit mit <kbd>F1</kbd> oder dem <b>?</b> neben jeder Überschrift; sie springt dann direkt zum passenden Abschnitt.</p>
+<p><b>Sprache</b>: SongGrabber richtet sich nach der Sprache von Windows. Unter <em>Einstellungen → Sprache</em> kannst du jederzeit zwischen <em>Deutsch</em> und <em>English</em> wechseln.</p></article>
 
 <article id="h-output"><h2>Format, Qualität &amp; Zielordner (untere Leiste)</h2>
 <ul><li><b>MP3 / WAV / FLAC</b> wählt das Format, das Feld daneben die Qualität. Die Einstellung gilt für alle neuen Aufträge.</li>
@@ -1044,6 +1047,7 @@
 <article id="h-settings"><h2>Einstellungen: was jeder Schalter bewirkt</h2>
 <p>Alles wird sofort gespeichert.</p>
 <dl class="keys">
+<dt data-help-key="lang">Sprache (Language)</dt><dd><em>Automatisch</em> nimmt die Sprache von Windows (Deutsch oder Englisch). <em>Deutsch</em> bzw. <em>English</em> schaltet sofort um, ohne Neustart.</dd>
 <dt data-help-key="output_dir">Zielordner</dt><dd>Wohin die Musik gespeichert wird.</dd>
 <dt data-help-key="name_single name_album">Ordnerstruktur, Einzeltitel, Alben &amp; CDs</dt><dd>Wie Ordner und Dateien heißen. Empfohlen: <em>Interpret / Album / 01 - Titel</em>. Eigene Vorlagen gehen mit Platzhaltern wie <code>{artist}</code>, <code>{title}</code>, <code>{album}</code>, <code>{track:02}</code>; „/“ erzeugt Unterordner. Die Vorschau zeigt das Ergebnis. <em>Vorhandene Dateien jetzt so ordnen</em> sortiert bestehende Titel um und passt Playlists an.</dd>
 <dt data-help-key="live_check">Bei Live-Auftritten nach dem Original fragen</dt><dd>Schlägt bei Konzertvideos die Studioversion vor.</dd>
@@ -1237,6 +1241,238 @@
   <div class="mi-prog"><i id="miProg"></i></div>
 </div>
 <div class="toasts" id="toasts"></div>
+<template id="helpEn">
+<article id="h-start"><h2>First steps</h2>
+<ol class="steps"><li><b>Choose a format</b>: bottom left, <em>MP3</em> (small, plays everywhere), <em>WAV</em> (uncompressed) or <em>FLAC</em> (lossless, smaller than WAV). <em>MP3 · VBR V0</em> is enough for almost everything.</li>
+<li><b>Choose a source</b>: in the bar on the left, <em>Links &amp; Streams</em>, <em>Audio CD</em>, <em>Recording</em> or <em>Files &amp; DVD</em>.</li>
+<li><b>Start</b>: the job goes into the <em>Queue</em> and runs in the background. You can keep working right away.</li>
+<li><b>Drag &amp; drop</b>: you can drag files, folders and links from Explorer or the browser into the window. A hint shows what happens when you drop:
+  <em>Files &amp; DVD</em> → convert (also folders and DVD folders) · <em>Player</em> → play or append (music, folders, playlists, YouTube links) · <em>Audio CD</em> → read a .cue image · <em>Links &amp; Streams</em> → open the link (also .url and .txt files with links) · <em>Subscriptions</em> → use a channel link · <em>Library</em> → convert and sort in.
+  Images can be dropped onto a <b>cover</b> (CD, edit tags), folders onto the folder fields in <em>Settings</em> and onto the output folder bottom right. Everywhere else, audio and video go to <em>Files &amp; DVD</em>.</li>
+<li><b>Listen</b>: finished tracks end up in the <em>Library</em>. A double-click plays them in the <em>Player</em>, with light show, equalizer and lyrics.</li></ol>
+<p>Files are saved in the <b>output folder</b> (bottom right) as <code>Artist / Album / 01 - Title.mp3</code>. Open the help at any time with <kbd>F1</kbd> or the <b>?</b> next to every heading; it jumps straight to the matching section.</p>
+<p><b>Language</b>: SongGrabber uses the language of Windows. You can switch between <em>Deutsch</em> and <em>English</em> at any time under <em>Settings → Language</em>.</p></article>
+
+<article id="h-output"><h2>Format, quality &amp; output folder (bottom bar)</h2>
+<ul><li><b>MP3 / WAV / FLAC</b> chooses the format, the field next to it the quality. The setting applies to all new jobs.</li>
+<li><b>Volume</b>: <em>unchanged</em> leaves the track as it is. <em>Normalize to -1 dB</em> raises quiet tracks without changing the sound. <em>Match loudness (-14 LUFS)</em> makes all tracks sound equally loud, ideal for mixed playlists.</li>
+<li><b>Folder icon</b>: change the output folder (or drag a folder onto it). The <b>▷</b> next to it opens it in Explorer.</li>
+<li><b>Location during setup</b>: the installer asks where your music should go. The suggestion is <em>Music\SongGrabber</em>. A second drive works well for an archive, e.g. <code>D:\Music</code>. On an update the installer suggests your current folder and changes nothing if you simply click <em>Next</em>.</li></ul>
+<table class="fmt"><tr><th>Format</th><th>For</th><th>Size per minute</th></tr>
+<tr><td>MP3 VBR V0</td><td>everyday, phone, car: hardly distinguishable from the CD</td><td>≈ 1.8 MB</td></tr>
+<tr><td>MP3 320 kbps</td><td>maximum MP3 quality</td><td>≈ 2.4 MB</td></tr>
+<tr><td>MP3 128–192 kbps</td><td>little storage, audiobooks</td><td>≈ 1–1.4 MB</td></tr>
+<tr><td>FLAC 16/24 bit</td><td>archive, lossless</td><td>≈ 5–7 MB</td></tr>
+<tr><td>WAV</td><td>editing in an audio program</td><td>≈ 10 MB</td></tr></table></article>
+
+<article id="h-links"><h2>Links &amp; Streams</h2>
+<ul><li><b>Getting a link</b>: if you copy a link from YouTube, SoundCloud, Bandcamp &amp; co., SongGrabber offers it when you switch to the window (<em>Use</em>). Alternatively use <em>Paste</em>, <b>right-click the field</b> (Paste &amp; analyze, Copy, Open in browser, Clear field) or drag the link from the browser's address bar into the window.</li>
+<li><b>Analyze</b> shows artist and title and automatically looks up album, genre, year, track number and the real album cover. All fields can be changed before downloading. <em>Download &amp; convert</em> starts the job.</li>
+<li><b>Play without downloading</b>: <em>Play</em> plays the track (or the ticked tracks of a playlist) right away in the player, with light show, equalizer and lyrics, without saving anything. If you like it, download it later by right-clicking it in the queue → <em>Download</em>.</li>
+<li><b>Live performances</b> are detected. SongGrabber then suggests the studio recording or the official video: <em>Use original</em> switches to it, <em>Keep live version</em> stays with the concert and marks the track as “(Live)”.</li>
+<li><b>Complete albums</b> (videos with chapters, e.g. “Full Album”): with <em>Split</em> every chapter becomes its own numbered track with album and cover. Track names can be changed in the list.</li>
+<li><b>Playlists</b>: tick tracks (<em>Select all</em>) and download. <em>Tag as album</em> numbers the tracks. SongGrabber then creates a playlist automatically.</li>
+<li><b>Internet radio / live streams</b>: <em>Record live</em>, optionally with name and duration in minutes (0 = until you stop). A red bar shows the running recording, <em>Stop recording</em> saves it.</li></ul>
+<p class="note">A link no longer loads? <em>Settings → Tools → update yt-dlp</em>. Websites change often.</p></article>
+
+<article id="h-cd"><h2>Audio CD</h2>
+<ul><li>Insert a CD, choose the drive, <b>Read CD</b>. Artist, album, titles and cover come from MusicBrainz. If the CD is unknown there, SongGrabber uses the CD-Text, if available.</li>
+<li>If there are several editions (countries, reissues), pick the right one under <em>Release</em>.</li>
+<li>Titles and artists can be edited directly in the list. <em>Album artist for all tracks</em> fills the artist column. A <b>click on the cover</b> sets your own image; you can also drop an image onto it. A <code>.cue</code> image can simply be dragged onto the page.</li>
+<li>Tick or untick tracks, then <em>Rip selected tracks</em>. At the bottom you see the total duration and approximate size.</li>
+<li><b>Eject</b> opens the drive. The arrow button searches for drives again.</li>
+<li><b>Verify reading</b> (Settings) reads every block twice and retries on scratches. It's slower but safe. At the end SongGrabber reports whether read errors were corrected.</li>
+<li><b>Without a CD drive</b>: <em>Open CD image</em> reads CUE images (with BIN, WAV, FLAC or MP3) just like an inserted CD. <em>Create test CD</em> creates a sample CD to try things out.</li></ul>
+<p class="note">Copy-protected CDs (“Copy Controlled”) must not be circumvented in many countries, including Germany, and are not supported.</p></article>
+
+<article id="h-karaoke"><h2>Karaoke</h2>
+<p>Sing karaoke videos from YouTube – <b>without ads</b>, because SongGrabber only fetches picture and sound and doesn't load the YouTube player.</p>
+<ul><li><b>Songs</b>: enter a title or artist, e.g. “Dancing Queen”. SongGrabber adds “karaoke” itself; karaoke channels like Sing King or KaraFun come first, normal music videos without lyrics are filtered out. Click the picture or <em>Sing</em> to start right away.</li>
+<li><b>Playlists</b>: ready-made lists to get going (party hits, Schlager, 80s, Disney, children's songs …) or your own search. <em>Add all to queue</em> adds the whole list.</li>
+<li><b>Who's singing?</b>: enter a name – new songs are added to the queue under this name. At the start “Now singing: …” is shown, shortly before the end “Up next: …”. After the song it continues automatically.</li>
+<li><b>★ Favorites &amp; offline</b>: a click on the star remembers the song and saves the video (up to 720p) in the music folder under <code>Karaoke</code>. Saved favorites also play <b>without internet</b> – handy when camping or at a garden party. <em>Make all available offline</em> downloads all missing ones at once; the progress is shown on the picture and in the queue.</li>
+<li><b>Fullscreen</b>: button, double-click on the video or <kbd>F11</kbd>; <kbd>Esc</kbd> exits. In fullscreen the mouse pointer and control bar disappear after a short while and come back when you move the mouse.</li>
+<li><b>Best-of &amp; mixes</b>: top left, switch from “Single songs” to <em>Best-of &amp; mixes</em>, then search e.g. “Love Rock” – you get long videos (often 1 hour) with many songs. If the video has a song list, the timeline shows small marks at every song change, the <em>Song list</em> button lists all songs to click, and <em>⏭</em> or <kbd>N</kbd> jumps to the next song <b>within</b> the video (⏮ back). Only after the last song does it continue with the next entry in the queue.</li>
+<li><b>Record me</b>: on the right, turn on <em>🔴 Record while singing</em> – every song is then saved with music and your voice as MP3 (music folder → <code>Karaoke-Aufnahmen</code>, with name and title), optionally also as video (MP4). Or click the red record button during the song. “REC” with the microphone level then appears at the top left of the video. Afterwards the recordings appear on the right: <em>Play</em>, make the voice louder/quieter afterwards, show in folder or delete. The microphone is the one chosen under “Screen” (otherwise the default microphone). It sounds best with headphones; through speakers the mic also picks up the music in the room. If you pause or seek during the recording, you only get the MP3, no video.</li>
+<li><b>Timeline &amp; keys</b>: the bar shows how long the song has left and can be dragged. <kbd>Space</kbd> pause, <kbd>←</kbd>/<kbd>→</kbd> seek 5 seconds, <kbd>↑</kbd>/<kbd>↓</kbd> louder/quieter, <kbd>N</kbd> next song (in best-of videos: next song within the video). With the mouse use ⏮ / ⏭ below the video. The volume is remembered.</li>
+<li>While karaoke is running, the music in the player is paused.</li></ul></article>
+
+<article id="h-screen"><h2>Record screen (Zoom, Teams, coaching)</h2>
+<p>Saves a meeting, webinar or live coaching as an <b>MP4 video with sound</b> – in your music folder under <code>Bildschirmaufnahmen</code>.</p>
+<ol><li><b>What should be recorded?</b> <em>Whole screen</em> records everything visible there (including notifications and other windows). <em>A window / program</em> records only e.g. the Zoom or Teams window – it may be moved but not minimized. On the right you see a <b>preview</b>. If a program is missing from the list: start it first, then <em>Search again</em>.</li>
+<li><b>Draw an area</b>: records only a part – e.g. just the video on YouTube, just the participants in Zoom/Teams or just the slides of a webinar. First choose where the area is (screen or window), then drag a rectangle with the mouse; corners resize, the middle moves. If the area is inside a window, it moves along when you move the window. With “Whole screen” and “A window” you can do the same via <em>Record only an area</em> below the preview.</li>
+<li><b>Which sound should be included?</b> <em>PC sound</em> = what the others say, videos, music. <em>My microphone</em> = what you say. Each one clearly says <b>“is recorded”</b> or <b>“is not recorded”</b>, and the bar shows whether sound is coming in. Without a microphone the recording only has the others.</li>
+<li><b>Quality</b>: <em>Normal</em> and 30 fps almost always fit; for long meetings <em>Save space</em> with 15 fps saves a lot of storage. <em>Also save the sound as MP3</em> puts an audio file next to it.</li></ol>
+<ul><li><b>Microphone on/off while recording</b>: during the recording the <em>Mic on / Mic off</em> button (or the microphone icon in the small bar) turns your microphone on or off at any time – e.g. just briefly on to say something. When it's off, the microphone is really closed; when turning on, the button briefly shows yellow “turning on …” until sound arrives.</li>
+<li>Under <b>What gets recorded</b> you see once more in plain words what goes into the video before you start.</li>
+<li>During recording: <b>Pause</b> (the paused part is missing from the video), <b>Stop</b> saves, <b>Discard</b> deletes everything. If <em>Show only a small bar while recording</em> is on (default), SongGrabber turns into a slim bar at the top right with clock, level, pause and stop after starting – handy on a laptop with just one screen. On Windows 10/11 this bar is <b>not visible in the video</b>. The arrow button brings back the big window. SongGrabber may also be fully minimized; the red dot in the sidebar shows that it's recording. When closing, SongGrabber asks whether to save.</li>
+<li><b>Afterwards</b>: <em>Play</em> shows the video right inside SongGrabber (double-click = fullscreen); <em>Open with another program</em> uses e.g. VLC. The file name comes from the window title – without emojis, special characters and browser names, so it also works on a NAS and other devices.</li>
+<li><b>Consent</b>: please only record if everyone involved agrees – best to ask briefly at the start.</li>
+<li><b>Linux</b>: works in an Xorg session (choose “… on Xorg” when logging in). Under Wayland, Linux doesn't allow other programs to record the screen.</li></ul></article>
+
+<article id="h-rec"><h2>Recording (vinyl, cassette, system sound, microphone)</h2>
+<ul><li><b>Connecting</b>: turntable or cassette deck to <em>Line-In</em>. Turntables without a built-in preamp need a phono preamp.</li>
+<li><b>Which input is the right one?</b> On the right under <em>Inputs</em> all levels run live. Speak or play something: the active input glows green (“Signal ✓”), a click selects it. <em>muted</em> means the device delivers nothing at all (muted, not connected or blocked by Windows). <em>not available</em> means another program is using it.</li>
+<li><b>System sound</b> records everything the PC plays. The output devices (🔊) are also listed under <em>Inputs</em>: the device sound is currently playing through (e.g. your headset) shows “Sound playing ✓”. That's the one to choose.</li>
+<li><b>Choose the type</b>: <em>Vinyl</em>, <em>Cassette</em>, <em>System sound</em> or <em>Microphone</em> sets the automatic options to match.</li>
+<li><b>Level</b>: set the slider so that the loud parts stay in the yellow area (-6 to -3 dB). If <em>CLIP</em> appears, lower the level.</li>
+<li><b>Automatic</b>: <em>Start on signal</em> waits until the needle drops. <em>Split into tracks automatically</em> cuts at pauses of the set length. <em>Stop after silence</em> stops at the end of the side. <em>Remove clicks &amp; rumble</em> filters record noise. <em>Threshold</em> sets what counts as silence; with background noise choose a higher value.</li>
+<li><b>Recording quality</b>: 44.1 kHz/16 bit (CD), 48 kHz/24 bit (default) or 96 kHz/24 bit (hi-res). The output follows the format bottom left.</li>
+<li><b>Controls</b>: the red button starts, <em>Pause</em> pauses, <em>Stop</em> saves, <em>Discard recording</em> deletes everything. What you enter under <em>Tags</em> (artist, album, year, genre) is used for the files.</li>
+<li><b>Recognize automatically</b>: with a free AcoustID key (Settings) SongGrabber identifies artist, title and album of every song after splitting, using an audio fingerprint.</li></ul></article>
+
+<article id="h-files"><h2>Files &amp; DVD</h2>
+<ul><li>Add <b>files</b> or whole <b>folders</b>. From videos (MP4, MKV, WEBM, MOV, AVI …) only the sound is taken.</li>
+<li>Artist and title can be changed in the list. With several audio tracks (e.g. languages) choose the one you want. The <b>×</b> removes an entry, <em>Clear list</em> removes all.</li>
+<li><b>DVD</b>: choose or drag in the DVD's <code>VIDEO_TS</code> folder. Every movie title appears as its own entry.</li>
+<li><b>Drag in</b>: simply drag files and folders from Explorer onto this page.</li>
+<li><em>Convert all</em> starts the jobs.</li>
+<li>It's faster in Windows Explorer: right-click files → <b>Convert with SongGrabber</b> (selectable during setup).</li></ul></article>
+
+<article id="h-library"><h2>Library</h2>
+<ul><li>Shows all tracks in the output folder. <b>Search</b> finds by title, artist, album, genre or year. A click on a <b>column header</b> sorts. <em>by artist / album / genre / decade</em> groups, with <em>Play</em> per group.</li>
+<li><b>Double-click</b> or ▶ plays. Tick tracks and use <em>Play selection</em>, <em>Shuffle</em>, <em>Transfer</em> or <em>Selection as playlist</em>.</li>
+<li><b>Right-click</b> a track: <em>Play</em>, <em>Play next</em>, <em>Append to playlist</em>, <em>Edit tags</em>, <em>Find &amp; embed lyrics</em>, <em>Recognize track</em>, <em>Trim start/end</em>, <em>Transfer</em>, <em>Delete</em>, <em>More from this artist</em>, <em>Show in folder</em>, <em>Copy path</em>.</li>
+<li><b>Edit tags</b>: change title, artist, album, number, year, genre, cover and lyrics, also for many tracks at once. Fields with “different values” stay unchanged. <em>Complete online</em> looks up missing info. <em>Rename file accordingly</em> sorts the file in again.</li>
+<li><b>Trimming</b>: SongGrabber suggests cut points (silence, noise, applause, fade-out). It only partly detects spoken announcements, so check with <em>Listen to start/end</em> and drag the handles if needed. Cutting is lossless, optionally with a smooth fade in and out.</li>
+<li><b>Deleting</b>: tick tracks and click <em>Delete</em>, press <kbd>Del</kbd> or right-click → <em>Delete</em>. The files go to the Windows recycle bin.</li>
+<li><b>Clean up</b> (top): checks the whole library and shows three lists – nothing happens without your confirmation.
+  <em>Duplicate tracks</em>: same songs (same artist and title, same length) with a suggestion which version stays (FLAC/WAV before MP3, higher bitrate, with cover); listen with ▶, change the ticks, then move to the recycle bin. At least one version always stays.
+  <em>Missing info</em>: counts tracks without cover, album, genre or year; <em>Complete online</em> fills only the gaps and then sorts the tracks in correctly.
+  <em>Empty folders</em>: folders without music (at most with leftovers like folder.jpg) are removed.</li>
+<li><b>Transfer</b> to USB stick, SD card or phone. <em>Car-stereo safe</em> converts to MP3 192 kbps / 44.1 kHz, shrinks covers and numbers the tracks.</li>
+<li><b>Playlists</b> (tab at the top): <em>Create playlists</em> creates them per artist, album, genre or decade, from <em>Recently added</em>, as a <em>Random mix</em> or from your selection. Every playlist can be played, shuffled, transferred, shown in the folder or deleted (the music is kept).</li>
+<li><em>Rescan</em> updates the list if you changed files outside SongGrabber.</li></ul></article>
+
+<article id="h-player"><h2>Player</h2>
+<ul><li><b>Opening</b>: menu item <em>Player</em> or a click on the cover/title in the bar at the bottom. While playing, small bars light up in the menu.</li>
+<li><b>What plays</b>: your own tracks, YouTube &amp; co. (online, without download), radio stations and podcasts, mixed in one queue. Online tracks are marked ONLINE, RADIO or PODCAST. <em>Add → Search online (YouTube)</em> finds songs right in the player: ▶ plays right away, <em>+1</em> plays next, <b>+</b> appends, ⬇ downloads. <em>Play link</em> takes a copied link.</li>
+<li><b>Everything on the PC</b> (switch at the top, next to <em>SongGrabber</em>): the light show dances to everything the PC plays, e.g. Spotify, YouTube in the browser, Apple Music or games. SongGrabber shows title, artist, cover and the app and controls it with previous, play/pause and next. SongGrabber only listens to the sound while this view is open; nothing is saved.</li>
+<li><b>Lyrics with Everything on the PC</b>: on the right the lyrics for the song currently playing in Spotify, YouTube in the browser &amp; co. appear automatically. Additions like “(Official Music Video)” or “Remastered” are ignored. If the app reports its playback position to Windows (e.g. YouTube in Chrome/Edge), the lyrics run exactly in sync (“synced”). Otherwise SongGrabber counts from the song change (“estimated”).</li>
+<li><b>Fine-tuning lyrics</b>: if the lyrics aren't exactly in sync, simply click the line that is being sung right now. From there it runs in sync. Use <em>−0.5 s</em> / <em>+0.5 s</em> to shift it finely.</li>
+<li><b>Controls</b>: previous, play/pause, next, <b>shuffle</b> (plays everything once in a new order) and <b>repeat</b> (off → all → this track). Below: volume, mute and tempo (0.75× to 1.5×). The timeline can be dragged.</li>
+<li><b>Light show</b>: <em>Synthwave</em> (retro sun, neon grid), <em>Spectrum</em>, <em>Circle</em> (around the cover), <em>Wave</em> (four glowing waves for bass, low mids, mids and highs plus the real waveform, auto-leveled), <em>Aurora</em> (flowing veils of light over mountains – bass lifts them, highs make them flicker), <em>Disco</em> (spinning mirror ball with light spots and beams that flash to the beat), <em>Lava</em> (lava lamp: thick wax blobs rise and sink, merge and split – bass makes them swell), <em>Fireworks</em> (rockets rise to the beat – the louder, the bigger the explosion) or <em>Calm</em>. All react live to bass and beat. The color dots next to it choose the color theme; the colorful dot takes the colors of the current cover.</li>
+<li><b>Custom colors</b> (button <em>Colors</em> next to the color dots): the <b>Base hue</b> slider rotates all colors together, e.g. from pink-purple to green-blue, and everything stays matched. Below, main color, second color, accent, sun and sky can also be chosen individually. The light show changes immediately. <em>Based on</em> starts from a ready-made color theme, <em>Random</em> rolls matching colors. Applies to all light shows and is remembered.</li>
+<li><b>Hiding the right bar</b>: the arrow at the top of the bar (or the <kbd>Q</kbd> key) rolls queue and lyrics up like a blind – then the screen belongs entirely to the light show. A small handle stays at the top right below the buttons: hovering rolls the bar down briefly, clicking brings it back for good.</li>
+<li><b>Collapsing the controls</b>: the small arrow next to the volume (or the <kbd>H</kbd> key) collapses timeline, LIVE display and big buttons – only previous, play/pause and next stay at the bottom center. Hovering shows everything again, the up arrow brings it back for good.</li>
+<li>After 1 minute without mouse and keyboard both happen by themselves (can be turned off in the settings).</li>
+<li><b>Small cover &amp; title</b>: at the start, cover and title are small at the top left, like a TV channel logo. A click on them (or the <kbd>I</kbd> key) shows them large in the center, a click on the large cover makes them small again. Remembered.</li>
+<li><b>Lights off</b> (light bulb top right or the <kbd>B</kbd> key): turns off the light show, pulsing and all effects – just music with a calm, still picture. Ideal when the player stays open on a second screen; saves processing power. Remembered.</li>
+<li><b>Queue</b> (right): double-click plays, drag to reorder, ✕ removes. Right-click offers <em>Play next</em>, <em>Edit tags</em> and <em>Show in folder</em>. <em>Add</em> adds files, folders, a playlist or the whole library. <em>Save</em> stores the queue as a playlist, the trash can clears it.</li>
+<li><b>Lyrics</b> (tab on the right): lyrics with timestamps run along and light up; a click on a line jumps there. If lyrics are missing, <em>Search online</em> fetches them.</li>
+<li><b>Equalizer</b> (EQ): 10 bands from 32 Hz to 16 kHz, presets like <em>Bass boost</em>, <em>Voice / audiobook</em> or <em>Night mode</em>. Drag to adjust, double-click sets 0 dB, the switch compares with the original.</li>
+<li><b>Crossfade</b> (in the EQ window): the next track fades in gently while the old one fades out – 2 to 12 seconds or off. Albums that play continuously (same album, track 1 → 2 → 3) are not crossfaded, so live and concept albums stay seamless. Radio and podcasts are never crossfaded.</li>
+<li><b>Normalize volume</b> (in the EQ window): quiet and loud tracks sound equally loud. SongGrabber measures every track once in the background (or uses existing ReplayGain info) and remembers the result; nothing in your files is changed.</li>
+<li><b>Mini player</b> (icon next to <em>Open big player</em> at the bottom or at the top of the player): the window becomes a small bar at the bottom right – always on top, with cover, title, the lyrics line being sung, controls and a small light show. The arrow or a double-click brings back the big window. If you drag the window very small, the mini view appears automatically.</li>
+<li><b>Sleep timer</b>: after 15–60 minutes or at the end of the track, SongGrabber fades out gently and pauses.</li>
+<li><b>Fullscreen</b>: the icon at the top right or <kbd>F11</kbd>.</li>
+<li><b>Remembers everything</b>: queue, position, shuffle, repeat, equalizer and light show are back at the next start.</li>
+<li><b>Windows</b>: keyboard media keys and the Windows playback overlay work. If <em>Offer as music player</em> was chosen during setup, you can play MP3, FLAC, WAV, M4A, OGG and playlists by double-click or “Open with → SongGrabber”. To make it the default go to <em>Windows Settings → Apps → Default apps → SongGrabber</em>.</li></ul></article>
+
+<article id="h-radio"><h2>Radio &amp; Podcasts</h2>
+<ul><li><b>Radio</b>: over 30,000 internet radio stations from all over the world (station directory radio-browser.info). <em>Search stations</em> by name or style, choose a country or click a genre like <em>rock</em>, <em>jazz</em> or <em>80s</em>.</li>
+<li>A click on a station plays it. With <em>Next</em>/<em>Previous</em> in the player you switch to the next station in the list. The ★ saves it under <em>Favorites</em>; <em>Recently played</em> remembers the last stations.</li>
+<li>The player shows <b>LIVE</b> with the song currently on air. Artist, title and, if found, cover and lyrics appear automatically. From the next song change on, the lyrics run roughly in sync, because the station only reports when a new song begins. For the first song after tuning in (or if it's a few seconds off), click the line that is being sung right now.</li>
+<li><b>Record right away</b> (in the player below LIVE, <em>Record</em>): <em>Record this song – from the start</em> records the song currently playing <b>including its beginning</b> – SongGrabber keeps the last 15 minutes of the station ready – and stops at the end of the song by itself. <em>Record from now</em> runs until you click the button again. It's saved as MP3 with artist and title in the music folder under <code>Radio-Mitschnitte</code>. In the mini player the red dot does the same. Works with normal internet radio (not with YouTube live streams); the station must be playing in the player.</li>
+<li><b>Record longer</b> (in the same menu, in a station's ⋯ menu or by right-click) records the station in the background, optionally for a set number of minutes – even if you keep listening or switch. Stop it under <em>Links &amp; Streams</em>.</li>
+<li><b>Podcasts</b>: switch to <em>Podcasts</em> at the top, search for a show and open it. <em>Subscribe</em> puts it under <em>My podcasts</em>. <em>Feed address</em> adds a podcast by RSS link.</li>
+<li>For every episode: ▶ play, <b>+</b> append to the queue, ⬇ download (ends up with cover under <code>Podcasts</code> in the output folder). SongGrabber remembers how far you listened and resumes there; finished episodes are marked.</li></ul></article>
+
+<article id="h-abos"><h2>Subscriptions</h2>
+<ul><li>Paste the link of a YouTube channel (e.g. <code>youtube.com/@Name</code>) or a playlist and click <b>Subscribe</b>. Optionally give it a name and download the last 3 or 10 tracks right away.</li>
+<li>SongGrabber checks regularly (<em>Check every</em> 1–24 hours) and downloads new tracks automatically as audio, with tags, cover and lyrics. <em>Skip live performances</em> leaves out concert recordings.</li>
+<li>Per subscription: switch to pause, <em>Check now</em> and remove. Tracks already downloaded are kept.</li>
+<li>Checking happens while SongGrabber is running. With <em>Start with Windows</em> it runs minimized in the background.</li></ul></article>
+
+<article id="h-queue"><h2>Queue (jobs)</h2>
+<ul><li>Downloads, CD rips, recordings, conversions and transfers run one after another with a progress display. Bottom left in the bar you see the running job.</li>
+<li><em>Cancel</em> works at any time. For finished jobs: <em>Play</em> and <em>Show</em> (in Explorer), also by right-click.</li>
+<li>If something goes wrong, the reason is shown right on the job. <em>Remove finished</em> tidies up the list, <em>Open output folder</em> shows the music.</li>
+<li>Tracks that are already in the output folder are skipped (can be turned off).</li></ul></article>
+
+<article id="h-settings"><h2>Settings: what each switch does</h2>
+<p>Everything is saved immediately.</p>
+<dl class="keys">
+<dt data-help-key="lang">Language</dt><dd><em>Automatic</em> uses the language of Windows (German or English). <em>Deutsch</em> or <em>English</em> switches right away, without a restart.</dd>
+<dt data-help-key="output_dir">Output folder</dt><dd>Where the music is saved.</dd>
+<dt data-help-key="name_single name_album">Folder structure, single tracks, albums &amp; CDs</dt><dd>How folders and files are named. Recommended: <em>Artist / Album / 01 - Title</em>. Custom patterns work with placeholders like <code>{artist}</code>, <code>{title}</code>, <code>{album}</code>, <code>{track:02}</code>; “/” creates subfolders. The preview shows the result. <em>Reorganize existing files now</em> re-sorts existing tracks and adjusts playlists.</dd>
+<dt data-help-key="live_check">Ask for the original on live performances</dt><dd>Suggests the studio version for concert videos.</dd>
+<dt data-help-key="metadata_online">Add album, genre, year &amp; cover online</dt><dd>Looks up missing info in the iTunes catalog, otherwise at MusicBrainz.</dd>
+<dt data-help-key="prefer_album_cover">Album cover instead of video thumbnail</dt><dd>Embeds the real album cover instead of a still from the video.</dd>
+<dt data-help-key="skip_existing">Skip existing tracks</dt><dd>Doesn't download anything twice if the same track is already in the output folder.</dd>
+<dt data-help-key="auto_playlist_links">Save link playlists as playlists automatically</dt><dd>Creates a matching .m3u8 after downloading a YouTube playlist.</dd>
+<dt data-help-key="clipboard_watch">Detect links in the clipboard</dt><dd>Offers copied links when you switch to the window.</dd>
+<dt data-help-key="trim_silence">Remove silence at start/end</dt><dd>Cuts off silent seconds automatically when converting.</dd>
+<dt data-help-key="embed_cover">Embed cover in MP3/FLAC</dt><dd>The cover is stored in the file; phone, car and player show it.</dd>
+<dt data-help-key="square_cover">Crop video thumbnails to square</dt><dd>Turns 16:9 stills into a square cover.</dd>
+<dt data-help-key="playlist_m3u">Create playlist (.m3u8) for albums</dt><dd>Puts a playlist into the album folder for CDs and albums.</dd>
+<dt data-help-key="musicbrainz">Track info &amp; cover from MusicBrainz</dt><dd>Fetches artist, titles and cover when reading a CD.</dd>
+<dt data-help-key="cd_verify">Verify reading</dt><dd>Reads every CD block twice and retries on errors.</dd>
+<dt data-help-key="cd_eject">Eject CD after ripping</dt><dd>Opens the drive when all tracks are done.</dd>
+<dt data-help-key="keep_raw">Also keep the original recording (WAV)</dt><dd>Also saves the unsplit raw recording, e.g. for later editing.</dd>
+<dt data-help-key="pp_side_auto">Player: hide bar and controls automatically</dt><dd>After 1 minute without mouse and keyboard, the bar with queue and lyrics rolls up on the player page, and the controls at the bottom collapse into small buttons. Back with a click, on hover or with <kbd>Q</kbd> (bar) or <kbd>H</kbd> (controls). When off, everything stays until you hide it yourself.</dd>
+<dt data-help-key="update_check">Check for updates at startup</dt><dd>Checks at most once a day whether there's a newer version and then shows a note with a download link. Nothing is installed unless you start the new setup yourself. <em>Check for updates</em> (under About) checks right away.</dd>
+<dt data-help-key="lyrics_auto">Embed lyrics automatically</dt><dd>Downloads lyrics from lrclib.net, synced if available.</dd>
+<dt data-help-key="lyrics_lrc">Also save a .lrc file</dt><dd>For car stereos and players that can't read embedded lyrics.</dd>
+<dt data-help-key="acoustid_auto acoustid_key">Recognize recordings automatically, AcoustID key</dt><dd>Recognizes tracks by audio fingerprint. The free key comes from acoustid.org (<em>Get key</em>).</dd>
+<dt data-help-key="watch_enabled watch_dir watch_delete_source">Watch hand-over folder</dt><dd>Everything that lands there (e.g. from the Multi Video Downloader) is converted automatically, optionally deleting the original.</dd>
+<dt data-help-key="tools_dir">Shared tools folder</dt><dd>Uses the <code>ffmpeg.exe</code>/<code>yt-dlp.exe</code> of another program. <em>Reset</em> goes back to its own.</dd>
+<dt data-help-key="tools">Tools</dt><dd>Shows whether the encoder (ffmpeg/LAME) and yt-dlp are ready. <em>Update</em> fetches the latest yt-dlp version. <em>Copy error report</em> and <em>Open log</em> help with problems.</dd>
+</dl></article>
+
+<article id="h-keys"><h2>Keyboard shortcuts</h2>
+<table class="fmt"><tr><th>Key</th><th>Action</th></tr>
+<tr><td><kbd>F1</kbd></td><td>Help for the current page</td></tr>
+<tr><td><kbd>Space</kbd></td><td>Play / pause</td></tr>
+<tr><td><kbd>Ctrl</kbd>+<kbd>←</kbd> / <kbd>→</kbd></td><td>previous / next track</td></tr>
+<tr><td><kbd>←</kbd> / <kbd>→</kbd></td><td>5 seconds back / forward (player page)</td></tr>
+<tr><td><kbd>↑</kbd> / <kbd>↓</kbd></td><td>louder / quieter (player page)</td></tr>
+<tr><td><kbd>N</kbd> / <kbd>P</kbd></td><td>next / previous track (player page)</td></tr>
+<tr><td><kbd>S</kbd> · <kbd>R</kbd> · <kbd>M</kbd></td><td>Shuffle · repeat · mute (player page)</td></tr>
+<tr><td><kbd>V</kbd> · <kbd>B</kbd> · <kbd>I</kbd> · <kbd>L</kbd> · <kbd>Q</kbd> · <kbd>H</kbd> · <kbd>F11</kbd></td><td>Change light show · lights on/off · cover large/small · lyrics · right bar up/down · collapse/expand controls · fullscreen (player page)</td></tr>
+<tr><td><kbd>Del</kbd></td><td>delete selected tracks (library)</td></tr>
+<tr><td><kbd>Enter</kbd></td><td>analyze link / add subscription</td></tr>
+<tr><td><kbd>Esc</kbd></td><td>close dialog or menu</td></tr></table></article>
+
+<article id="h-advanced"><h2>Advanced</h2>
+<ul><li><b>Link with the Multi Video Downloader</b>: hand-over folder (see Settings) or direct call. If SongGrabber is already running, the job lands in the open window.</li>
+<li><b>Command line</b>: <code>SongGrabber.exe "file.mp4"</code> converts, <code>--url &lt;link&gt;</code> downloads, <code>--play "track.mp3"</code> plays. <code>--headless --preset mp3_320 --out "D:\Music" --report r.json file.mp4</code> works without a window (exit code 0 = all ok).</li>
+<li><b>Portable</b>: if there's a file <code>portable.txt</code> next to <code>SongGrabber.exe</code>, SongGrabber stores its settings in the subfolder <code>data</code> instead of <code>%APPDATA%\SongGrabber</code>.</li></ul></article>
+
+<article id="h-linux"><h2>SongGrabber on Linux</h2>
+<ul><li><b>Installing</b>: download the package <code>SongGrabber-…-linux.tar.gz</code> from the download page, unpack it, open a terminal in the folder and type <code>./install.sh</code>. It installs the required system packages (Python, WebKit, ffmpeg, GStreamer) and sets up SongGrabber for your user – with a start menu entry and the command <code>songgrabber</code>. Works on Ubuntu, Linux Mint, Debian, Fedora, Arch/Manjaro and openSUSE.</li>
+<li><b>Update</b>: unpack the new package and run <code>./install.sh</code> again. <b>Uninstall</b>: <code>~/.local/share/SongGrabber/uninstall.sh</code> – your music stays.</li>
+<li><b>Folders</b>: settings in <code>~/.config/SongGrabber</code>, music by default in <code>~/Music/SongGrabber</code>. Deleted tracks go to the trash.</li>
+<li><b>Audio CDs</b> are read via <code>/dev/sr0</code>. Your user must be in the group <code>cdrom</code> (Ubuntu/Debian) or <code>optical</code> (Arch): <code>sudo usermod -aG cdrom $USER</code>, then log in again.</li>
+<li><b>System sound &amp; “Everything on the PC”</b> use PulseAudio or PipeWire (included in all current desktops). Title, cover and controls come from Spotify, Firefox, Chrome, VLC &amp; co. via MPRIS – which often makes the lyrics run exactly in sync.</li>
+<li><b>Not on Linux</b>: the question about the music folder during installation (just change it bottom right) and the setup program itself – that's what <code>install.sh</code> is for.</li></ul></article>
+
+<article id="h-faq"><h2>Problems &amp; questions</h2>
+<dl><dt>My voice is too quiet in the karaoke recording.</dt><dd>SongGrabber automatically boosts the voice when mixing. If it's still too quiet: choose <em>Voice +6 dB</em> next to the recording on the right (it's remixed). If “REC” in the video shows “mic very quiet?”, raise the microphone's input volume in Windows under <em>Settings → System → Sound → Input</em>. Which microphone is used is set on the <em>Screen</em> page.</dd>
+<dt>A karaoke video doesn't load.</dt><dd>Some videos are blocked or only available in other countries – SongGrabber then skips to the next song after a few seconds. Updating yt-dlp often helps too (Settings → Tools). Without internet only saved ★ favorites play.</dd>
+<dt>The screen recording doesn't start or the picture stays black.</dt><dd>With “A window” the window must not be minimized. Try “Whole screen” or “Draw an area”. On Linux screen recording only works in an Xorg session. The exact message is in the log (Settings → About).</dd>
+<dt>A radio recording is missing its beginning.</dt><dd>Choose <em>Record this song – from the start</em>: SongGrabber then records the song from the station's last title change. This only works if the station has been playing in the player for a while and sends titles.</dd>
+<dt>A link doesn't load.</dt><dd>Update yt-dlp (Settings → Tools). Private, age-restricted or paid content doesn't work.</dd>
+<dt>Album or genre is missing.</dt><dd>Check artist and title: the search needs both spelled correctly. Then use <em>Complete online</em> in the tag editor or fill the fields by hand.</dd>
+<dt>The recording is silent.</dt><dd>1) Under <em>Inputs</em> look which one moves when you speak, and click it. 2) If everything shows “muted”, Windows is usually blocking: turn on <em>Settings → Privacy → Microphone → “Let desktop apps access your microphone”</em> (SongGrabber shows a button for it), then restart SongGrabber. 3) In Windows under <em>Sound → Recording</em> check that the device is enabled and not muted.</dd>
+<dt>System sound isn't recorded.</dt><dd>Under <em>Inputs</em> choose the 🔊 device that shows “Sound playing ✓”. Often the sound goes through a headset instead of the speakers.</dd>
+<dt>The player doesn't play or the light show doesn't move.</dt><dd>Click into the window once: Windows only allows sound analysis after an interaction. If the light show stutters, the <em>Calm</em> mode or <em>Lights off</em> (<kbd>B</kbd> key) helps.</dd>
+<dt>Double-clicking an MP3 doesn't open SongGrabber.</dt><dd>Right-click → <em>Open with</em> → <em>SongGrabber</em> → <em>Always</em>. For this, <em>Offer as music player</em> must have been chosen during setup.</dd>
+<dt>A radio station doesn't play.</dt><dd>Some stations are temporarily offline or change their address. Simply try another station with the same name from the search.</dd>
+<dt>My network drive / NAS isn't shown during installation.</dt><dd>If you install “for all users”, the setup runs with administrator rights – and such programs don't see your user account's network drives (a Windows quirk). Just type the path, e.g. <code>M:\Music</code> or <code>\\NAS\Music</code>; the setup then offers the network address. Or install “just for me” – then everything is visible. SongGrabber itself always sees your network drives.</dd>
+<dt>“Output folder not reachable”</dt><dd>The music folder is on a network drive, NAS or USB drive that isn't connected right now. Turn on or connect the device – or choose a different output folder bottom right.</dd>
+<dt>The radio still shows the old title.</dt><dd>SongGrabber always shows the title the station is currently reporting. Some stations report the change late or not at all (e.g. during presentation). If a title runs much longer than the song, SongGrabber pauses the lyrics until the station reports a new title.</dd>
+<dt>The lyrics aren't in sync.</dt><dd>For your own files and YouTube in the player they're exact. For radio and “Everything on the PC” without position info from the app they're estimated: click the line that is being sung, or adjust with −0.5 s / +0.5 s. Stations write their titles very differently (“Artist - Title”, “»Title« by Artist” …). SongGrabber tries all common spellings and, if necessary, searches the free text. If no lyrics are found anyway, lrclib.net doesn't have them (yet). For news, ads and presentation SongGrabber doesn't search at all.</dd>
+<dt>“Everything on the PC” shows no title.</dt><dd>Not every app reports its titles to Windows. The light show still works; the buttons then control via the media keys.</dd>
+<dt>Windows warns during installation.</dt><dd>The setup isn't signed: <em>More info → Run anyway</em>.</dd>
+<dt>“Recognize track” finds nothing.</dt><dd>Rare or very old recordings may not be in AcoustID. Live recordings sound different from the original and are often not recognized.</dd>
+<dt>The car stereo shows no titles or covers.</dt><dd>Choose <em>Car-stereo safe</em> when transferring; this also shrinks the cover to 500 px.</dd>
+<dt>Something doesn't work – how do I report it?</dt><dd><em>Settings → Tools → Copy error report</em> and send the text. It contains version, tools, device names and the latest messages (file paths may contain your Windows user name).</dd>
+<dt>Where are my settings?</dt><dd>Installed: <code>%APPDATA%\SongGrabber</code> · Portable: subfolder <code>data</code>.</dd></dl>
+<p class="note">Please only save content you have the rights to: your own CDs, free content, private copies within the legal limits.</p></article>
+</template>
+<script src="i18n.js"></script>
+<script>I18N.start();</script>
 <script src="app.js"></script>
 </body>
 </html>

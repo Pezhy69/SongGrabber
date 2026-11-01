@@ -1261,3 +1261,10 @@ body.is-scrbar .scrbar.paused{border-top-color:var(--info)}
 #ppRecRadio .rdot{display:inline-block;width:9px;height:9px;border-radius:50%;background:var(--rec);box-shadow:0 0 8px var(--rec);animation:blink 1s infinite;margin-right:6px}
 .mi-rec i{display:block;width:12px;height:12px;border-radius:50%;background:#c43345;margin:auto}
 .mi-rec.on i{background:var(--rec);box-shadow:0 0 10px var(--rec);animation:blink 1s infinite}
+
+/* Sprache */
+.page-head .lang-pick{display:flex!important;flex-direction:row!important;align-items:center;gap:9px;color:var(--dim);font-size:13px;margin:0;white-space:nowrap}
+.lang-pick svg{width:17px;height:17px;stroke:currentColor;fill:none;stroke-width:1.7}
+.page-head .lang-pick select{min-width:170px;margin:0}
+html[lang=en] .cover.empty-cover::after{content:"No cover"}
+html[lang=en] .scr-shot::after{content:"Preview"}
