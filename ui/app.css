@@ -1256,3 +1256,8 @@ body.is-scrbar .scrbar.paused{border-top-color:var(--info)}
 .ka-seek .ka-chbtn[hidden]{display:none}
 .ka-now{min-width:140px}
 @media (max-width:1500px){.ka-recbtn span{display:none}}
+
+#ppRecRadio.rec-on{border-color:rgba(255,59,78,.6);color:#ffb3bb;background:rgba(255,59,78,.15)}
+#ppRecRadio .rdot{display:inline-block;width:9px;height:9px;border-radius:50%;background:var(--rec);box-shadow:0 0 8px var(--rec);animation:blink 1s infinite;margin-right:6px}
+.mi-rec i{display:block;width:12px;height:12px;border-radius:50%;background:#c43345;margin:auto}
+.mi-rec.on i{background:var(--rec);box-shadow:0 0 10px var(--rec);animation:blink 1s infinite}

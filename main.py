@@ -595,6 +595,17 @@ class Api:
             self._radio_meta[text] = c
         return dict(c, **timing)
 
+    def radio_quick(self, src, station, mode="song"):
+        """Sofort mitschneiden, was gerade im Player läuft (src = Abspiel-Adresse …/r/<id>)."""
+        rid = (src or "").rstrip("/").rsplit("/", 1)[-1]
+        return self._remote.quick_start(rid, station or "Radio", mode)
+
+    def radio_quick_stop(self, qid=None):
+        return self._remote.quick_stop(qid)
+
+    def radio_quick_status(self):
+        return self._remote.quick_status()
+
     def radio_record(self, st, minutes=0):
         return self._streams.start(st["url"], st.get("name") or "Radio", minutes)
 

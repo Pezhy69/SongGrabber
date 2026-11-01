@@ -1106,7 +1106,9 @@ const Kara = (() => {
       const st = await call("kara_rec_status").catch(() => null); if (!st || !st.on) return;
       $("#kaRecTime").textContent = "REC " + fmtTime(st.elapsed);
       $("#kaRecLv").style.width = Math.max(0, Math.min(100, ((st.mic ?? -90) + 60) / 60 * 100)) + "%";
+      K.quiet = (st.mic ?? -90) < -48 ? (K.quiet || 0) + 1 : 0;
       if (st.mic_error) $("#kaRecTime").textContent = "REC · Mikro fehlt";
+      else if (K.quiet > 20) $("#kaRecTime").textContent = "REC · Mikro sehr leise?";
     }, 300);
   }
   function stopRec() {
@@ -1350,7 +1352,7 @@ $("#btnKeepLive").onclick = () => {
 
 /* ---------------------------------------------------------------- Neu in dieser Version (bei jeder Version ergänzen!) */
 const CHANGES = [
-  ["1.12.0", ["<b>Karaoke</b>: Karaoke-Videos von YouTube suchen und singen – ohne Werbung, mit fertigen Playlists (Schlager, 80er, Disney …)", "<b>Wer singt?</b> Sänger-Warteschlange mit „Jetzt singt …“ und „Als Nächstes …“", "<b>★ Favoriten offline</b>: werden im Ordner „Karaoke“ gespeichert und laufen auch ohne Internet – z. B. beim Camping", "<b>Mich aufnehmen</b>: Stimme + Musik als MP3 (auf Wunsch MP4), Stimme nachträglich lauter/leiser", "<b>Best-of &amp; Mixe</b>: lange Karaoke-Videos mit Songliste – ⏭ bzw. N springt zum nächsten Song im Video", "Zeitleiste mit Restzeit, Tasten (Leertaste, ←/→, ↑/↓, N)"]],
+  ["1.12.0", ["<b>Karaoke</b>: Karaoke-Videos von YouTube suchen und singen – ohne Werbung, mit fertigen Playlists (Schlager, 80er, Disney …)", "<b>Wer singt?</b> Sänger-Warteschlange mit „Jetzt singt …“ und „Als Nächstes …“", "<b>★ Favoriten offline</b>: werden im Ordner „Karaoke“ gespeichert und laufen auch ohne Internet – z. B. beim Camping", "<b>Mich aufnehmen</b>: Stimme + Musik als MP3 (auf Wunsch MP4), Stimme nachträglich lauter/leiser", "<b>Best-of &amp; Mixe</b>: lange Karaoke-Videos mit Songliste – ⏭ bzw. N springt zum nächsten Song im Video", "Zeitleiste mit Restzeit, Tasten (Leertaste, ←/→, ↑/↓, N)", "Radio: <b>Sofort mitschneiden</b> – der laufende Song von Anfang an (stoppt am Songende) oder ab jetzt, auch im Mini-Player"]],
   ["1.11.0", ["<b>Bildschirm aufnehmen</b>: Zoom, Teams, Webinar oder Live-Coaching als MP4-Video – ganzer Bildschirm oder nur ein Fenster, mit Vorschau", "Neue Lichtshows: <b>Nordlicht</b>, <b>Disco-Kugel</b>, <b>Lava-Lampe</b> und <b>Feuerwerk</b> (statt Tesla)", "Player: <b>rechte Leiste hochrollen</b> wie ein Rollo (Q) und <b>Bedienung einklappen</b> zu kleinen Knöpfen (H) – Drüberfahren zeigt alles, nach 1 Minute Ruhe passiert es von selbst", "<b>Bereich zeichnen</b>: nur einen Ausschnitt aufnehmen – z. B. nur das Video in YouTube, Zoom oder Teams", "Klar sichtbar, welcher Ton mit drauf ist: <b>Ton vom PC</b> und/oder <b>dein Mikrofon</b> – mit Pegelanzeige", "<b>Mikrofon während der Aufnahme an/aus</b> – z. B. nur kurz einschalten, um etwas zu sagen", "<b>Kleine Aufnahme-Leiste</b> oben rechts mit Uhr, Pause und Stopp – unter Windows im Video unsichtbar", "Fertiges Video direkt in SongGrabber ansehen – saubere Dateinamen ohne Emojis", "Pause, Verwerfen, auf Wunsch zusätzlich als MP3 – und beim Schließen geht keine laufende Aufnahme verloren"]],
   ["1.10.0", ["<b>SongGrabber für Linux</b>: Ubuntu, Mint, Debian, Fedora, Arch, openSUSE – mit <code>install.sh</code>, Startmenü-Eintrag, Papierkorb, Audio-CDs, Systemsound und „Alles am PC“ über MPRIS", "Update-Hinweis verlinkt automatisch die passende Datei für Windows bzw. Linux"]],
   ["1.9.1", ["<b>Mini-Player</b> friert nicht mehr ein – Fenster wird zuverlässig klein, bleibt im Vordergrund und kommt genau so zurück", "Knöpfe oben im Player bleiben bei jeder Fenstergröße sichtbar"]],
@@ -2776,6 +2778,8 @@ const Mini = (() => {
     $("#miProg").style.width = !sys() && isFinite(a.duration) && a.duration ? (a.currentTime / a.duration * 100) + "%" : "0%";
     const playing = sys() ? $("#sysPlay use").getAttribute("href") === "#i-pause" : !a.paused;
     $("#miPlay use").setAttribute("href", playing ? "#i-pause" : "#i-play");
+    const c = !sys() && Player.current();
+    $("#miRec").hidden = !(c && c.kind === "radio"); $("#miRec").classList.toggle("on", QuickRec.on());
   }
   function show(v, isAuto) {
     on = v; auto = !!isAuto; document.body.classList.toggle("is-mini", v); clearInterval(T);
@@ -3566,7 +3570,46 @@ function recordRadio(t) {
   dialog({ title: "Sender mitschneiden", icon: "i-mic", body: `<p class="muted" style="margin-top:0">„${esc(t.station || t.name)}“ wird im Hintergrund aufgenommen und danach im eingestellten Format gespeichert – auch wenn du weiterhörst oder den Sender wechselst.</p><label>Dauer in Minuten (0 = bis du stoppst)<input id="rrMin" type="number" min="0" value="60"></label>`,
     buttons: [{ label: "Abbrechen" }, { label: "Aufnahme starten", cls: "primary", fn: async btn => { await safe(btn, async () => { await call("radio_record", { url: t.url, name: t.station || t.name }, +$("#rrMin").value || 0); closeDialog(); toast("Mitschnitt läuft – beenden unter Links & Streams", "ok"); }); } }] });
 }
-$("#ppRecRadio").onclick = () => { const t = Player.current(); if (t && t.kind === "radio") recordRadio(t); };
+/* Sofort mitschneiden: ein Klick – der laufende Song (von Anfang an) oder ab jetzt */
+const QuickRec = (() => {
+  let T = 0, on = false;
+  const btn = $("#ppRecRadio");
+  function label(st) {
+    const a = (st && st.active) || [];
+    on = a.length > 0;
+    btn.classList.toggle("rec-on", on);
+    btn.innerHTML = on ? `<i class="rdot"></i>${a[0].finishing ? "Speichert …" : (a[0].song ? "Song " : "REC ") + fmtTime(a[0].elapsed) + " · Stopp"}` : `<svg><use href="#i-mic"/></svg>Mitschneiden`;
+    btn.title = on ? (a[0].song ? "Nimmt diesen Song auf – stoppt am Songende von selbst. Klick = jetzt stoppen." : "Nimmt auf, bis du stoppst. Klick = stoppen.") : "Diesen Sender aufnehmen";
+  }
+  async function poll() {
+    clearTimeout(T);
+    const st = await call("radio_quick_status").catch(() => null);
+    if (st) {
+      (st.done || []).forEach(d => d.file ? toast(`🎙 Mitschnitt gespeichert: ${d.file.split(/[\\/]/).pop()}`, "ok") : toast("Mitschnitt fehlgeschlagen: " + d.error, "err"));
+      label(st);
+      if (st.active.length || (st.done || []).length) T = setTimeout(poll, 1000);
+    }
+  }
+  async function start(mode) {
+    const t = Player.current(); if (!t || t.kind !== "radio") return;
+    try { label(await call("radio_quick", t.src, t.station || t.name || "Radio", mode)); toast(mode === "song" ? "Mitschnitt läuft – der Song wird von Anfang an aufgenommen und stoppt am Songende." : "Mitschnitt läuft – bis du stoppst.", "ok"); poll(); }
+    catch (e) { toast(String(e.message || e).replace(/^Error:\s*/, ""), "err"); }
+  }
+  btn.onclick = ev => {
+    if (on) { call("radio_quick_stop").then(label).then(poll); return; }
+    const t = Player.current(); if (!t || t.kind !== "radio") return;
+    const r = btn.getBoundingClientRect();
+    ctxMenu({ clientX: r.left, clientY: r.bottom + 6 }, [
+      { icon: "i-mic", label: "Diesen Song aufnehmen – von Anfang an", fn: () => start("song") },
+      { icon: "i-mic", label: "Ab jetzt aufnehmen – bis ich stoppe", fn: () => start("now") },
+      "-",
+      { icon: "i-moon", label: "Länger aufnehmen (Dauer wählen) …", fn: () => recordRadio(t) },
+    ]);
+    ev.stopPropagation();
+  };
+  return { poll, start, on: () => on, stop: () => call("radio_quick_stop").then(label).then(poll) };
+})();
+$("#miRec").onclick = () => QuickRec.on() ? QuickRec.stop() : QuickRec.start("song");
 async function loadRadioSide() { try { const r = await call("radio_favorites"); R.favs = r.favorites; R.recent = r.recent; } catch (e) { } renderRadio(); }
 async function radioSearch() {
   const q = $("#radioQ").value.trim(), c = $("#radioCountry").value;
@@ -3671,7 +3714,7 @@ const Mock = (() => {
     ["Bon Jovi – It's My Life (Karaoke Version)", "Sing King", 226], ["DJ Ötzi – Ein Stern (der deinen Namen trägt) Karaoke", "Karaoke Hits DE", 235], ["Udo Jürgens – Griechischer Wein (Karaoke)", "KaraFun Deutschland", 228],
     ["Queen – Bohemian Rhapsody (Karaoke Version)", "Sing King", 356], ["Nena – 99 Luftballons (Karaoke)", "Zoom Karaoke", 232]]
     .map(([t, ch, d], i) => ({ id: "k" + i + q.length, title: t, channel: ch, duration: d, thumb: kThumb(t, i), score: 5 }));
-  let kfav = [], kprep = {}, krec = 0;
+  let kfav = [], kprep = {}, krec = 0, qrec = null;
 
   const LIB = [["Rolling in the Deep", "Adele", "21", "Pop", "2011", 228], ["Someone Like You", "Adele", "21", "Pop", "2011", 285], ["Skyfall", "Adele", "Skyfall", "Pop", "2012", 286], ["99 Luftballons", "Nena", "Nena", "Pop", "1983", 232], ["Major Tom", "Peter Schilling", "Fehler im System", "Pop", "1983", 300], ["Bohemian Rhapsody", "Queen", "A Night at the Opera", "Rock", "1975", 355], ["Get Lucky", "Daft Punk", "Random Access Memories", "Electronic", "2013", 369], ["Atemlos durch die Nacht", "Helene Fischer", "Farbenspiel", "Schlager", "2013", 219], ["Wonderwall", "Oasis", "(What's the Story) Morning Glory?", "Rock", "1995", 258]].map(([title, artist, album, genre, year, duration], i) => ({ title, artist, album, genre, year, duration, track: 1, path: "C:\\Musik\\" + artist + " - " + title + ".mp3", mtime: Date.now() / 1000 - i * 86400 * 9, format: "MP3" }));
   return {
@@ -3720,6 +3763,9 @@ const Mock = (() => {
     kara_state: () => ({ favorites: kfav, singers: ["Kathy", "Pezhy"], queue: [], folder: "C:\\Users\\Pezhy\\Music\\SongGrabber\\Karaoke",
       starters: [["Party-Hits"], ["Schlager"], ["Deutsche Hits"], ["80er"], ["90er"], ["2000er"], ["Rock-Klassiker"], ["Pop aktuell"], ["Disney"], ["Kinderlieder"], ["Balladen"], ["Weihnachten"]].map(([n]) => ({ name: n, query: n.toLowerCase() + " karaoke playlist" })) }),
     kara_search: (q, long) => new Promise(r => setTimeout(() => r(long ? [["Love Rock – Best Of Karaoke Vol. 1 (1 Stunde)", 3712], ["Rock Balladen Karaoke Mix – Nonstop", 2950], ["80s Love Songs Karaoke Medley", 1890]].map(([t, d], i) => ({ id: "L" + i, title: t, channel: "Karaoke Hits DE", duration: d, thumb: kThumb(t, i + 2) })) : kSongs(q)), 500)),
+    radio_quick: (src, st, mode) => { qrec = { t: performance.now(), song: mode === "song" }; return Mock.radio_quick_status(); },
+    radio_quick_stop: () => { qrec = null; return { active: [], done: [{ file: "C:\\Musik\\Radio-Mitschnitte\\2026-11-01 Bon Jovi – Always.mp3" }] }; },
+    radio_quick_status: () => ({ active: qrec ? [{ id: "1", elapsed: Math.round((performance.now() - qrec.t) / 1000) + (qrec.song ? 74 : 0), song: qrec.song, title: "Bon Jovi - Always", finishing: false }] : [], done: [] }),
     kara_rec_start: () => { krec = performance.now(); return { id: "r1" }; }, kara_rec_dirty: () => true,
     kara_rec_status: () => ({ on: true, elapsed: (performance.now() - krec) / 1000, mic: -20 - Math.random() * 25 }),
     kara_rec_stop: () => ({ id: "r" + Math.random(), singer: "Kathy", title: "Bon Jovi – It's My Life", mp3: "x.mp3", mp4: "x.mp4", duration: 226, voice: 0, note: "" }),

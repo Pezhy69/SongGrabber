@@ -516,7 +516,7 @@ class KaraRec:
         mix = os.path.join(r["folder"], "mix.wav")
         ins, filt, lab = [], [], []
         t_ref = sysw.t0 or micw.t0 or r["t_start"]
-        for i, (a, gain, extra) in enumerate([(sysw, 0.0, ""), (micw, r["voice"], "highpass=f=90,")]):
+        for i, (a, gain, extra) in enumerate([(sysw, 0.0, ""), (micw, r["voice"], "highpass=f=90,dynaudnorm=f=150:g=15:p=0.9:m=30,acompressor=threshold=-22dB:ratio=3:attack=5:release=150:makeup=3,")]):
             if not (a.t0 and a.frames and os.path.isfile(a.path)):
                 continue
             ins += ["-i", a.path]

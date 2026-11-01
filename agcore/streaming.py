@@ -13,7 +13,7 @@ import threading
 import time
 import urllib.error
 import urllib.request
-from collections import OrderedDict
+from collections import OrderedDict, deque
 
 from . import links, paths
 
@@ -35,9 +35,46 @@ class Remote:
         self.now = {}                # id → aktueller Titel (Radio)
         self.meta = {}               # id → Titel + Zeitpunkt des Wechsels
         self.imgs = OrderedDict()    # id → (ctype, bytes)
+        self.taps = {}               # id → Tap: die letzten Minuten des laufenden Senders (für „Sofort mitschneiden“)
         self.lock = threading.Lock()
         server.handlers["r"] = self._audio
         server.handlers["img"] = self._img
+
+    # ---------------------------------------------------------------- Sofort mitschneiden
+    def quick_start(self, rid, station, mode="song"):
+        """mode: song = laufender Song von Anfang an, stoppt am Songende · now = ab jetzt bis Stopp."""
+        tap = self.taps.get(rid)
+        if not tap or not tap.buf:
+            raise RuntimeError("Mitschneiden geht hier nicht – der Sender liefert keinen direkten Ton (nur bei normalen Internetradios).")
+        title = (self.meta.get(rid) or {}).get("text") or ""
+        rec = QuickRec(station, title, tap.fmt, mode == "song", self._quick_done)
+        rec.id, rec.rid = str(int(rec.t0 * 1000)), rid
+        if mode == "song" and tap.marks:
+            rec.t0 = tap.marks[-1][0]
+        self.quick_recs = getattr(self, "quick_recs", {})
+        self.quick_recs[rec.id] = rec
+        tap.start(rec, mode == "song")
+        return self.quick_status()
+
+    def quick_stop(self, qid=None):
+        for r in list(getattr(self, "quick_recs", {}).values()):
+            if qid is None or r.id == qid:
+                tap = self.taps.get(r.rid)
+                if tap:
+                    tap.stop(r)
+                threading.Thread(target=r.finish, daemon=True).start()
+        return self.quick_status()
+
+    def _quick_done(self, rec):
+        self.quick_done = getattr(self, "quick_done", [])
+        self.quick_done.append({"file": rec.result, "error": rec.error, "title": rec.title, "station": rec.station})
+        getattr(self, "quick_recs", {}).pop(rec.id, None)
+
+    def quick_status(self):
+        recs = getattr(self, "quick_recs", {})
+        done, self.quick_done = getattr(self, "quick_done", []), []
+        return {"active": [{"id": r.id, "elapsed": round(time.time() - r.t0), "mb": round(r.bytes / 1048576, 1), "song": r.until_end,
+                            "title": r.title, "finishing": r.closed} for r in recs.values()], "done": done}
 
     # ---------------------------------------------------------------- URLs erzeugen
     def audio_url(self, kind, url, headers=None):
@@ -150,6 +187,9 @@ class Remote:
         old = self.meta.get(rid)
         if not old or old["text"] != txt:
             self.meta[rid] = {"text": txt, "t": time.time(), "n": (old["n"] + 1) if old else 1}
+            tap = self.taps.get(rid)
+            if tap:
+                tap.mark(txt)
         self.now[rid] = txt
 
     def _transcode(self, h, rid, url, headers):
@@ -206,6 +246,9 @@ class Remote:
         proc = paths.popen(args, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.DEVNULL)
         stop = threading.Event()
         state = {"sock": sock, "f": f, "hdr": hdr}
+        tap = self.taps.get(rid)
+        if not tap or tap.fmt != (fmt or "mp3"):
+            tap = self.taps[rid] = Tap(fmt or "mp3")
 
         def feed():
             tries = 0
@@ -217,6 +260,7 @@ class Remote:
                         if not data:
                             break
                         proc.stdin.write(data)
+                        tap.add(data)
                         tries = 0
                         if metaint:
                             n = f_.read(1)
@@ -291,6 +335,99 @@ class Remote:
         h.end_headers()
         if h.command != "HEAD":
             h.wfile.write(c[1])
+
+
+# ---------------------------------------------------------------- Sofort mitschneiden (Radio)
+class Tap:
+    """Hält die letzten Minuten eines laufenden Senders im Speicher und merkt sich Titelwechsel.
+    So kann ein Mitschnitt auch den Anfang des gerade laufenden Songs enthalten."""
+    KEEP = 15 * 60                                  # Sekunden
+
+    def __init__(self, fmt):
+        self.fmt, self.buf, self.marks, self.recs, self.lock = fmt, deque(), deque(maxlen=50), [], threading.Lock()
+
+    def add(self, data):
+        now = time.time()
+        with self.lock:
+            self.buf.append((now, data))
+            while self.buf and now - self.buf[0][0] > self.KEEP:
+                self.buf.popleft()
+            for r in list(self.recs):
+                r.write(data)
+
+    def mark(self, title):
+        now = time.time()
+        with self.lock:
+            self.marks.append((now, title))
+            for r in list(self.recs):
+                if r.until_end and now - r.t0 > 20:          # Song zu Ende → Mitschnitt fertig
+                    self.recs.remove(r)
+                    threading.Timer(4, r.finish).start()      # die Ansage kommt oft etwas zu früh
+
+    def start(self, rec, from_song_start):
+        with self.lock:
+            since = 0
+            if from_song_start:
+                since = (self.marks[-1][0] - 2) if self.marks else (self.buf[0][0] if self.buf else 0)
+            for t, data in self.buf:
+                if t >= since and from_song_start:
+                    rec.write(data)
+            self.recs.append(rec)
+
+    def stop(self, rec):
+        with self.lock:
+            if rec in self.recs:
+                self.recs.remove(rec)
+
+
+class QuickRec:
+    """Ein Sofort-Mitschnitt: Rohdaten des Senders → am Ende MP3 mit Interpret/Titel."""
+
+    def __init__(self, station, title, fmt, until_end, done_cb):
+        self.station, self.title, self.fmt, self.until_end, self.done_cb = station, title, fmt, until_end, done_cb
+        self.t0, self.bytes, self.closed, self.result, self.error = time.time(), 0, False, None, ""
+        self.raw = os.path.join(paths.temp_dir(), f"radio_{int(self.t0 * 1000)}.{fmt}")
+        self.f = open(self.raw, "wb")
+        self.lock = threading.Lock()
+
+    def write(self, data):
+        with self.lock:
+            if not self.closed:
+                self.f.write(data)
+                self.bytes += len(data)
+
+    def finish(self):
+        with self.lock:
+            if self.closed:
+                return
+            self.closed = True
+            self.f.close()
+        try:
+            from . import links
+            artist, title = "", self.title or ""
+            if " - " in title:
+                artist, title = [x.strip() for x in title.split(" - ", 1)]
+            folder = os.path.join(paths.ensure_output(paths.settings()["output_dir"]), "Radio-Mitschnitte")
+            os.makedirs(folder, exist_ok=True)
+            label = paths.clean(" – ".join(x for x in (artist, title) if x) or self.station or "Radio")[:90]
+            out = paths.unique(os.path.join(folder, time.strftime("%Y-%m-%d %H-%M ") + label + ".mp3"))
+            args = [paths.ffmpeg(), "-hide_banner", "-nostdin", "-loglevel", "error", "-f", self.fmt, "-i", self.raw,
+                    "-vn", "-c:a", "libmp3lame", "-q:a", "2", "-metadata", f"title={title or self.station}",
+                    "-metadata", f"artist={artist or self.station}", "-metadata", f"album={self.station} (Mitschnitt)", "-y", out]
+            r = paths.run(args, timeout=1800)
+            if r.returncode != 0 or not os.path.isfile(out):
+                raise RuntimeError(r.stderr.decode("utf-8", "replace")[-200:] or "Umwandeln fehlgeschlagen")
+            self.result = out
+        except Exception as e:
+            self.error = str(e)[:200]
+            paths.log.warning("Radio-Mitschnitt: %s", e)
+        finally:
+            try:
+                os.remove(self.raw)
+            except OSError:
+                pass
+            if self.done_cb:
+                self.done_cb(self)
 
 
 # ---------------------------------------------------------------- Online-Suche (YouTube)

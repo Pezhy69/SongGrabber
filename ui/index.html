@@ -1024,7 +1024,8 @@
 <ul><li><b>Radio</b>: über 30.000 Internetradios aus aller Welt (Senderverzeichnis radio-browser.info). <em>Sender suchen</em> nach Name oder Stil, Land wählen oder auf ein Genre wie <em>rock</em>, <em>jazz</em> oder <em>80s</em> klicken.</li>
 <li>Ein Klick auf einen Sender spielt ihn ab. Mit <em>Weiter</em>/<em>Zurück</em> im Player wechselst du zum nächsten Sender der Liste. Der ★ speichert ihn unter <em>Favoriten</em>; <em>Zuletzt gehört</em> merkt sich die letzten Sender.</li>
 <li>Im Player steht <b>LIVE</b> mit dem gerade gesendeten Lied. Interpret, Titel und, wenn gefunden, Cover und Songtext erscheinen automatisch. Ab dem nächsten Liedwechsel läuft der Songtext ungefähr mit, denn der Sender meldet nur, wann ein neues Lied beginnt. Beim ersten Lied nach dem Einschalten (oder wenn es ein paar Sekunden daneben liegt) klickst du die Zeile an, die gerade gesungen wird.</li>
-<li><b>Mitschneiden</b> (im Player unter LIVE, im Menü ⋯ eines Senders oder per Rechtsklick) nimmt den Sender im Hintergrund auf, auf Wunsch für eine bestimmte Zahl Minuten. Beenden geht unter <em>Links &amp; Streams</em>; gespeichert wird im eingestellten Format.</li>
+<li><b>Sofort mitschneiden</b> (im Player unter LIVE auf <em>Mitschneiden</em>): <em>Diesen Song aufnehmen – von Anfang an</em> nimmt den gerade laufenden Song <b>samt Anfang</b> auf – SongGrabber hält die letzten 15 Minuten des Senders bereit – und stoppt am Songende von selbst. <em>Ab jetzt aufnehmen</em> läuft, bis du wieder auf den Knopf klickst. Gespeichert wird als MP3 mit Interpret und Titel im Musik-Ordner unter <code>Radio-Mitschnitte</code>. Im Mini-Player geht dasselbe mit dem roten Punkt. Funktioniert bei normalen Internetradios (nicht bei YouTube-Livestreams); der Sender muss dafür im Player laufen.</li>
+<li><b>Länger aufnehmen</b> (im selben Menü, im Menü ⋯ eines Senders oder per Rechtsklick) nimmt den Sender im Hintergrund auf, auf Wunsch für eine bestimmte Zahl Minuten – auch wenn du weiterhörst oder wechselst. Beenden geht unter <em>Links &amp; Streams</em>.</li>
 <li><b>Podcasts</b>: oben auf <em>Podcasts</em> umschalten, eine Sendung suchen und öffnen. <em>Abonnieren</em> legt sie unter <em>Meine Podcasts</em> ab. <em>Feed-Adresse</em> fügt einen Podcast per RSS-Link hinzu.</li>
 <li>Bei jeder Folge: ▶ abspielen, <b>+</b> an die Warteschlange hängen, ⬇ herunterladen (landet mit Cover unter <code>Podcasts</code> im Zielordner). SongGrabber merkt sich, wie weit du gehört hast, und setzt dort fort; gehörte Folgen sind markiert.</li></ul></article>
 
@@ -1097,7 +1098,11 @@
 <li><b>Nicht unter Linux</b>: die Frage nach dem Musik-Ordner beim Installieren (einfach unten rechts ändern) und das Setup-Programm selbst – dafür gibt es <code>install.sh</code>.</li></ul></article>
 
 <article id="h-faq"><h2>Probleme &amp; Fragen</h2>
-<dl><dt>Ein Link lädt nicht.</dt><dd>yt-dlp aktualisieren (Einstellungen → Werkzeuge). Private, altersbeschränkte oder kostenpflichtige Inhalte gehen nicht.</dd>
+<dl><dt>Meine Stimme ist in der Karaoke-Aufnahme zu leise.</dt><dd>SongGrabber hebt die Stimme beim Mischen automatisch an. Ist sie trotzdem zu leise: bei der Aufnahme rechts <em>Stimme +6 dB</em> wählen (wird neu gemischt). Zeigt „REC“ im Video „Mikro sehr leise?“, in Windows unter <em>Einstellungen → System → Sound → Eingabe</em> die Eingangslautstärke des Mikrofons erhöhen. Welches Mikrofon benutzt wird, stellst du auf der Seite <em>Bildschirm</em> ein.</dd>
+<dt>Ein Karaoke-Video lädt nicht.</dt><dd>Manche Videos sind gesperrt oder nur in anderen Ländern verfügbar – SongGrabber springt dann nach ein paar Sekunden zum nächsten Song. Hilft oft auch: yt-dlp aktualisieren (Einstellungen → Werkzeuge). Ohne Internet laufen nur gespeicherte ★-Favoriten.</dd>
+<dt>Die Bildschirmaufnahme startet nicht oder das Bild bleibt schwarz.</dt><dd>Bei „Ein Fenster“ darf das Fenster nicht minimiert sein. Versuche „Ganzer Bildschirm“ oder „Bereich zeichnen“. Unter Linux funktioniert die Bildschirmaufnahme nur in einer Xorg-Sitzung. Die genaue Meldung steht im Fehlerprotokoll (Einstellungen → Über).</dd>
+<dt>Ein Radio-Mitschnitt hat keinen Anfang.</dt><dd><em>Diesen Song aufnehmen – von Anfang an</em> wählen: Dann nimmt SongGrabber den Song ab dem letzten Titelwechsel des Senders auf. Das geht nur, wenn der Sender schon eine Weile im Player läuft und Titel mitschickt.</dd>
+<dt>Ein Link lädt nicht.</dt><dd>yt-dlp aktualisieren (Einstellungen → Werkzeuge). Private, altersbeschränkte oder kostenpflichtige Inhalte gehen nicht.</dd>
 <dt>Album oder Genre fehlen.</dt><dd>Interpret und Titel prüfen: Die Suche braucht beides korrekt geschrieben. Danach im Tag-Editor <em>Online ergänzen</em> oder die Felder von Hand füllen.</dd>
 <dt>Die Aufnahme ist stumm.</dt><dd>1) Unter <em>Eingänge</em> schauen, welcher beim Sprechen ausschlägt, und den anklicken. 2) Steht überall „stumm“, blockiert meist Windows: <em>Einstellungen → Datenschutz → Mikrofon → „Desktop-Apps Zugriff auf das Mikrofon erlauben“</em> einschalten (SongGrabber zeigt dafür einen Knopf), danach SongGrabber neu starten. 3) In Windows unter <em>Sound → Aufnahme</em> prüfen, ob das Gerät aktiviert und nicht stummgeschaltet ist.</dd>
 <dt>Systemsound wird nicht aufgenommen.</dt><dd>Unter <em>Eingänge</em> das 🔊-Gerät wählen, das „Ton läuft ✓“ zeigt. Oft läuft der Ton über ein Headset statt über die Lautsprecher.</dd>
@@ -1226,6 +1231,7 @@
     <button id="miPrev" title="Zurück"><svg><use href="#i-prev"/></svg></button>
     <button id="miPlay" class="play" title="Abspielen/Pause"><svg><use href="#i-play"/></svg></button>
     <button id="miNext" title="Weiter"><svg><use href="#i-next"/></svg></button>
+    <button id="miRec" class="mi-rec" hidden title="Diesen Song mitschneiden (von Anfang an)"><i></i></button>
   </div>
   <button class="mi-back" id="miBack" title="Zurück zum großen Fenster (oder Doppelklick)"><svg><use href="#i-expand"/></svg></button>
   <div class="mi-prog"><i id="miProg"></i></div>

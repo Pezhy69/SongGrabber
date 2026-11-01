@@ -10,6 +10,7 @@
 - **Mich aufnehmen**: beim Singen Stimme + Musik als MP3 speichern, auf Wunsch auch als Video – Stimme nachträglich lauter/leiser
 - **Best-of & Mixe**: lange Karaoke-Videos (oft 1 Std.) mit Songliste – ⏭ / N springt zum nächsten Song im Video
 - Zeitleiste mit Restzeit, Lautstärke, Tasten (Leertaste, ←/→, ↑/↓, N)
+- **Radio: Sofort mitschneiden** – ein Klick nimmt den laufenden Song von Anfang an auf und stoppt am Songende; oder ab jetzt bis Stopp. Auch im Mini-Player
 - **★ Favoriten offline**: Ein Klick auf den Stern speichert das Video im Ordner „Karaoke“ – läuft dann auch ohne Internet, z. B. beim Camping. „Alle offline holen“ lädt alles auf einmal
 
 Windows zeigt beim ersten Start evtl. „Der Computer wurde durch Windows geschützt“ → *Weitere Informationen* → *Trotzdem ausführen*.
