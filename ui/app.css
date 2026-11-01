@@ -1213,3 +1213,46 @@ body.is-scrbar .scrbar.paused{border-top-color:var(--info)}
 .ka-stage.full .ka-seek:hover,.ka-stage.full:hover .ka-seek{opacity:1}
 .ka-stage.full.idle,.ka-stage.full.idle *{cursor:none}
 .ka-stage.full.idle .ka-ctrl,.ka-stage.full.idle .ka-seek{opacity:0}
+
+.ka-mode{flex:none}
+.ka-mode button{padding:7px 12px;letter-spacing:0;font-size:12.5px}
+.ka-track{position:relative}
+.ka-track input{width:100%;position:relative;z-index:1}
+.ka-ticks{position:absolute;left:9px;right:9px;top:50%;height:12px;transform:translateY(-50%);pointer-events:none;z-index:2}
+.ka-ticks i{position:absolute;top:0;width:2px;height:12px;background:rgba(255,255,255,.55);border-radius:1px}
+.ka-chlist{max-height:240px;overflow:auto;background:var(--panel);padding:6px 10px;border-top:1px solid var(--line);display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:4px}
+.ka-chlist button{display:grid;grid-template-columns:28px 1fr auto;gap:8px;align-items:center;text-align:left;background:transparent;border:1px solid transparent;border-radius:8px;padding:6px 8px;color:var(--text);font-size:12.5px}
+.ka-chlist button:hover{background:var(--raise)}
+.ka-chlist button.now{border-color:var(--accent);background:rgba(255,122,48,.1)}
+.ka-chlist button i{font-style:normal;color:var(--dim);font-family:var(--mono);font-size:11px}
+.ka-chlist button em{font-style:normal;color:var(--dim);font-family:var(--mono);font-size:11px}
+.ka-chlist button b{font-weight:550;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ka-chbtn,.ka-recbtn{display:flex;align-items:center;gap:6px}
+.ka-chbtn svg{width:14px;height:14px}
+.ka-chbtn span{max-width:220px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ka-recbtn i{width:10px;height:10px;border-radius:50%;background:#7a2a33}
+.ka-recbtn.on{border-color:rgba(255,59,78,.6);color:#ff8592}
+.ka-recbtn.on i{background:var(--rec);box-shadow:0 0 8px var(--rec);animation:blink 1s infinite}
+.ka-rec{position:absolute;left:14px;top:14px;display:flex;align-items:center;gap:8px;background:rgba(0,0,0,.6);border:1px solid rgba(255,59,78,.5);border-radius:20px;padding:5px 12px;color:#fff;font:600 12px var(--mono);z-index:3}
+.ka-rec i{width:10px;height:10px;border-radius:50%;background:var(--rec);box-shadow:0 0 8px var(--rec);animation:blink 1s infinite}
+.ka-mic{width:60px;height:5px;border-radius:5px;background:rgba(255,255,255,.15);overflow:hidden}
+.ka-mic em{display:block;height:100%;width:0;background:var(--ok);transition:width .12s}
+.ka-recopt{margin:14px 0 2px;padding-top:10px;border-top:1px solid var(--line)}
+.ka-recopt .switch{padding:5px 0}
+.ka-recopt .ka-sub{margin-left:20px}
+.ka-tip{display:block;font-size:11.5px;margin-top:4px}
+.ka-recs{display:flex;flex-direction:column;gap:8px}
+.ka-recitem{background:var(--bg2);border:1px solid var(--line);border-radius:10px;padding:9px 10px;font-size:12.5px}
+.ka-recitem b{display:block;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ka-recitem small{color:var(--muted);font-size:11.5px}
+.ka-recitem .row{display:flex;gap:6px;align-items:center;margin-top:7px}
+.ka-recitem .row button{display:flex;align-items:center;gap:5px;padding:5px 8px}
+.ka-recitem .row svg{width:13px;height:13px}
+.ka-recitem select{font-size:11.5px;padding:4px 24px 4px 7px;width:auto}
+.ka-recitem .warn{color:var(--warn);font-size:11.5px;margin-top:5px}
+.ka-recitem.busy{opacity:.6;pointer-events:none}
+.ka-seek{grid-template-columns:52px 1fr 60px auto}
+.ka-seek .ka-chbtn{font-family:var(--font);margin-left:4px}
+.ka-seek .ka-chbtn[hidden]{display:none}
+.ka-now{min-width:140px}
+@media (max-width:1500px){.ka-recbtn span{display:none}}

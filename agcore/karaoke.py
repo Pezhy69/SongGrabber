@@ -8,6 +8,7 @@ import glob
 import json
 import os
 import re
+import shutil
 import subprocess
 import threading
 import time
@@ -53,7 +54,10 @@ def _song(e):
             "duration": int(e.get("duration") or 0), "thumb": _thumb(e)}
 
 
-def _score(s):
+LONG = re.compile(r"best of|mix|medley|non ?stop|compilation|playlist|hits|1 ?(std|stunde|hour)|vol\.? ?\d", re.I)
+
+
+def _score(s, long=False):
     t, ch = s["title"].lower(), s["channel"].lower()
     sc = 0
     if any(c in ch for c in CHANNELS):
@@ -65,22 +69,28 @@ def _score(s):
     if BAD.search(t):
         sc -= 4
     d = s["duration"]
-    if d and (d < 60 or d > 900):
+    if long:                                    # Best-of/Mixe: je länger, desto besser
+        sc += 4 if d >= 1200 else (-2 if d and d < 600 else 0)
+        sc += 2 if LONG.search(t) else 0
+    elif d and (d < 60 or d > 900):
         sc -= 5
     return sc
 
 
-def search(query, limit=30):
-    """Karaoke-Videos zu einem Titel/Interpreten – Karaoke-Kanäle zuerst, Musikvideos ohne Text aussortiert."""
+def search(query, limit=30, long=False):
+    """Karaoke-Videos zu einem Titel/Interpreten – Karaoke-Kanäle zuerst, Musikvideos ohne Text aussortiert.
+    long=True: Best-of-/Mix-Videos (oft 1 Stunde und mehr, mit Songliste)."""
     q = (query or "").strip()
     if not q:
         return []
     if "karaoke" not in q.lower():
         q += " karaoke"
+    if long and not LONG.search(q):
+        q += " best of mix"
     info = _run_json([f"ytsearch{int(limit)}:{q}"])
     out = [_song(e) for e in info.get("entries") or [] if e and e.get("id")]
     for s in out:
-        s["score"] = _score(s)
+        s["score"] = _score(s, long)
     keep = [s for s in out if s["score"] > 0] or out
     keep.sort(key=lambda s: -s["score"])
     return keep
@@ -119,7 +129,7 @@ FORMAT = "bv*[height<=720][vcodec^=avc1]+ba[ext=m4a]/b[height<=720][ext=mp4]/bv*
 def fetch(vid, base, progress=None, cancel=None):
     """Video mit yt-dlp nach base.mp4 (+ base.jpg) holen. progress(0..1). Gibt den Dateipfad zurück."""
     args = [links._ytdlp(), "-f", FORMAT, "--merge-output-format", "mp4", "--no-playlist", "--newline", "--no-warnings",
-            "--no-part", "--write-thumbnail", "--convert-thumbnails", "jpg", "-o", base + ".%(ext)s",
+            "--no-part", "--write-thumbnail", "--convert-thumbnails", "jpg", "--write-info-json", "-o", base + ".%(ext)s",
             "--progress-template", "download:AG %(progress.downloaded_bytes)s %(progress.total_bytes)s %(progress.total_bytes_estimate)s"]
     ff = paths.ffmpeg()
     if ff:
@@ -151,6 +161,20 @@ def fetch(vid, base, progress=None, cancel=None):
         err = [l for l in last if "ERROR" in l] or last
         raise RuntimeError((err[-1] if err else "Download fehlgeschlagen").replace("ERROR: ", "")[:200])
     return files[0]
+
+
+def chapters(video):
+    """Songliste (Kapitel) eines Videos aus der mitgespeicherten .info.json."""
+    for j in (os.path.splitext(video)[0] + ".info.json",):
+        try:
+            with open(j, encoding="utf-8") as f:
+                info = json.load(f)
+        except (OSError, ValueError):
+            continue
+        out = [{"start": float(c.get("start_time") or 0), "end": float(c.get("end_time") or 0), "title": (c.get("title") or "").strip()}
+               for c in info.get("chapters") or []]
+        return [c for c in out if c["end"] > c["start"]]
+    return []
 
 
 # ---------------------------------------------------------------- Favoriten & Offline
@@ -188,10 +212,10 @@ class Karaoke:
         vid = song["id"]
         f = next((x for x in self.data["favorites"] if x["id"] == vid), None)
         if f and f.get("file") and os.path.isfile(f["file"]):
-            return {"ready": True, "src": self.media.url(f["file"]), "offline": True}
+            return {"ready": True, "src": self.media.url(f["file"]), "offline": True, "file": f["file"], "chapters": chapters(f["file"])}
         cached = os.path.join(self.cdir, vid + ".mp4")
         if os.path.isfile(cached) and vid not in self.prep:
-            return {"ready": True, "src": self.media.url(cached), "offline": False}
+            return {"ready": True, "src": self.media.url(cached), "offline": False, "file": cached, "chapters": chapters(cached)}
         st = self.prep.get(vid)
         if st is None or st.get("error"):
             st = self.prep[vid] = {"progress": 0.0, "file": "", "error": "", "mb": 0}
@@ -209,7 +233,7 @@ class Karaoke:
                         self.prep.pop(vid, None)
             threading.Thread(target=run, daemon=True).start()
         if st.get("file"):
-            return {"ready": True, "src": self.media.url(st["file"]), "offline": False}
+            return {"ready": True, "src": self.media.url(st["file"]), "offline": False, "file": st["file"], "chapters": chapters(st["file"])}
         return {"ready": False, "progress": round(st["progress"], 3), "mb": st.get("mb", 0), "error": st.get("error", "")}
 
     def _save(self):
@@ -296,8 +320,9 @@ class Karaoke:
                 import shutil
                 file = paths.unique(base + ".mp4")
                 shutil.copy2(cached, file)
-                if os.path.isfile(os.path.join(self.cdir, vid + ".jpg")):
-                    shutil.copy2(os.path.join(self.cdir, vid + ".jpg"), os.path.splitext(file)[0] + ".jpg")
+                for ext in (".jpg", ".info.json"):
+                    if os.path.isfile(os.path.join(self.cdir, vid + ext)):
+                        shutil.copy2(os.path.join(self.cdir, vid + ext), os.path.splitext(file)[0] + ext)
             else:
                 def prog(p, done):
                     self.dl[vid]["progress"] = p
@@ -392,3 +417,146 @@ class Karaoke:
                 proc.kill()
             except Exception:
                 pass
+
+
+# ---------------------------------------------------------------- Sich selbst aufnehmen (Stimme + Musik)
+class KaraRec:
+    """Nimmt während des Singens den Ton vom PC (die Karaoke-Musik) und das Mikrofon auf und mischt beides
+    zu einer MP3 – auf Wunsch zusätzlich als MP4 mit dem Karaoke-Video."""
+
+    def __init__(self):
+        self.cur, self.done, self.lock = None, {}, threading.Lock()
+        self.base = os.path.join(paths.temp_dir(), "karaoke_rec")
+        os.makedirs(self.base, exist_ok=True)
+
+    def start(self, meta):
+        from .screenrec import _Audio
+        with self.lock:
+            if self.cur:
+                self._stop_threads(self.cur)
+            rid = time.strftime("%Y%m%d_%H%M%S")
+            folder = os.path.join(self.base, rid)
+            os.makedirs(folder, exist_ok=True)
+            mic_dev = (paths.settings().get("screen_opts") or {}).get("mic_device") or ""
+            r = dict(meta, id=rid, folder=folder, t_start=time.time(), dirty=False,
+                     sys=_Audio("sys", "", os.path.join(folder, "musik.wav")),
+                     mic=_Audio("mic", mic_dev, os.path.join(folder, "stimme.wav")))
+            r["sys"].start()
+            r["mic"].start()
+            self.cur = r
+            return {"id": rid}
+
+    def dirty(self):
+        if self.cur:
+            self.cur["dirty"] = True
+        return True
+
+    def status(self):
+        r = self.cur
+        if not r:
+            return {"on": False}
+        return {"on": True, "elapsed": round(time.time() - r["t_start"], 1), "mic": round(float(r["mic"].level), 1),
+                "mic_error": r["mic"].error, "sys_error": r["sys"].error}
+
+    @staticmethod
+    def _stop_threads(r):
+        for a in (r["sys"], r["mic"]):
+            a.stop_evt.set()
+        for a in (r["sys"], r["mic"]):
+            a.join(5)
+
+    def stop(self, keep=True):
+        with self.lock:
+            r, self.cur = self.cur, None
+        if not r:
+            return None
+        self._stop_threads(r)
+        if not keep or (time.time() - r["t_start"]) < 8 or not (r["sys"].frames or r["mic"].frames):
+            shutil.rmtree(r["folder"], ignore_errors=True)
+            return None
+        r["voice"] = 0.0
+        r["duration"] = round(time.time() - r["t_start"], 1)
+        self.done[r["id"]] = r
+        try:
+            return self._render(r)
+        except Exception as e:
+            paths.log.exception("Karaoke-Aufnahme")
+            return {"id": r["id"], "error": str(e)[:200]}
+
+    def remix(self, rid, voice_db):
+        r = self.done.get(rid)
+        if not r:
+            raise RuntimeError("Diese Aufnahme kann nicht mehr angepasst werden.")
+        r["voice"] = max(-12.0, min(15.0, float(voice_db)))
+        return self._render(r)
+
+    def delete(self, rid):
+        r = self.done.pop(rid, None)
+        if r:
+            for k in ("mp3", "mp4"):
+                try:
+                    if r.get(k):
+                        os.remove(r[k])
+                except OSError:
+                    pass
+            shutil.rmtree(r["folder"], ignore_errors=True)
+        return True
+
+    def _render(self, r):
+        ff = paths.ffmpeg()
+        sysw, micw = r["sys"], r["mic"]
+        out_dir = os.path.join(paths.ensure_output(paths.settings()["output_dir"]), "Karaoke-Aufnahmen")
+        os.makedirs(out_dir, exist_ok=True)
+        if not r.get("name"):
+            who = (r.get("singer") or "").strip()
+            title = re.sub(r"\((karaoke|official|hd|lyrics)[^)]*\)|\[[^\]]*\]|karaoke version|karaoke", "", r.get("title") or "", flags=re.I)
+            label = paths.clean(re.sub(r"\s+", " ", re.sub(r"[^\w\s\-–.,()&'!]", " ", (who + " – " if who else "") + title)).strip(" -–"))[:90]
+            r["name"] = paths.unique(os.path.join(out_dir, time.strftime("%Y-%m-%d %H-%M ") + (label or "Karaoke") + ".mp3"))[:-4]
+        mp3 = r["name"] + ".mp3"
+        mix = os.path.join(r["folder"], "mix.wav")
+        ins, filt, lab = [], [], []
+        t_ref = sysw.t0 or micw.t0 or r["t_start"]
+        for i, (a, gain, extra) in enumerate([(sysw, 0.0, ""), (micw, r["voice"], "highpass=f=90,")]):
+            if not (a.t0 and a.frames and os.path.isfile(a.path)):
+                continue
+            ins += ["-i", a.path]
+            d = a.t0 - t_ref                                   # >0: diese Spur begann später
+            sync = f"adelay={int(d * 1000)}|{int(d * 1000)}," if d > 0.005 else (f"atrim=start={-d:.3f},asetpts=PTS-STARTPTS," if d < -0.005 else "")
+            n = len(lab)
+            filt.append(f"[{n}:a]{sync}{extra}volume={gain}dB[a{n}]")
+            lab.append(f"[a{n}]")
+        if not lab:
+            raise RuntimeError("Es kam kein Ton an – Mikrofon und Ton vom PC prüfen.")
+        mixf = ("".join(lab) + f"amix=inputs={len(lab)}:duration=longest:normalize=0," if len(lab) > 1 else lab[0]) + "alimiter=limit=0.95[out]"
+        if len(lab) == 1:
+            mixf = lab[0] + "alimiter=limit=0.95[out]"
+        rr = paths.run([ff, "-hide_banner", "-nostdin", "-loglevel", "error"] + ins +
+                       ["-filter_complex", ";".join(filt) + ";" + mixf, "-map", "[out]", "-ar", "48000", "-y", mix], timeout=900)
+        if rr.returncode != 0:
+            raise RuntimeError("Mischen fehlgeschlagen: " + rr.stderr.decode("utf-8", "replace")[-200:])
+        rr = paths.run([ff, "-hide_banner", "-nostdin", "-loglevel", "error", "-i", mix, "-c:a", "libmp3lame", "-q:a", "2",
+                        "-metadata", f"title={r.get('title') or 'Karaoke'}", "-metadata", f"artist={r.get('singer') or 'Karaoke'}",
+                        "-metadata", "album=Karaoke-Aufnahmen", "-y", mp3], timeout=900)
+        if rr.returncode != 0:
+            raise RuntimeError("MP3 fehlgeschlagen: " + rr.stderr.decode("utf-8", "replace")[-200:])
+        r["mp3"], note = mp3, ""
+        if r.get("mp4") and r.get("video") and os.path.isfile(r["video"]):
+            if r["dirty"]:
+                note = "Kein Video: Während der Aufnahme wurde pausiert oder gespult."
+            else:
+                mp4 = r["name"] + ".mp4"
+                pos = max(0.0, float(r.get("pos") or 0) + (t_ref - r["t_start"]))
+                vin = ["-i", r["video"]] if pos < 0.3 else ["-ss", f"{pos:.3f}", "-i", r["video"]]
+                vc = ["-c:v", "copy"] if pos < 0.3 else ["-c:v", "libx264", "-preset", "veryfast", "-crf", "22", "-pix_fmt", "yuv420p"]
+                rr = paths.run([ff, "-hide_banner", "-nostdin", "-loglevel", "error"] + vin + ["-i", mix, "-map", "0:v:0", "-map", "1:a:0"]
+                               + vc + ["-c:a", "aac", "-b:a", "192k", "-shortest", "-movflags", "+faststart", "-y", mp4], timeout=1800)
+                if rr.returncode == 0:
+                    r["mp4"] = mp4
+                else:
+                    note = "Video konnte nicht erstellt werden."
+                    paths.log.warning("Karaoke-Video: %s", rr.stderr.decode("utf-8", "replace")[-300:])
+        if r.get("mp4") is True:
+            r["mp4"] = ""
+        return {"id": r["id"], "singer": r.get("singer") or "", "title": r.get("title") or "", "mp3": mp3,
+                "mp4": r.get("mp4") or "", "duration": r["duration"], "voice": r["voice"], "note": note,
+                "mic_silent": not micw.frames}

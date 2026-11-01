@@ -42,6 +42,7 @@ class Api:
         self._clean = cleanup.Cleanup()
         self._screen = screenrec.ScreenRec()
         self._kara = karaoke.Karaoke(self._media, self._jobs)
+        self._krec = karaoke.KaraRec()
         self._close_ok = False
         self._ly_cache = {}
         self._jobs.listeners.append(self._job_done)
@@ -381,8 +382,27 @@ class Api:
     def kara_state(self):
         return self._kara.state()
 
-    def kara_search(self, q):
-        return karaoke.search(q)
+    def kara_search(self, q, long=False):
+        return karaoke.search(q, long=bool(long))
+
+    def kara_rec_start(self, meta):
+        self._mon.stop()
+        return self._krec.start(meta)
+
+    def kara_rec_dirty(self):
+        return self._krec.dirty()
+
+    def kara_rec_status(self):
+        return self._krec.status()
+
+    def kara_rec_stop(self, keep=True):
+        return self._krec.stop(bool(keep))
+
+    def kara_rec_remix(self, rid, voice_db):
+        return self._krec.remix(rid, voice_db)
+
+    def kara_rec_delete(self, rid):
+        return self._krec.delete(rid)
 
     def kara_playlists(self, q):
         return karaoke.playlists(q)

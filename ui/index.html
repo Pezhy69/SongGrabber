@@ -483,13 +483,17 @@
             <div class="ka-vid">
               <video id="kaVideo" playsinline></video>
               <div class="ka-over" id="kaOver"></div>
+              <div class="ka-rec" id="kaRecPill" hidden><i></i><b id="kaRecTime">REC 0:00</b><span class="ka-mic"><em id="kaRecLv"></em></span></div>
               <div class="ka-load" id="kaLoad" hidden><i class="spin"></i><span>Video wird geladen …</span></div>
             </div>
-            <div class="ka-seek"><span id="kaCur">0:00</span><input type="range" id="kaSeek" min="0" max="1000" value="0" title="Spulen (← →)"><span id="kaRem">–</span></div>
+            <div class="ka-seek"><span id="kaCur">0:00</span><div class="ka-track"><input type="range" id="kaSeek" min="0" max="1000" value="0" title="Spulen (← →)"><div class="ka-ticks" id="kaTicks"></div></div><span id="kaRem">–</span><button class="ghost sm ka-chbtn" id="kaChBtn" hidden title="Songliste dieses Videos – Klick auf einen Song springt dorthin"><svg><use href="#i-list"/></svg><span id="kaChTxt">Songliste</span></button></div>
+            <div class="ka-chlist" id="kaChList" hidden></div>
             <div class="ka-ctrl">
               <div class="ka-now"><b id="kaNowT">–</b><small id="kaNowS"></small></div>
-              <button class="pp-btn sm" id="kaPlay" title="Abspielen/Pause"><svg><use href="#i-pause"/></svg></button>
-              <button class="pp-btn sm" id="kaNext" title="Nächster Song aus der Warteschlange"><svg><use href="#i-next"/></svg></button>
+              <button class="pp-btn sm" id="kaPrev" title="Zurück zum Anfang des Songs"><svg><use href="#i-prev"/></svg></button>
+              <button class="pp-btn sm" id="kaPlay" title="Abspielen/Pause (Leertaste)"><svg><use href="#i-pause"/></svg></button>
+              <button class="pp-btn sm" id="kaNext" title="Nächster Song (N)"><svg><use href="#i-next"/></svg></button>
+              <button class="ghost sm ka-recbtn" id="kaRecBtn" title="Mich jetzt aufnehmen (Stimme + Musik)"><i></i><span>Aufnahme</span></button>
               <button class="pp-btn sm" id="kaMute" title="Stumm"><svg><use href="#i-vol"/></svg></button><input type="range" id="kaVol" min="0" max="100" value="90" title="Lautstärke (↑ ↓)">
               <button class="pp-btn sm" id="kaFav" title="Als Favorit merken und für unterwegs speichern"><svg><use href="#i-star"/></svg></button>
               <button class="pp-btn sm" id="kaFull" title="Vollbild (F11)"><svg><use href="#i-full"/></svg></button>
@@ -499,6 +503,7 @@
 
           <div id="kaSongs">
             <div class="rp-bar">
+              <div class="seg ka-mode" id="kaMode"><button data-m="song" class="active" title="Einzelne Karaoke-Songs">Einzelne Songs</button><button data-m="long" title="Lange Videos mit vielen Songs und Songliste – z. B. „Love Rock Best Of“ (1 Std.)">Best-of &amp; Mixe</button></div>
               <div class="search grow"><svg><use href="#i-search"/></svg><input id="kaQ" placeholder="Song oder Interpret – z. B. „Atemlos“, „ABBA“, „Bon Jovi“ …"></div>
               <button class="primary" id="kaGo">Suchen</button>
             </div>
@@ -531,9 +536,15 @@
           <h4>Wer singt?</h4>
           <div class="ka-singer"><input id="kaSinger" list="kaSingers" placeholder="Name eingeben"><datalist id="kaSingers"></datalist></div>
           <small class="muted">Neue Songs kommen mit diesem Namen in die Warteschlange.</small>
+          <div class="ka-recopt">
+            <label class="switch"><input type="checkbox" id="kaRecOn"><i></i><span>🔴 Beim Singen aufnehmen</span><small>Stimme + Musik als MP3</small></label>
+            <label class="switch ka-sub" id="kaRecMp4Row"><input type="checkbox" id="kaRecMp4"><i></i><span>auch als Video (MP4)</span><small>Karaoke-Video mit deiner Stimme</small></label>
+            <small class="muted ka-tip">Tipp: Mit Kopfhörer oder Headset klingt die Aufnahme am besten.</small>
+          </div>
           <h4 class="mt">Warteschlange <span class="h-sub" id="kaQN"></span></h4>
           <div class="ka-queue" id="kaQueue"></div>
           <div class="ka-qact"><button class="primary" id="kaStart"><svg><use href="#i-play"/></svg>Los geht's</button><button class="link" id="kaQClear">leeren</button></div>
+          <div id="kaRecsWrap" hidden><h4 class="mt">Aufnahmen <span class="h-sub">dieser Sitzung</span></h4><div class="ka-recs" id="kaRecs"></div></div>
         </aside>
       </div>
     </section>
@@ -932,7 +943,9 @@
 <li><b>Wer singt?</b>: Namen eintragen – neue Songs kommen mit diesem Namen in die Warteschlange. Zu Beginn wird „Jetzt singt: …“ eingeblendet, kurz vor Schluss „Als Nächstes: …“. Nach dem Song geht es automatisch weiter.</li>
 <li><b>★ Favoriten & offline</b>: Ein Klick auf den Stern merkt den Song und speichert das Video (bis 720p) im Musik-Ordner unter <code>Karaoke</code>. Gespeicherte Favoriten laufen auch <b>ohne Internet</b> – praktisch beim Camping oder auf der Gartenparty. <em>Alle offline holen</em> lädt alle noch fehlenden auf einmal; der Fortschritt steht am Bild und in der Warteschlange.</li>
 <li><b>Vollbild</b>: Knopf, Doppelklick aufs Video oder <kbd>F11</kbd>; <kbd>Esc</kbd> beendet es. Im Vollbild verschwinden Mauszeiger und Bedienleiste nach kurzer Ruhe und kommen bei Mausbewegung zurück.</li>
-<li><b>Zeitleiste & Tasten</b>: Die Leiste zeigt, wie lange der Song noch läuft, und lässt sich ziehen. <kbd>Leertaste</kbd> Pause, <kbd>←</kbd>/<kbd>→</kbd> 5 Sekunden spulen, <kbd>↑</kbd>/<kbd>↓</kbd> lauter/leiser, <kbd>N</kbd> nächster Song. Die Lautstärke wird gemerkt.</li>
+<li><b>Best-of &amp; Mixe</b>: Oben links von „Einzelne Songs“ auf <em>Best-of &amp; Mixe</em> umschalten, dann z. B. „Love Rock“ suchen – es kommen lange Videos (oft 1 Stunde) mit vielen Songs. Hat das Video eine Songliste, zeigt die Zeitleiste kleine Striche an jedem Songwechsel, der Knopf <em>Songliste</em> listet alle Songs zum Anklicken, und <em>⏭</em> bzw. <kbd>N</kbd> springt zum nächsten Song <b>im</b> Video (⏮ zurück). Erst nach dem letzten Song geht es mit dem nächsten Eintrag der Warteschlange weiter.</li>
+<li><b>Mich aufnehmen</b>: Rechts <em>🔴 Beim Singen aufnehmen</em> einschalten – dann wird jeder Song mit Musik und deiner Stimme als MP3 gespeichert (Musik-Ordner → <code>Karaoke-Aufnahmen</code>, mit Name und Titel), auf Wunsch zusätzlich als Video (MP4). Oder während des Songs auf den roten Aufnahme-Knopf klicken. Oben links im Video steht dann „REC“ mit Mikrofon-Pegel. Danach erscheinen die Aufnahmen rechts: <em>Anhören</em>, Stimme lauter/leiser nachträglich anpassen, im Ordner zeigen oder löschen. Das Mikrofon ist das unter „Bildschirm“ gewählte (sonst das Standard-Mikrofon). Mit Kopfhörer klingt es am besten; über Lautsprecher nimmt das Mikro die Musik im Raum mit auf. Wird während der Aufnahme pausiert oder gespult, gibt es nur die MP3, kein Video.</li>
+<li><b>Zeitleiste & Tasten</b>: Die Leiste zeigt, wie lange der Song noch läuft, und lässt sich ziehen. <kbd>Leertaste</kbd> Pause, <kbd>←</kbd>/<kbd>→</kbd> 5 Sekunden spulen, <kbd>↑</kbd>/<kbd>↓</kbd> lauter/leiser, <kbd>N</kbd> nächster Song (in Best-of-Videos: nächster Song im Video). Mit der Maus geht dasselbe über ⏮ / ⏭ unter dem Video. Die Lautstärke wird gemerkt.</li>
 <li>Während Karaoke läuft, wird die Musik im Player angehalten.</li></ul></article>
 
 <article id="h-screen"><h2>Bildschirm aufnehmen (Zoom, Teams, Coaching)</h2>
