@@ -485,11 +485,12 @@
               <div class="ka-over" id="kaOver"></div>
               <div class="ka-load" id="kaLoad" hidden><i class="spin"></i><span>Video wird geladen …</span></div>
             </div>
+            <div class="ka-seek"><span id="kaCur">0:00</span><input type="range" id="kaSeek" min="0" max="1000" value="0" title="Spulen (← →)"><span id="kaRem">–</span></div>
             <div class="ka-ctrl">
               <div class="ka-now"><b id="kaNowT">–</b><small id="kaNowS"></small></div>
               <button class="pp-btn sm" id="kaPlay" title="Abspielen/Pause"><svg><use href="#i-pause"/></svg></button>
               <button class="pp-btn sm" id="kaNext" title="Nächster Song aus der Warteschlange"><svg><use href="#i-next"/></svg></button>
-              <input type="range" id="kaVol" min="0" max="100" value="90" title="Lautstärke">
+              <button class="pp-btn sm" id="kaMute" title="Stumm"><svg><use href="#i-vol"/></svg></button><input type="range" id="kaVol" min="0" max="100" value="90" title="Lautstärke (↑ ↓)">
               <button class="pp-btn sm" id="kaFav" title="Als Favorit merken und für unterwegs speichern"><svg><use href="#i-star"/></svg></button>
               <button class="pp-btn sm" id="kaFull" title="Vollbild (F11)"><svg><use href="#i-full"/></svg></button>
               <button class="pp-btn sm" id="kaClose" title="Beenden"><svg><use href="#i-x"/></svg></button>
@@ -930,7 +931,8 @@
 <li><b>Playlists</b>: Fertige Listen zum Loslegen (Party-Hits, Schlager, 80er, Disney, Kinderlieder …) oder eigene Suche. <em>Alle in die Warteschlange</em> übernimmt die ganze Liste.</li>
 <li><b>Wer singt?</b>: Namen eintragen – neue Songs kommen mit diesem Namen in die Warteschlange. Zu Beginn wird „Jetzt singt: …“ eingeblendet, kurz vor Schluss „Als Nächstes: …“. Nach dem Song geht es automatisch weiter.</li>
 <li><b>★ Favoriten & offline</b>: Ein Klick auf den Stern merkt den Song und speichert das Video (bis 720p) im Musik-Ordner unter <code>Karaoke</code>. Gespeicherte Favoriten laufen auch <b>ohne Internet</b> – praktisch beim Camping oder auf der Gartenparty. <em>Alle offline holen</em> lädt alle noch fehlenden auf einmal; der Fortschritt steht am Bild und in der Warteschlange.</li>
-<li><b>Vollbild</b>: Knopf, Doppelklick aufs Video oder <kbd>F11</kbd>; <kbd>Esc</kbd> beendet es. Die Bedienleiste unten wird im Vollbild fast unsichtbar, bis die Maus darüber fährt.</li>
+<li><b>Vollbild</b>: Knopf, Doppelklick aufs Video oder <kbd>F11</kbd>; <kbd>Esc</kbd> beendet es. Im Vollbild verschwinden Mauszeiger und Bedienleiste nach kurzer Ruhe und kommen bei Mausbewegung zurück.</li>
+<li><b>Zeitleiste & Tasten</b>: Die Leiste zeigt, wie lange der Song noch läuft, und lässt sich ziehen. <kbd>Leertaste</kbd> Pause, <kbd>←</kbd>/<kbd>→</kbd> 5 Sekunden spulen, <kbd>↑</kbd>/<kbd>↓</kbd> lauter/leiser, <kbd>N</kbd> nächster Song. Die Lautstärke wird gemerkt.</li>
 <li>Während Karaoke läuft, wird die Musik im Player angehalten.</li></ul></article>
 
 <article id="h-screen"><h2>Bildschirm aufnehmen (Zoom, Teams, Coaching)</h2>

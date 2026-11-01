@@ -1040,7 +1040,7 @@ const Kara = (() => {
       await new Promise(ok => setTimeout(ok, 500));
     }
     if (r.error) { $("#kaLoad").hidden = true; toast("Dieses Video lässt sich nicht laden: " + r.error, "err"); setTimeout(() => { if (K.cur === e) next(); }, 3500); return; }
-    v.src = r.src; v.volume = +$("#kaVol").value / 100;
+    v.src = r.src; v.volume = +$("#kaVol").value / 100; seekUi();
     v.play().catch(() => { });
     over(e.singer ? `Jetzt singt: ${esc(e.singer)}` : esc(e.song.title), e.singer ? esc(e.song.title) : (r.offline ? "offline" : ""), 4500);
     if (K.queue[0]) call("kara_prepare", K.queue[0].song).catch(() => { });   // nächsten Song schon im Hintergrund laden
@@ -1061,7 +1061,7 @@ const Kara = (() => {
   /* --- Vollbild */
   let fsOn = false;
   async function full(on) {
-    if (on === fsOn) return; fsOn = on; $("#kaStage").classList.toggle("full", on);
+    if (on === fsOn) return; fsOn = on; $("#kaStage").classList.toggle("full", on); $("#kaStage").classList.remove("idle");
     await call("toggle_fullscreen").catch(() => { });
   }
   document.addEventListener("keydown", e => { if (e.key === "Escape" && fsOn) full(false); if (e.key === "F11" && active() && K.cur) { e.preventDefault(); full(!fsOn); } });
@@ -1069,7 +1069,34 @@ const Kara = (() => {
   $("#kaNext").onclick = () => next();
   $("#kaClose").onclick = stop;
   $("#kaFull").onclick = () => full(!fsOn);
-  $("#kaVol").oninput = e => { v.volume = +e.target.value / 100; };
+  const vol = x => { x = Math.max(0, Math.min(100, x)); $("#kaVol").value = x; $("#kaVol").style.setProperty("--p", x + "%"); v.volume = x / 100; v.muted = false; $("#kaMute").innerHTML = `<svg><use href="#${x ? "i-vol" : "i-mute"}"/></svg>`; try { localStorage.setItem("kaVol", x); } catch { } };
+  try { vol(+(localStorage.getItem("kaVol") ?? 90)); } catch { vol(90); }
+  $("#kaVol").oninput = e => vol(+e.target.value);
+  $("#kaMute").onclick = () => { v.muted = !v.muted; $("#kaMute").innerHTML = `<svg><use href="#${v.muted ? "i-mute" : "i-vol"}"/></svg>`; };
+  /* Zeitleiste */
+  let seeking = false;
+  const dur = () => isFinite(v.duration) && v.duration ? v.duration : (K.cur && K.cur.song.duration) || 0;
+  function seekUi() {
+    const d = dur(), t = v.currentTime || 0, p = d ? t / d : 0;
+    if (!seeking) { $("#kaSeek").value = p * 1000; $("#kaSeek").style.setProperty("--p", p * 100 + "%"); }
+    $("#kaCur").textContent = fmtTime(t); $("#kaRem").textContent = d ? "-" + fmtTime(Math.max(0, d - t)) : "–";
+  }
+  v.addEventListener("timeupdate", seekUi); v.addEventListener("loadedmetadata", seekUi);
+  $("#kaSeek").addEventListener("input", e => { seeking = true; const d = dur(); e.target.style.setProperty("--p", e.target.value / 10 + "%"); $("#kaCur").textContent = fmtTime(e.target.value / 1000 * d); });
+  $("#kaSeek").addEventListener("change", e => { const d = dur(); if (d) v.currentTime = e.target.value / 1000 * d; seeking = false; });
+  /* Tasten: Leertaste, ← → spulen, ↑ ↓ lauter/leiser (nur auf der Karaoke-Seite, nicht beim Tippen) */
+  document.addEventListener("keydown", e => {
+    if (!active() || !K.cur || e.target.closest("input,textarea,select") || e.ctrlKey || e.altKey) return;
+    if (e.code === "Space") { e.preventDefault(); v.paused ? v.play() : v.pause(); }
+    else if (e.code === "ArrowRight") v.currentTime = Math.min(dur(), v.currentTime + 5);
+    else if (e.code === "ArrowLeft") v.currentTime = Math.max(0, v.currentTime - 5);
+    else if (e.code === "ArrowUp") { e.preventDefault(); vol(+$("#kaVol").value + 5); }
+    else if (e.code === "ArrowDown") { e.preventDefault(); vol(+$("#kaVol").value - 5); }
+    else if (e.key === "n" || e.key === "N") next();
+  });
+  /* Vollbild: Mauszeiger und Leiste verschwinden nach 2,5 s Ruhe */
+  let idleT = 0;
+  $("#kaStage").addEventListener("mousemove", () => { $("#kaStage").classList.remove("idle"); clearTimeout(idleT); if (fsOn) idleT = setTimeout(() => $("#kaStage").classList.add("idle"), 2500); });
   $("#kaFav").onclick = () => K.cur && toggleFav(K.cur.song);
   v.addEventListener("dblclick", () => full(!fsOn));
   /* --- Bedienung */
