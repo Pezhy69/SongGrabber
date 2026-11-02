@@ -72,3 +72,4 @@ GB frei ·|GB free ·
 Abtastrate wie Quelle|sample rate as source
 · verlustfrei|· lossless
 \(Hauptbildschirm\)|(main screen)
+^Tonart ([+−]\d)$|Key $1

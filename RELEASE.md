@@ -10,6 +10,10 @@
 - **Wer singt?** – Sänger-Warteschlange mit Einblendung „Jetzt singt …“ und „Als Nächstes …“, Vollbild für den Fernseher
 - **Mich aufnehmen**: beim Singen Stimme + Musik als MP3 speichern, auf Wunsch auch als Video – Stimme nachträglich lauter/leiser
 - **Best-of & Mixe**: lange Karaoke-Videos (oft 1 Std.) mit Songliste – ⏭ / N springt zum nächsten Song im Video
+- **Tonart ändern** (♭/♯): Song bis zu 6 Halbtöne tiefer oder höher – das Tempo bleibt gleich, wird je Song gemerkt
+- **Fernseher-Modus**: Karaoke-Video im Vollbild auf dem zweiten Bildschirm (Fernseher/Beamer), Warteschlange und Bedienung bleiben auf dem Laptop
+- **🏆 Punkte nach jedem Song** mit Sternen (Spaß-Wertung übers Mikrofon), dazu **Verlauf & Bestenliste**
+- **Hall auf der Stimme** in der Aufnahme: Raum, Bühne oder Konzerthalle – auch nachträglich umstellbar
 - Zeitleiste mit Restzeit, Lautstärke, Tasten (Leertaste, ←/→, ↑/↓, N)
 - **Radio: Sofort mitschneiden** – ein Klick nimmt den laufenden Song von Anfang an auf und stoppt am Songende; oder ab jetzt bis Stopp. Auch im Mini-Player
 - **★ Favoriten offline**: Ein Klick auf den Stern speichert das Video im Ordner „Karaoke“ – läuft dann auch ohne Internet, z. B. beim Camping. „Alle offline holen“ lädt alles auf einmal

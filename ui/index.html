@@ -59,6 +59,9 @@
     <symbol id="i-mute" viewBox="0 0 24 24"><path d="M4 9h4l5-4v14l-5-4H4z"/><path d="M17 9l5 6M22 9l-5 6"/></symbol>
     <symbol id="i-sparkle" viewBox="0 0 24 24"><path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8z"/><path d="M19 15l.8 2.2L22 18l-2.2.8L19 21l-.8-2.2L16 18l2.2-.8z"/></symbol>
     <symbol id="i-podcast" viewBox="0 0 24 24"><circle cx="12" cy="10" r="3"/><path d="M12 13v8M7.5 15.5a7 7 0 1 1 9 0M5 18.5a10.5 10.5 0 1 1 14 0"/></symbol>
+    <symbol id="i-tv" viewBox="0 0 24 24"><rect x="2.5" y="4.5" width="19" height="13" rx="2"/><path d="M8 21h8M12 17.5V21"/></symbol>
+    <symbol id="i-trophy" viewBox="0 0 24 24"><path d="M7 4h10v5a5 5 0 0 1-10 0z"/><path d="M7 6H4.5a2.5 2.5 0 0 0 3 4M17 6h2.5a2.5 2.5 0 0 1-3 4M12 14v3.5M8.5 21h7M9.5 17.5h5"/></symbol>
+    <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.2 2"/></symbol>
     <symbol id="i-star" viewBox="0 0 24 24"><path d="M12 3l2.8 5.7 6.2.9-4.5 4.4 1 6.2L12 17.3 6.5 20.2l1-6.2L3 9.6l6.2-.9z"/></symbol>
     <symbol id="i-globe" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18"/></symbol>
     <symbol id="i-down" viewBox="0 0 24 24"><path d="M12 4v12M6 11l6 6 6-6M5 20h14"/></symbol>
@@ -474,15 +477,17 @@
     <section class="page" id="page-karaoke">
       <header class="page-head">
         <div><h1>Karaoke</h1><p>Karaoke-Videos von YouTube – ohne Werbung. Mit ★ gemerkte Songs werden gespeichert und laufen auch ohne Internet, z. B. beim Camping.</p></div>
-        <div class="seg" id="kaTabs"><button data-t="songs" class="active">Songs</button><button data-t="lists">Playlists</button><button data-t="favs">★ Favoriten <b id="kaFavN"></b></button></div>
+        <div class="seg" id="kaTabs"><button data-t="songs" class="active">Songs</button><button data-t="lists">Playlists</button><button data-t="favs">★ Favoriten <b id="kaFavN"></b></button><button data-t="hist">Verlauf</button></div>
       </header>
 
       <div class="ka-layout">
         <div class="ka-main">
           <div class="card ka-stage" id="kaStage" hidden>
             <div class="ka-vid">
-              <video id="kaVideo" playsinline></video>
+              <video id="kaVideo" playsinline crossorigin="anonymous"></video>
+              <div class="ka-tvph" id="kaTvPh" hidden><svg><use href="#i-tv"/></svg><b>Läuft auf dem Fernseher</b><small>Steuern kannst du hier weiter: Pause, Tonart, nächster Song …</small><button class="ghost sm" id="kaTvBack">Wieder hier zeigen</button></div>
               <div class="ka-over" id="kaOver"></div>
+              <div id="kaScore"></div>
               <div class="ka-rec" id="kaRecPill" hidden><i></i><b id="kaRecTime">REC 0:00</b><span class="ka-mic"><em id="kaRecLv"></em></span></div>
               <div class="ka-load" id="kaLoad" hidden><i class="spin"></i><span>Video wird geladen …</span></div>
             </div>
@@ -493,9 +498,11 @@
               <button class="pp-btn sm" id="kaPrev" title="Zurück zum Anfang des Songs"><svg><use href="#i-prev"/></svg></button>
               <button class="pp-btn sm" id="kaPlay" title="Abspielen/Pause (Leertaste)"><svg><use href="#i-pause"/></svg></button>
               <button class="pp-btn sm" id="kaNext" title="Nächster Song (N)"><svg><use href="#i-next"/></svg></button>
+              <div class="ka-key" id="kaKey" title="Tonart: tiefer oder höher singen – das Tempo bleibt gleich (Tasten − und +)"><button id="kaKeyDn" title="Tiefer (−)">♭</button><span id="kaKeyV" title="Klick: zurück zur Original-Tonart">Tonart</span><button id="kaKeyUp" title="Höher (+)">♯</button></div>
               <button class="ghost sm ka-recbtn" id="kaRecBtn" title="Mich jetzt aufnehmen (Stimme + Musik)"><i></i><span>Aufnahme</span></button>
               <button class="pp-btn sm" id="kaMute" title="Stumm"><svg><use href="#i-vol"/></svg></button><input type="range" id="kaVol" min="0" max="100" value="90" title="Lautstärke (↑ ↓)">
               <button class="pp-btn sm" id="kaFav" title="Als Favorit merken und für unterwegs speichern"><svg><use href="#i-star"/></svg></button>
+              <button class="pp-btn sm" id="kaTv" title="Auf dem Fernseher zeigen – Video im Vollbild auf dem zweiten Bildschirm, Bedienung bleibt hier (T)"><svg><use href="#i-tv"/></svg></button>
               <button class="pp-btn sm" id="kaFull" title="Vollbild (F11)"><svg><use href="#i-full"/></svg></button>
               <button class="pp-btn sm" id="kaClose" title="Beenden"><svg><use href="#i-x"/></svg></button>
             </div>
@@ -530,6 +537,12 @@
             </div>
             <div class="ka-grid" id="kaFavList"></div>
           </div>
+
+          <div id="kaHist" hidden>
+            <div class="ka-best" id="kaBest" hidden><h4><svg><use href="#i-trophy"/></svg>Bestenliste</h4><div id="kaBestList"></div></div>
+            <div class="ka-histhead"><h4>Zuletzt gesungen</h4><div class="grow"></div><button class="link" id="kaHistClear">Verlauf leeren</button></div>
+            <div class="ka-hist" id="kaHistList"></div>
+          </div>
         </div>
 
         <aside class="card ka-side">
@@ -537,13 +550,15 @@
           <div class="ka-singer"><input id="kaSinger" list="kaSingers" placeholder="Name eingeben"><datalist id="kaSingers"></datalist></div>
           <small class="muted">Neue Songs kommen mit diesem Namen in die Warteschlange.</small>
           <div class="ka-recopt">
+            <label class="switch"><input type="checkbox" id="kaScoreOn"><i></i><span>🏆 Punkte nach jedem Song</span><small>hört aufs Mikrofon – nur zum Spaß</small></label>
             <label class="switch"><input type="checkbox" id="kaRecOn"><i></i><span>🔴 Beim Singen aufnehmen</span><small>Stimme + Musik als MP3</small></label>
-            <label class="switch ka-sub" id="kaRecMp4Row"><input type="checkbox" id="kaRecMp4"><i></i><span>auch als Video (MP4)</span><small>Karaoke-Video mit deiner Stimme</small></label>
+            <div id="kaRecMore"><label class="switch ka-sub"><input type="checkbox" id="kaRecMp4"><i></i><span>auch als Video (MP4)</span><small>Karaoke-Video mit deiner Stimme</small></label>
+            <label class="ka-sub ka-hall">Hall auf der Stimme<select id="kaHall"><option value="off">Aus – trocken</option><option value="room">Raum</option><option value="stage" selected>Bühne</option><option value="hall">Konzerthalle</option></select></label></div>
             <small class="muted ka-tip">Tipp: Mit Kopfhörer oder Headset klingt die Aufnahme am besten.</small>
           </div>
           <h4 class="mt">Warteschlange <span class="h-sub" id="kaQN"></span></h4>
           <div class="ka-queue" id="kaQueue"></div>
-          <div class="ka-qact"><button class="primary" id="kaStart"><svg><use href="#i-play"/></svg>Los geht's</button><button class="link" id="kaQClear">leeren</button></div>
+          <div class="ka-qact"><button class="primary" id="kaStart"><svg><use href="#i-play"/></svg>Los geht's</button><button class="ghost sm" id="kaTv2" title="Auf dem Fernseher zeigen – Video im Vollbild auf dem zweiten Bildschirm"><svg><use href="#i-tv"/></svg>Fernseher</button><div class="grow"></div><button class="link" id="kaQClear">leeren</button></div>
           <div id="kaRecsWrap" hidden><h4 class="mt">Aufnahmen <span class="h-sub">dieser Sitzung</span></h4><div class="ka-recs" id="kaRecs"></div></div>
         </aside>
       </div>
@@ -949,6 +964,11 @@
 <li><b>Best-of &amp; Mixe</b>: Oben links von „Einzelne Songs“ auf <em>Best-of &amp; Mixe</em> umschalten, dann z. B. „Love Rock“ suchen – es kommen lange Videos (oft 1 Stunde) mit vielen Songs. Hat das Video eine Songliste, zeigt die Zeitleiste kleine Striche an jedem Songwechsel, der Knopf <em>Songliste</em> listet alle Songs zum Anklicken, und <em>⏭</em> bzw. <kbd>N</kbd> springt zum nächsten Song <b>im</b> Video (⏮ zurück). Erst nach dem letzten Song geht es mit dem nächsten Eintrag der Warteschlange weiter.</li>
 <li><b>Mich aufnehmen</b>: Rechts <em>🔴 Beim Singen aufnehmen</em> einschalten – dann wird jeder Song mit Musik und deiner Stimme als MP3 gespeichert (Musik-Ordner → <code>Karaoke-Aufnahmen</code>, mit Name und Titel), auf Wunsch zusätzlich als Video (MP4). Oder während des Songs auf den roten Aufnahme-Knopf klicken. Oben links im Video steht dann „REC“ mit Mikrofon-Pegel. Danach erscheinen die Aufnahmen rechts: <em>Anhören</em>, Stimme lauter/leiser nachträglich anpassen, im Ordner zeigen oder löschen. Das Mikrofon ist das unter „Bildschirm“ gewählte (sonst das Standard-Mikrofon). Mit Kopfhörer klingt es am besten; über Lautsprecher nimmt das Mikro die Musik im Raum mit auf. Wird während der Aufnahme pausiert oder gespult, gibt es nur die MP3, kein Video.</li>
 <li><b>Zeitleiste & Tasten</b>: Die Leiste zeigt, wie lange der Song noch läuft, und lässt sich ziehen. <kbd>Leertaste</kbd> Pause, <kbd>←</kbd>/<kbd>→</kbd> 5 Sekunden spulen, <kbd>↑</kbd>/<kbd>↓</kbd> lauter/leiser, <kbd>N</kbd> nächster Song (in Best-of-Videos: nächster Song im Video). Mit der Maus geht dasselbe über ⏮ / ⏭ unter dem Video. Die Lautstärke wird gemerkt.</li>
+<li><b>Tonart</b> (♭ / ♯ in der Bedienleiste oder Tasten <kbd>−</kbd> / <kbd>+</kbd>): stellt den Song bis zu 6 Halbtöne tiefer oder höher – das Tempo bleibt gleich. Ist ein Song zu hoch, einfach 2–3 Schritte tiefer. Ein Klick auf die Zahl holt die Original-Tonart zurück. SongGrabber merkt sich die Tonart je Song.</li>
+<li><b>Fernseher</b> (Knopf mit dem Bildschirm oder Taste <kbd>T</kbd>): Das Video läuft im Vollbild auf dem zweiten Bildschirm – Fernseher oder Beamer per HDMI anschließen und in Windows mit <kbd>Win</kbd>+<kbd>P</kbd> <b>Erweitern</b> wählen. Auf dem Laptop bleiben Warteschlange, Suche und Bedienung; „Jetzt singt …“ und die Punkte erscheinen groß auf dem Fernseher. <kbd>Esc</kbd> am Fernseher oder <em>Wieder hier zeigen</em> beendet den Modus. Den Knopf <em>Fernseher</em> gibt es auch unter der Warteschlange, um ihn schon vor dem ersten Song einzuschalten.</li>
+<li><b>🏆 Punkte nach jedem Song</b> (rechts einschalten): SongGrabber hört beim Singen aufs Mikrofon und zeigt am Songende 30–100 Punkte mit Sternen. <em>Treffsicher</em> = wie sauber die Töne sitzen, <em>Dabei</em> = wie viel gesungen wurde, <em>Ruhige Töne</em> = wie gleichmäßig lange Töne gehalten werden. Das ist eine Spaß-Wertung ohne Vergleich mit der Original-Melodie. Mit Kopfhörer wird sie genauer, weil das Mikro dann nur dich hört.</li>
+<li><b>Verlauf &amp; Bestenliste</b> (Reiter <em>Verlauf</em>): alles, was gesungen wurde, mit Name, Uhrzeit und Punkten – oben die fünf besten. Ein Klick auf das Mikrofon singt den Song nochmal, <b>+</b> stellt ihn in die Warteschlange.</li>
+<li><b>Hall auf der Stimme</b> (bei <em>Beim Singen aufnehmen</em>): <em>Raum</em>, <em>Bühne</em> oder <em>Konzerthalle</em> lässt die Aufnahme klingen wie auf der Bühne; <em>Aus</em> bleibt trocken. Lässt sich auch nachher bei jeder Aufnahme umstellen (wird neu gemischt).</li>
 <li>Während Karaoke läuft, wird die Musik im Player angehalten.</li></ul></article>
 
 <article id="h-screen"><h2>Bildschirm aufnehmen (Zoom, Teams, Coaching)</h2>
@@ -1084,6 +1104,7 @@
 <tr><td><kbd>N</kbd> / <kbd>P</kbd></td><td>nächster / vorheriger Titel (Player-Seite)</td></tr>
 <tr><td><kbd>S</kbd> · <kbd>R</kbd> · <kbd>M</kbd></td><td>Zufall · Wiederholen · Stumm (Player-Seite)</td></tr>
 <tr><td><kbd>V</kbd> · <kbd>B</kbd> · <kbd>I</kbd> · <kbd>L</kbd> · <kbd>Q</kbd> · <kbd>H</kbd> · <kbd>F11</kbd></td><td>Lichtshow wechseln · Lichter an/aus · Cover groß/klein · Songtext · rechte Leiste hoch/runter · Bedienung ein-/ausklappen · Vollbild (Player-Seite)</td></tr>
+<tr><td><kbd>N</kbd> · <kbd>−</kbd> / <kbd>+</kbd> · <kbd>T</kbd></td><td>nächster Song · Tonart tiefer / höher · Fernseher an/aus (Karaoke-Seite)</td></tr>
 <tr><td><kbd>Entf</kbd></td><td>markierte Titel löschen (Bibliothek)</td></tr>
 <tr><td><kbd>Enter</kbd></td><td>Link analysieren / Abo hinzufügen</td></tr>
 <tr><td><kbd>Esc</kbd></td><td>Dialog oder Menü schließen</td></tr></table></article>
@@ -1102,7 +1123,9 @@
 <li><b>Nicht unter Linux</b>: die Frage nach dem Musik-Ordner beim Installieren (einfach unten rechts ändern) und das Setup-Programm selbst – dafür gibt es <code>install.sh</code>.</li></ul></article>
 
 <article id="h-faq"><h2>Probleme &amp; Fragen</h2>
-<dl><dt>Meine Stimme ist in der Karaoke-Aufnahme zu leise.</dt><dd>SongGrabber hebt die Stimme beim Mischen automatisch an. Ist sie trotzdem zu leise: bei der Aufnahme rechts <em>Stimme +6 dB</em> wählen (wird neu gemischt). Zeigt „REC“ im Video „Mikro sehr leise?“, in Windows unter <em>Einstellungen → System → Sound → Eingabe</em> die Eingangslautstärke des Mikrofons erhöhen. Welches Mikrofon benutzt wird, stellst du auf der Seite <em>Bildschirm</em> ein.</dd>
+<dl><dt>Kann ich mich beim Singen über die Lautsprecher hören?</dt><dd>Das baut SongGrabber bewusst nicht ein: Windows verzögert das Mikrofon auf dem Weg zum Lautsprecher um etwa 50–150 Millisekunden – man hört sich dann wie ein Echo, das beim Singen stört, und über Lautsprecher kann es pfeifen. Besser: ein Karaoke-Mikrofon mit eingebautem Lautsprecher, ein USB-Mikrofon mit Kopfhörerbuchse („Direct Monitoring“) oder ein kleines Mischpult. Die Aufnahme in SongGrabber funktioniert mit allen.</dd>
+<dt>Die Tonart lässt sich nicht ändern.</dt><dd>Dafür braucht SongGrabber die Audio-Funktionen von Microsoft Edge WebView2 – auf sehr alten Windows-Versionen fehlen sie. Windows-Updates installieren hilft meist. Die Punkte und alles andere funktionieren trotzdem.</dd>
+<dt>Meine Stimme ist in der Karaoke-Aufnahme zu leise.</dt><dd>SongGrabber hebt die Stimme beim Mischen automatisch an. Ist sie trotzdem zu leise: bei der Aufnahme rechts <em>Stimme +6 dB</em> wählen (wird neu gemischt). Zeigt „REC“ im Video „Mikro sehr leise?“, in Windows unter <em>Einstellungen → System → Sound → Eingabe</em> die Eingangslautstärke des Mikrofons erhöhen. Welches Mikrofon benutzt wird, stellst du auf der Seite <em>Bildschirm</em> ein.</dd>
 <dt>Ein Karaoke-Video lädt nicht.</dt><dd>Manche Videos sind gesperrt oder nur in anderen Ländern verfügbar – SongGrabber springt dann nach ein paar Sekunden zum nächsten Song. Hilft oft auch: yt-dlp aktualisieren (Einstellungen → Werkzeuge). Ohne Internet laufen nur gespeicherte ★-Favoriten.</dd>
 <dt>Die Bildschirmaufnahme startet nicht oder das Bild bleibt schwarz.</dt><dd>Bei „Ein Fenster“ darf das Fenster nicht minimiert sein. Versuche „Ganzer Bildschirm“ oder „Bereich zeichnen“. Unter Linux funktioniert die Bildschirmaufnahme nur in einer Xorg-Sitzung. Die genaue Meldung steht im Fehlerprotokoll (Einstellungen → Über).</dd>
 <dt>Ein Radio-Mitschnitt hat keinen Anfang.</dt><dd><em>Diesen Song aufnehmen – von Anfang an</em> wählen: Dann nimmt SongGrabber den Song ab dem letzten Titelwechsel des Senders auf. Das geht nur, wenn der Sender schon eine Weile im Player läuft und Titel mitschickt.</dd>
@@ -1295,6 +1318,11 @@
 <li><b>Best-of &amp; mixes</b>: top left, switch from “Single songs” to <em>Best-of &amp; mixes</em>, then search e.g. “Love Rock” – you get long videos (often 1 hour) with many songs. If the video has a song list, the timeline shows small marks at every song change, the <em>Song list</em> button lists all songs to click, and <em>⏭</em> or <kbd>N</kbd> jumps to the next song <b>within</b> the video (⏮ back). Only after the last song does it continue with the next entry in the queue.</li>
 <li><b>Record me</b>: on the right, turn on <em>🔴 Record while singing</em> – every song is then saved with music and your voice as MP3 (music folder → <code>Karaoke-Aufnahmen</code>, with name and title), optionally also as video (MP4). Or click the red record button during the song. “REC” with the microphone level then appears at the top left of the video. Afterwards the recordings appear on the right: <em>Play</em>, make the voice louder/quieter afterwards, show in folder or delete. The microphone is the one chosen under “Screen” (otherwise the default microphone). It sounds best with headphones; through speakers the mic also picks up the music in the room. If you pause or seek during the recording, you only get the MP3, no video.</li>
 <li><b>Timeline &amp; keys</b>: the bar shows how long the song has left and can be dragged. <kbd>Space</kbd> pause, <kbd>←</kbd>/<kbd>→</kbd> seek 5 seconds, <kbd>↑</kbd>/<kbd>↓</kbd> louder/quieter, <kbd>N</kbd> next song (in best-of videos: next song within the video). With the mouse use ⏮ / ⏭ below the video. The volume is remembered.</li>
+<li><b>Key</b> (♭ / ♯ in the control bar or the <kbd>−</kbd> / <kbd>+</kbd> keys): shifts the song up to 6 semitones lower or higher – the tempo stays the same. If a song is too high, just go 2–3 steps down. A click on the number restores the original key. SongGrabber remembers the key per song.</li>
+<li><b>TV</b> (screen button or the <kbd>T</kbd> key): the video plays fullscreen on the second screen – connect a TV or projector via HDMI and choose <b>Extend</b> in Windows with <kbd>Win</kbd>+<kbd>P</kbd>. Queue, search and controls stay on the laptop; “Now singing …” and the points appear large on the TV. <kbd>Esc</kbd> on the TV or <em>Show here again</em> ends the mode. The <em>TV</em> button is also below the queue, so you can turn it on before the first song.</li>
+<li><b>🏆 Points after every song</b> (turn on at the right): SongGrabber listens to the microphone while you sing and shows 30–100 points with stars at the end of the song. <em>On pitch</em> = how cleanly the notes hit, <em>Singing</em> = how much was sung, <em>Steady notes</em> = how evenly long notes are held. It's a fun rating without comparing to the original melody. With headphones it's more accurate, because the mic only hears you.</li>
+<li><b>History &amp; leaderboard</b> (<em>History</em> tab): everything that was sung, with name, time and points – the top five at the top. A click on the microphone sings the song again, <b>+</b> adds it to the queue.</li>
+<li><b>Reverb on the voice</b> (with <em>Record while singing</em>): <em>Room</em>, <em>Stage</em> or <em>Concert hall</em> makes the recording sound like on stage; <em>Off</em> stays dry. Can also be changed afterwards for every recording (it's remixed).</li>
 <li>While karaoke is running, the music in the player is paused.</li></ul></article>
 
 <article id="h-screen"><h2>Record screen (Zoom, Teams, coaching)</h2>
@@ -1430,6 +1458,7 @@
 <tr><td><kbd>N</kbd> / <kbd>P</kbd></td><td>next / previous track (player page)</td></tr>
 <tr><td><kbd>S</kbd> · <kbd>R</kbd> · <kbd>M</kbd></td><td>Shuffle · repeat · mute (player page)</td></tr>
 <tr><td><kbd>V</kbd> · <kbd>B</kbd> · <kbd>I</kbd> · <kbd>L</kbd> · <kbd>Q</kbd> · <kbd>H</kbd> · <kbd>F11</kbd></td><td>Change light show · lights on/off · cover large/small · lyrics · right bar up/down · collapse/expand controls · fullscreen (player page)</td></tr>
+<tr><td><kbd>N</kbd> · <kbd>−</kbd> / <kbd>+</kbd> · <kbd>T</kbd></td><td>next song · key lower / higher · TV on/off (karaoke page)</td></tr>
 <tr><td><kbd>Del</kbd></td><td>delete selected tracks (library)</td></tr>
 <tr><td><kbd>Enter</kbd></td><td>analyze link / add subscription</td></tr>
 <tr><td><kbd>Esc</kbd></td><td>close dialog or menu</td></tr></table></article>
@@ -1448,7 +1477,9 @@
 <li><b>Not on Linux</b>: the question about the music folder during installation (just change it bottom right) and the setup program itself – that's what <code>install.sh</code> is for.</li></ul></article>
 
 <article id="h-faq"><h2>Problems &amp; questions</h2>
-<dl><dt>My voice is too quiet in the karaoke recording.</dt><dd>SongGrabber automatically boosts the voice when mixing. If it's still too quiet: choose <em>Voice +6 dB</em> next to the recording on the right (it's remixed). If “REC” in the video shows “mic very quiet?”, raise the microphone's input volume in Windows under <em>Settings → System → Sound → Input</em>. Which microphone is used is set on the <em>Screen</em> page.</dd>
+<dl><dt>Can I hear myself through the speakers while singing?</dt><dd>SongGrabber deliberately doesn't do this: Windows delays the microphone on its way to the speakers by about 50–150 milliseconds – you then hear yourself like an echo, which is distracting while singing, and speakers can cause feedback. Better: a karaoke microphone with built-in speaker, a USB microphone with a headphone jack (“direct monitoring”) or a small mixer. Recording in SongGrabber works with all of them.</dd>
+<dt>The key can't be changed.</dt><dd>This needs the audio features of Microsoft Edge WebView2 – they're missing on very old Windows versions. Installing Windows updates usually helps. Points and everything else still work.</dd>
+<dt>My voice is too quiet in the karaoke recording.</dt><dd>SongGrabber automatically boosts the voice when mixing. If it's still too quiet: choose <em>Voice +6 dB</em> next to the recording on the right (it's remixed). If “REC” in the video shows “mic very quiet?”, raise the microphone's input volume in Windows under <em>Settings → System → Sound → Input</em>. Which microphone is used is set on the <em>Screen</em> page.</dd>
 <dt>A karaoke video doesn't load.</dt><dd>Some videos are blocked or only available in other countries – SongGrabber then skips to the next song after a few seconds. Updating yt-dlp often helps too (Settings → Tools). Without internet only saved ★ favorites play.</dd>
 <dt>The screen recording doesn't start or the picture stays black.</dt><dd>With “A window” the window must not be minimized. Try “Whole screen” or “Draw an area”. On Linux screen recording only works in an Xorg session. The exact message is in the log (Settings → About).</dd>
 <dt>A radio recording is missing its beginning.</dt><dd>Choose <em>Record this song – from the start</em>: SongGrabber then records the song from the station's last title change. This only works if the station has been playing in the player for a while and sends titles.</dd>
@@ -1472,6 +1503,7 @@
 <p class="note">Please only save content you have the rights to: your own CDs, free content, private copies within the legal limits.</p></article>
 </template>
 <script src="i18n.js"></script>
+<script src="pitch.js"></script>
 <script>I18N.start();</script>
 <script src="app.js"></script>
 </body>

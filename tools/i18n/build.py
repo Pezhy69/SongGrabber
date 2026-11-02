@@ -54,7 +54,7 @@ def build():
 
 
 # ------------------------------------------------------------------ Prüfen
-GER = re.compile(r"[äöüÄÖÜß]|\b(der|die|das|und|oder|nicht|mit|für|von|zu|ist|wird|ein|eine|kein|keine|im|in|auf|bei|aus|nach|Titel|bitte|noch|alle|neu|Neu|Aufnahme|Ordner|Datei|Sender|Musik|Fehler|Fertig|Abbrechen|Speichern|Löschen|Suchen|Weiter|Zurück|Schließen|Öffnen|Einstellungen|Hilfe|Bildschirm|Fenster|Mikro\w*|Ton|Stopp|Lautstärke|Warteschlange|Bibliothek|Favorit\w*|Abspielen|Laden|lädt|läuft|Sekunden|Minuten|Stunde\w*|Interpret|Jahr|Songtext|Lichtshow|Farben|Einfügen|Analysieren|Kapitel|aufnehmen|gespeichert|Vorschau|Stimme|Singen|Abos|Kürzen|Übertragen)\b")
+GER = re.compile(r"[äöüÄÖÜß]|\b(der|die|das|und|oder|nicht|mit|für|von|zu|ist|wird|ein|eine|kein|keine|im|in|auf|bei|aus|nach|auch|als|dein\w*|mein\w*|sich|wie|wenn|dann|nur|jetzt|hier|schon|mehr|beim|vom|zum|zur|unter|ohne|bis|ab|an|neue\w*|alle\w*|Songs?\b|Video\w*|Bild\w*|Punkte|Tonart|Verlauf|Hall|Titel|bitte|noch|alle|neu|Neu|Aufnahme|Ordner|Datei|Sender|Musik|Fehler|Fertig|Abbrechen|Speichern|Löschen|Suchen|Weiter|Zurück|Schließen|Öffnen|Einstellungen|Hilfe|Bildschirm|Fenster|Mikro\w*|Ton|Stopp|Lautstärke|Warteschlange|Bibliothek|Favorit\w*|Abspielen|Laden|lädt|läuft|Sekunden|Minuten|Stunde\w*|Interpret|Jahr|Songtext|Lichtshow|Farben|Einfügen|Analysieren|Kapitel|aufnehmen|gespeichert|Vorschau|Stimme|Singen|Abos|Kürzen|Übertragen)\b")
 
 
 def german_strings():

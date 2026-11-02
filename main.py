@@ -43,6 +43,8 @@ class Api:
         self._screen = screenrec.ScreenRec()
         self._kara = karaoke.Karaoke(self._media, self._jobs)
         self._krec = karaoke.KaraRec()
+        self._kscore = karaoke.KaraScore()
+        self._tv = None
         self._close_ok = False
         self._ly_cache = {}
         self._jobs.listeners.append(self._job_done)
@@ -398,8 +400,93 @@ class Api:
     def kara_rec_stop(self, keep=True):
         return self._krec.stop(bool(keep))
 
-    def kara_rec_remix(self, rid, voice_db):
-        return self._krec.remix(rid, voice_db)
+    def kara_rec_remix(self, rid, voice_db=None, hall=None):
+        return self._krec.remix(rid, voice_db, hall)
+
+    def kara_score_start(self):
+        self._mon.stop()
+        return self._kscore.start()
+
+    def kara_score_stop(self, rate=True):
+        return self._kscore.stop(bool(rate))
+
+    def kara_history_add(self, entry):
+        return self._kara.history_add(entry)
+
+    def kara_history_clear(self):
+        return self._kara.history_clear()
+
+    # --- Fernseher-Modus: Video im Vollbild auf dem zweiten Bildschirm, Bedienung bleibt im Hauptfenster
+    def kara_screens(self):
+        try:
+            import webview
+            return len(webview.screens or [])
+        except Exception:
+            return 1
+
+    def kara_tv(self, on=True, anyway=False):
+        import webview
+        if not on:
+            if self._tv:
+                try:
+                    self._tv.destroy()
+                except Exception:
+                    pass
+            self._tv = None
+            return {"ok": True}
+        if self._tv:
+            return {"ok": True}
+        scr = list(getattr(webview, "screens", None) or [])
+        target = None
+        if len(scr) > 1:
+            try:
+                mx, my = self._window.x + self._window.width // 2, self._window.y + self._window.height // 2
+            except Exception:
+                mx = my = 0
+            others = [s for s in scr if not (s.x <= mx < s.x + s.width and s.y <= my < s.y + s.height)]
+            target = (others or scr[1:])[0]
+        elif not anyway:
+            return {"ok": False, "single": True}
+        url = os.path.join(paths.res_dir(), "ui", "tv.html")
+        kw = dict(js_api=self, background_color="#000000", min_size=(320, 180))
+        if target:
+            kw.update(x=target.x, y=target.y, width=target.width, height=target.height, fullscreen=True)
+            try:
+                win = webview.create_window("SongGrabber Karaoke", url, screen=target, **kw)
+            except TypeError:
+                win = webview.create_window("SongGrabber Karaoke", url, **kw)
+        else:
+            win = webview.create_window("SongGrabber Karaoke", url, width=960, height=540, **kw)
+
+        def closed():
+            if self._tv is win:
+                self._tv = None
+                self._main_js("typeof Kara !== \"undefined\" && Kara.tvEvent('closed', null)")
+        win.events.closed += closed
+        self._tv = win
+        return {"ok": True, "screen": bool(target)}
+
+    def kara_tv_cmd(self, cmd):
+        w = self._tv
+        if w:
+            try:
+                w.evaluate_js("window.TV && TV.cmd(%s)" % json.dumps(cmd))
+            except Exception as e:
+                paths.log.warning("Fernseher: %s", e)
+                return False
+        return bool(w)
+
+    def kara_tv_event(self, ev, st=None):
+        """Vom Fernseher-Fenster: Zeit, Ende, Fehler … ans Hauptfenster weiterreichen."""
+        self._main_js("typeof Kara !== \"undefined\" && Kara.tvEvent(%s, %s)" % (json.dumps(ev), json.dumps(st)))
+        return True
+
+    def _main_js(self, code):
+        if self._window:
+            try:
+                self._window.evaluate_js(code)
+            except Exception as e:
+                paths.log.warning("Fenster: %s", e)
 
     def kara_rec_delete(self, rid):
         return self._krec.delete(rid)
@@ -1146,6 +1233,8 @@ def main():
         if api._screen.status()["state"] in ("recording", "paused") and not api._close_ok:
             threading.Thread(target=lambda: window.evaluate_js("window.Scr && Scr.closeAsk()"), daemon=True).start()
             return False
+        if api._tv:                                   # Fernseher-Fenster mit schließen
+            threading.Thread(target=lambda: api.kara_tv(False), daemon=True).start()
         return True
     window.events.closing += _closing
     if args.files or args.url:
@@ -1154,6 +1243,7 @@ def main():
         webview.start(debug="--debug" in sys.argv, private_mode=False,
                       storage_path=os.path.join(paths.data_dir(), "webview"))
     finally:
+        api._kscore.stop(False)
         api._screen.shutdown()
         bridge.shutdown(srv)
 

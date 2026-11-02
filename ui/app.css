@@ -1268,3 +1268,62 @@ body.is-scrbar .scrbar.paused{border-top-color:var(--info)}
 .page-head .lang-pick select{min-width:170px;margin:0}
 html[lang=en] .cover.empty-cover::after{content:"No cover"}
 html[lang=en] .scr-shot::after{content:"Preview"}
+
+/* ---------- Karaoke: Tonart, Fernseher, Punkte, Verlauf ---------- */
+.ka-key{display:flex;align-items:center;height:34px;border:1px solid rgba(255,255,255,.14);border-radius:17px;background:rgba(10,10,20,.5);overflow:hidden;flex:none}
+.ka-key button{width:30px;height:100%;border:0;background:none;color:#E9E6F5;font:600 16px/1 var(--font);padding:0;cursor:pointer;transition:.15s}
+.ka-key button:hover:not(:disabled){background:rgba(255,255,255,.07);color:#fff}
+.ka-key button:disabled{opacity:.3;cursor:default}
+.ka-key span{min-width:58px;text-align:center;font:600 12px var(--font);color:var(--muted);cursor:pointer;letter-spacing:.2px;user-select:none}
+.ka-key.on{border-color:var(--accent);box-shadow:0 0 14px -5px var(--accent)}
+.ka-key.on span{color:var(--accent2);font:700 13.5px var(--mono)}
+.ka-ctrl #kaTv.on,#kaTv2.on{color:var(--accent2);border-color:var(--accent)}
+.ka-qact{gap:8px}
+#kaTv2 svg{width:15px;height:15px}
+.ka-tvph{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;text-align:center;padding:20px;background:radial-gradient(ellipse at 50% 35%,rgba(255,122,48,.16),transparent 65%),#06070a}
+.ka-tvph svg{width:54px;height:54px;stroke:var(--accent);stroke-width:1.3}
+.ka-tvph b{font:700 20px var(--disp)}
+.ka-tvph small{color:var(--muted);max-width:360px}
+.ka-tvph button{margin-top:6px}
+.ka-stage.tvon video{visibility:hidden}
+.ka-hall{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-direction:row!important;font-size:12.5px;color:var(--text);padding:6px 0 2px}
+.ka-hall select{width:auto;min-width:130px;padding:5px 8px;font-size:12.5px}
+.ka-recitem .row.mix{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:6px}
+.ka-recitem .row.mix select{width:100%;max-width:none;padding:5px 8px;font-size:12px}
+
+/* Punkte-Karte (auch im Fernseher-Fenster) */
+@property --n{syntax:"<integer>";initial-value:0;inherits:false}
+@keyframes sc-count{from{--n:0}to{--n:var(--to)}}
+@keyframes sc-in{from{opacity:0;transform:translateY(14px) scale(.96)}to{opacity:1;transform:none}}
+@keyframes sc-bar{from{width:0}}
+.ka-score{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(4,5,8,.62);backdrop-filter:blur(6px);z-index:5;font-size:13px}
+.sc-card{min-width:min(340px,80%);padding:1.8em 2.2em 1.6em;border-radius:1.4em;text-align:center;background:linear-gradient(160deg,rgba(40,26,18,.95),rgba(16,14,20,.95));border:1px solid rgba(255,181,71,.25);box-shadow:0 30px 80px -20px rgba(0,0,0,.9),0 0 60px -20px rgba(255,122,48,.45);animation:sc-in .45s ease-out both}
+.sc-card>small{display:block;color:var(--muted);font-size:1em;letter-spacing:.4px;margin-bottom:.2em}
+.sc-n{display:block;font:800 5.4em/1 var(--disp);background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent;animation:sc-count 1.6s cubic-bezier(.2,.8,.2,1) forwards;counter-reset:n var(--n)}
+.sc-n::after{content:counter(n)}
+.sc-of{display:block;font:600 .95em var(--font);color:var(--muted);text-transform:uppercase;letter-spacing:2px;margin-top:.2em}
+.sc-stars{font-size:1.7em;color:var(--accent2);letter-spacing:.12em;margin:.35em 0 .1em;text-shadow:0 0 14px rgba(255,181,71,.5)}
+.sc-stars s{text-decoration:none;color:rgba(255,255,255,.14);text-shadow:none}
+.sc-p{display:block;font:700 1.3em var(--disp);font-style:normal;margin-bottom:1em}
+.sc-bars{display:grid;gap:.55em;text-align:left;margin:0 auto 1.1em;max-width:300px}
+.sc-bars div{display:grid;grid-template-columns:7.5em 1fr 2.2em;align-items:center;gap:.7em;font-size:.95em;color:var(--muted)}
+.sc-bars i{height:.45em;border-radius:1em;background:rgba(255,255,255,.08);position:relative;overflow:hidden}
+.sc-bars i::after{content:"";position:absolute;inset:0 auto 0 0;width:var(--p);border-radius:inherit;background:var(--grad);animation:sc-bar 1.4s .3s cubic-bezier(.2,.8,.2,1) both}
+.sc-bars em{font:600 .95em var(--mono);font-style:normal;color:var(--text);text-align:right}
+.sc-card button{min-width:120px}
+
+/* Verlauf & Bestenliste */
+.ka-best{background:linear-gradient(160deg,rgba(255,181,71,.08),rgba(255,122,48,.03));border:1px solid rgba(255,181,71,.2);border-radius:var(--r);padding:12px 14px 6px;margin-bottom:16px}
+.ka-best h4,.ka-histhead h4{display:flex;align-items:center;gap:8px;margin:0 0 8px}
+.ka-best h4 svg{width:17px;height:17px;stroke:var(--accent2)}
+.ka-histhead{display:flex;align-items:center;margin-bottom:8px}
+.ka-hist{display:flex;flex-direction:column;gap:6px}
+.ka-hrow{display:flex;align-items:center;gap:11px;padding:7px 10px;border-radius:10px;background:var(--bg2);border:1px solid var(--line);margin-bottom:6px}
+.ka-best .ka-hrow{background:rgba(0,0,0,.18)}
+.ka-hrow .rank{font-style:normal;width:22px;text-align:center;font:700 14px var(--disp);color:var(--muted)}
+.ka-hrow .th{width:64px;height:36px;border-radius:6px;background:linear-gradient(135deg,#3a2414,#1a1d26) center/cover;flex:none}
+.ka-hrow .tx{flex:1;min-width:0}
+.ka-hrow .tx b{display:block;font-weight:600;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ka-hrow .tx small{color:var(--muted);font-size:11.5px}
+.ka-hrow .pts{font:700 15px var(--mono);color:var(--accent2);background:rgba(255,181,71,.1);border:1px solid rgba(255,181,71,.25);border-radius:8px;padding:2px 8px}
+.ka-hrow button{opacity:.7}.ka-hrow:hover button{opacity:1}

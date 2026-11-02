@@ -183,7 +183,7 @@ class Karaoke:
         self.media, self.jobs = media, jobs
         self.path = os.path.join(paths.data_dir(), "karaoke.json")
         self.lock = threading.Lock()
-        self.data = {"favorites": [], "singers": [], "queue": []}
+        self.data = {"favorites": [], "singers": [], "queue": [], "history": []}
         try:
             with open(self.path, encoding="utf-8") as f:
                 self.data.update(json.load(f))
@@ -262,6 +262,7 @@ class Karaoke:
                     f["thumb"] = self.media.url(f["thumb_file"])
                 favs.append(f)
             return {"favorites": favs, "singers": self.data.get("singers", []), "queue": self.data.get("queue", []),
+                    "history": self.data.get("history", [])[:300],
                     "folder": self.folder(), "starters": [{"name": n, "query": q} for n, q in STARTERS]}
 
     def save_queue(self, q, singers=None):
@@ -269,6 +270,28 @@ class Karaoke:
             self.data["queue"] = list(q or [])[:200]
             if singers is not None:
                 self.data["singers"] = [s for s in dict.fromkeys(singers) if s][:30]
+            self._save()
+        return True
+
+    # --- Verlauf: was wurde gesungen (mit Punkten, falls gewertet)
+    def history_add(self, entry):
+        song = entry.get("song") or {}
+        if not song.get("id"):
+            return False
+        e = {"song": {k: song.get(k) for k in ("id", "title", "channel", "duration", "thumb")},
+             "singer": (entry.get("singer") or "").strip()[:60], "at": int(time.time())}
+        if entry.get("score") is not None:
+            e["score"] = int(entry["score"])
+        with self.lock:
+            h = self.data.setdefault("history", [])
+            h.insert(0, e)
+            del h[500:]
+            self._save()
+        return True
+
+    def history_clear(self):
+        with self.lock:
+            self.data["history"] = []
             self._save()
         return True
 
@@ -420,6 +443,15 @@ class Karaoke:
 
 
 # ---------------------------------------------------------------- Sich selbst aufnehmen (Stimme + Musik)
+# Hall auf der Stimme (ffmpeg aecho: Verzögerungen in ms und ihre Lautstärke)
+HALL = {
+    "off": "",
+    "room": "aecho=0.9:0.8:35|70:0.22|0.12,",
+    "stage": "aecho=0.9:0.85:55|110|170:0.28|0.18|0.10,",
+    "hall": "aecho=0.9:0.88:90|180|290|420:0.32|0.22|0.15|0.08,",
+}
+
+
 class KaraRec:
     """Nimmt während des Singens den Ton vom PC (die Karaoke-Musik) und das Mikrofon auf und mischt beides
     zu einer MP3 – auf Wunsch zusätzlich als MP4 mit dem Karaoke-Video."""
@@ -438,7 +470,7 @@ class KaraRec:
             folder = os.path.join(self.base, rid)
             os.makedirs(folder, exist_ok=True)
             mic_dev = (paths.settings().get("screen_opts") or {}).get("mic_device") or ""
-            r = dict(meta, id=rid, folder=folder, t_start=time.time(), dirty=False,
+            r = dict(meta, id=rid, folder=folder, t_start=time.time(), dirty=False, hall=meta.get("hall") if meta.get("hall") in HALL else "stage",
                      sys=_Audio("sys", "", os.path.join(folder, "musik.wav")),
                      mic=_Audio("mic", mic_dev, os.path.join(folder, "stimme.wav")))
             r["sys"].start()
@@ -483,11 +515,14 @@ class KaraRec:
             paths.log.exception("Karaoke-Aufnahme")
             return {"id": r["id"], "error": str(e)[:200]}
 
-    def remix(self, rid, voice_db):
+    def remix(self, rid, voice_db=None, hall=None):
         r = self.done.get(rid)
         if not r:
             raise RuntimeError("Diese Aufnahme kann nicht mehr angepasst werden.")
-        r["voice"] = max(-12.0, min(15.0, float(voice_db)))
+        if voice_db is not None:
+            r["voice"] = max(-12.0, min(15.0, float(voice_db)))
+        if hall in HALL:
+            r["hall"] = hall
         return self._render(r)
 
     def delete(self, rid):
@@ -516,7 +551,7 @@ class KaraRec:
         mix = os.path.join(r["folder"], "mix.wav")
         ins, filt, lab = [], [], []
         t_ref = sysw.t0 or micw.t0 or r["t_start"]
-        for i, (a, gain, extra) in enumerate([(sysw, 0.0, ""), (micw, r["voice"], "highpass=f=90,dynaudnorm=f=150:g=15:p=0.9:m=30,acompressor=threshold=-22dB:ratio=3:attack=5:release=150:makeup=3,")]):
+        for i, (a, gain, extra) in enumerate([(sysw, 0.0, ""), (micw, r["voice"], "highpass=f=90,dynaudnorm=f=150:g=15:p=0.9:m=30,acompressor=threshold=-22dB:ratio=3:attack=5:release=150:makeup=3," + HALL.get(r.get("hall") or "off", ""))]):
             if not (a.t0 and a.frames and os.path.isfile(a.path)):
                 continue
             ins += ["-i", a.path]
@@ -558,5 +593,102 @@ class KaraRec:
         if r.get("mp4") is True:
             r["mp4"] = ""
         return {"id": r["id"], "singer": r.get("singer") or "", "title": r.get("title") or "", "mp3": mp3,
-                "mp4": r.get("mp4") or "", "duration": r["duration"], "voice": r["voice"], "note": note,
+                "mp4": r.get("mp4") or "", "duration": r["duration"], "voice": r["voice"], "hall": r.get("hall") or "off", "note": note,
                 "mic_silent": not micw.frames}
+
+
+# ---------------------------------------------------------------- Punkte (Spaß-Wertung)
+def score_wav(path):
+    """Bewertet eine Mikrofon-Aufnahme ohne Vergleichsmelodie:
+    Treffsicherheit = wie nah die gesungenen Töne an echten Halbtönen liegen (bezogen auf die eigene Stimmung),
+    Dabei = wie viel gesungen wurde, Ruhige Töne = wie gleichmäßig gehaltene Töne sind.
+    Gibt None zurück, wenn (fast) nichts gesungen wurde."""
+    import wave
+    import numpy as np
+    try:
+        with wave.open(path, "rb") as w:
+            sr, ch, n = w.getframerate(), w.getnchannels(), w.getnframes()
+            x = np.frombuffer(w.readframes(n), dtype="<i2").astype("float32") / 32768.0
+    except (OSError, EOFError, wave.Error):
+        return None
+    if ch > 1:
+        x = x.reshape(-1, ch).mean(axis=1)
+    f = max(1, sr // 16000)                                    # auf ~16 kHz verkleinern – reicht für Stimmen
+    x = x[: len(x) // f * f].reshape(-1, f).mean(axis=1)
+    sr //= f
+    N, hop = 1024, 512
+    if len(x) < sr * 8:
+        return None
+    nfr = (len(x) - N) // hop
+    fr = np.lib.stride_tricks.as_strided(x, (nfr, N), (x.strides[0] * hop, x.strides[0]))
+    fr = fr - fr.mean(axis=1, keepdims=True)
+    rms = np.sqrt((fr ** 2).mean(axis=1) + 1e-12)
+    db = 20 * np.log10(rms)
+    floor = np.percentile(db, 15)
+    loud = db > max(floor + 12, -50)
+    # Autokorrelation über FFT, Tonhöhe 80–1000 Hz
+    spec = np.fft.rfft(fr * np.hanning(N), 2 * N)
+    ac = np.fft.irfft(np.abs(spec) ** 2)[:, :N]
+    ac /= ac[:, :1] + 1e-12
+    lo, hi = int(sr / 1000), int(sr / 80)
+    seg = ac[:, lo:hi]
+    lag = seg.argmax(axis=1) + lo
+    clar = seg.max(axis=1)
+    voiced = loud & (clar > 0.6)
+    if voiced.sum() < 40:
+        return None
+    # Feiner: Parabel um das Maximum
+    i = np.clip(lag, 1, N - 2)
+    a, b, c = ac[np.arange(nfr), i - 1], ac[np.arange(nfr), i], ac[np.arange(nfr), i + 1]
+    den = a - 2 * b + c
+    off = np.where(np.abs(den) > 1e-9, 0.5 * (a - c) / den, 0)
+    f0 = sr / (i + off)
+    cents = 1200 * np.log2(f0[voiced] / 440.0)
+    # Eigene Stimmung herausrechnen (Karaoke-Tracks sind nicht immer auf 440 Hz)
+    ang = cents / 100 * 2 * np.pi
+    tune = np.angle(np.exp(1j * ang).mean()) / (2 * np.pi) * 100
+    dev = np.abs(((cents - tune) + 50) % 100 - 50)            # 0 … 50 Cent neben dem nächsten Halbton
+    inton = float(np.clip((1 - dev / 50).mean() * 2 - 1, 0, 1)) ** 0.8   # Zufall ≈ 0, perfekt = 1
+    steady = np.abs(np.diff(cents)) < 40
+    stable = float(steady.mean()) if len(steady) else 0.0
+    presence = float(min(1.0, voiced.mean() / 0.45))
+    score = 30 + 70 * (0.55 * inton + 0.3 * presence + 0.15 * stable)
+    return {"score": int(round(min(100, score))), "inton": round(inton * 100), "presence": round(presence * 100),
+            "stable": round(stable * 100)}
+
+
+class KaraScore:
+    """Hört während eines Songs auf das Mikrofon und vergibt am Ende Punkte."""
+
+    def __init__(self):
+        self.cur, self.lock = None, threading.Lock()
+        self.base = os.path.join(paths.temp_dir(), "karaoke_score")
+        os.makedirs(self.base, exist_ok=True)
+
+    def start(self):
+        from .screenrec import _Audio
+        self.stop(False)
+        with self.lock:
+            mic_dev = (paths.settings().get("screen_opts") or {}).get("mic_device") or ""
+            a = _Audio("mic", mic_dev, os.path.join(self.base, time.strftime("%H%M%S") + ".wav"))
+            a.start()
+            self.cur = a
+        return True
+
+    def stop(self, rate=True):
+        with self.lock:
+            a, self.cur = self.cur, None
+        if not a:
+            return None
+        a.stop_evt.set()
+        a.join(5)
+        try:
+            res = score_wav(a.path) if rate and a.frames else None
+            if rate and a.error:
+                res = {"error": a.error}
+            return res
+        finally:
+            try:
+                os.remove(a.path)
+            except OSError:
+                pass

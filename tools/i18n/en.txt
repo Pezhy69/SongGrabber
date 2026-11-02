@@ -1125,3 +1125,65 @@ Zwischenablage ist leer.|Clipboard is empty.
 Album-Interpret|Album artist
 Interpret/Singles/|Artist/Singles/
 Rolling in the Deep|Rolling in the Deep
+Läuft auf dem Fernseher|Playing on the TV
+Steuern kannst du hier weiter: Pause, Tonart, nächster Song …|You can keep controlling it here: pause, key, next song …
+Wieder hier zeigen|Show here again
+🏆 Punkte nach jedem Song|🏆 Points after every song
+hört aufs Mikrofon – nur zum Spaß|listens to the microphone – just for fun
+Hall auf der Stimme|Reverb on the voice
+Aus – trocken|Off – dry
+Raum|Room
+Bühne|Stage
+Konzerthalle|Concert hall
+Hall: aus|Reverb: off
+Hall: Raum|Reverb: room
+Hall: Bühne|Reverb: stage
+Hall: Konzerthalle|Reverb: concert hall
+Tonart|Key
+Tonart: tiefer oder höher singen – das Tempo bleibt gleich (Tasten − und +)|Key: sing lower or higher – the tempo stays the same (keys − and +)
+Klick: zurück zur Original-Tonart|Click: back to the original key
+Tiefer (−)|Lower (−)
+Höher (+)|Higher (+)
+Original-Tonart|Original key
+tiefer – Tempo bleibt gleich|lower – tempo stays the same
+höher – Tempo bleibt gleich|higher – tempo stays the same
+tiefer|lower
+höher|higher
+Tonart ändern geht auf diesem PC leider nicht.|Changing the key isn't possible on this PC, unfortunately.
+Fernseher|TV
+Auf dem Fernseher zeigen – Video im Vollbild auf dem zweiten Bildschirm, Bedienung bleibt hier (T)|Show on the TV – video fullscreen on the second screen, controls stay here (T)
+Auf dem Fernseher zeigen – Video im Vollbild auf dem zweiten Bildschirm|Show on the TV – video fullscreen on the second screen
+Fernseher-Modus beenden – Video wieder hier zeigen (T)|End TV mode – show the video here again (T)
+Kein zweiter Bildschirm gefunden|No second screen found
+Schließ den Fernseher oder Beamer per HDMI an und stell in Windows|Connect the TV or projector via HDMI and choose
+Erweitern|Extend
+ein (Tasten|in Windows (keys
+). Dann erscheint das Karaoke-Video dort im Vollbild, und hier bleiben Warteschlange und Bedienung.|). The karaoke video then appears there in fullscreen, and the queue and controls stay here.
+Trotzdem als eigenes Fenster öffnen|Open as a separate window anyway
+Gleich geht's los …|Starting soon …
+Der nächste Song startet auf diesem Bildschirm.|The next song starts on this screen.
+Verlauf|History
+Bestenliste|Leaderboard
+Zuletzt gesungen|Recently sung
+Verlauf leeren|Clear history
+Verlauf und Bestenliste löschen?|Delete history and leaderboard?
+Nochmal singen|Sing again
+Hier erscheint, was gesungen wurde – mit Punkten, wenn „🏆 Punkte nach jedem Song“ an ist.|Everything that was sung shows up here – with points if “🏆 Points after every song” is on.
+Punkte|Points
+Treffsicher|On pitch
+Dabei|Singing
+Ruhige Töne|Steady notes
+Superstar! 🌟|Superstar! 🌟
+Stark gesungen! 👏|Great singing! 👏
+Gut gemacht!|Well done!
+Schön mutig – weiter so!|Brave – keep going!
+Hauptsache Spaß! 🎤|Fun is what counts! 🎤
+Punkte: Mikrofon nicht erreichbar –|Points: microphone not reachable –
+Keine Punkte – vom Mikrofon kam kaum Gesang an.|No points – hardly any singing came from the microphone.
+auch als Video (MP4)|also as video (MP4)
+Song|Song
+SongGrabber|SongGrabber
+· SongGrabber|· SongGrabber
+MB als|MB as
+Register an application|Register an application
+→ Name „SongGrabber“, Version „1“ → speichern.|→ name “SongGrabber”, version “1” → save.
