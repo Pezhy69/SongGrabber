@@ -443,12 +443,13 @@ class Karaoke:
 
 
 # ---------------------------------------------------------------- Sich selbst aufnehmen (Stimme + Musik)
-# Hall auf der Stimme (ffmpeg aecho: Verzögerungen in ms und ihre Lautstärke)
+# Hall auf der Stimme: eigener „nasser“ Zweig (nur Echos, ohne Höhen/Tiefen) wird zur trockenen Stimme gemischt.
+# Viele dichte, leise Echos klingen weich – wenige laute knacken bei Konsonanten.
 HALL = {
-    "off": "",
-    "room": "aecho=0.9:0.8:35|70:0.22|0.12,",
-    "stage": "aecho=0.9:0.85:55|110|170:0.28|0.18|0.10,",
-    "hall": "aecho=0.9:0.88:90|180|290|420:0.32|0.22|0.15|0.08,",
+    "off": None,
+    "room": ("23|37|53|71|89", "0.42|0.36|0.30|0.24|0.18", 0.30),
+    "stage": ("41|67|97|131|167|211", "0.44|0.38|0.32|0.26|0.20|0.14", 0.34),
+    "hall": ("61|97|139|181|229|283|347|419", "0.42|0.37|0.32|0.27|0.22|0.17|0.12|0.08", 0.36),
 }
 
 
@@ -551,20 +552,25 @@ class KaraRec:
         mix = os.path.join(r["folder"], "mix.wav")
         ins, filt, lab = [], [], []
         t_ref = sysw.t0 or micw.t0 or r["t_start"]
-        for i, (a, gain, extra) in enumerate([(sysw, 0.0, ""), (micw, r["voice"], "highpass=f=90,dynaudnorm=f=150:g=15:p=0.9:m=30,acompressor=threshold=-22dB:ratio=3:attack=5:release=150:makeup=3," + HALL.get(r.get("hall") or "off", ""))]):
+        for i, (a, gain, extra) in enumerate([(sysw, 0.0, ""), (micw, r["voice"], "highpass=f=90,dynaudnorm=f=150:g=15:p=0.9:m=30,acompressor=threshold=-22dB:ratio=3:attack=5:release=150:makeup=3,")]):
             if not (a.t0 and a.frames and os.path.isfile(a.path)):
                 continue
             ins += ["-i", a.path]
             d = a.t0 - t_ref                                   # >0: diese Spur begann später
             sync = f"adelay={int(d * 1000)}|{int(d * 1000)}," if d > 0.005 else (f"atrim=start={-d:.3f},asetpts=PTS-STARTPTS," if d < -0.005 else "")
             n = len(lab)
-            filt.append(f"[{n}:a]{sync}{extra}volume={gain}dB[a{n}]")
+            hall = HALL.get(r.get("hall") or "off") if a is micw else None
+            if hall:
+                taps, decays, wet = hall
+                filt.append(f"[{n}:a]{sync}{extra}aformat=sample_fmts=fltp,asplit=2[d{n}][w{n}]")
+                filt.append(f"[w{n}]highpass=f=220,lowpass=f=4200,aecho=0:1:{taps}:{decays},volume={wet}[e{n}]")
+                filt.append(f"[d{n}][e{n}]amix=inputs=2:duration=first:normalize=0,volume={gain}dB[a{n}]")
+            else:
+                filt.append(f"[{n}:a]{sync}{extra}volume={gain}dB[a{n}]")
             lab.append(f"[a{n}]")
         if not lab:
             raise RuntimeError("Es kam kein Ton an – Mikrofon und Ton vom PC prüfen.")
-        mixf = ("".join(lab) + f"amix=inputs={len(lab)}:duration=longest:normalize=0," if len(lab) > 1 else lab[0]) + "alimiter=limit=0.95[out]"
-        if len(lab) == 1:
-            mixf = lab[0] + "alimiter=limit=0.95[out]"
+        mixf = ("".join(lab) + f"amix=inputs={len(lab)}:duration=longest:normalize=0," if len(lab) > 1 else lab[0] + "") + "volume=-2dB,alimiter=limit=0.94:attack=4:release=120:level=disabled[out]"
         rr = paths.run([ff, "-hide_banner", "-nostdin", "-loglevel", "error"] + ins +
                        ["-filter_complex", ";".join(filt) + ";" + mixf, "-map", "[out]", "-ar", "48000", "-y", mix], timeout=900)
         if rr.returncode != 0:
