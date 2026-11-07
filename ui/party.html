@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#0B0D11">
+<title>Karaoke-Party</title>
+<style>
+  :root{--bg:#0B0D11;--bg2:#13161C;--card:#181C23;--line:rgba(255,255,255,.08);--text:#ECEEF3;--muted:#9AA2B1;--accent:#FF7A30;--accent2:#FFB547;--grad:linear-gradient(135deg,#FFB547,#FF7A30 55%,#FF5A3C);--ok:#3DDC97;--ease:cubic-bezier(.23,1,.32,1);color-scheme:dark}
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html,body{margin:0;background:var(--bg);color:var(--text);font:15px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+  body{padding:max(14px,env(safe-area-inset-top)) 16px calc(86px + env(safe-area-inset-bottom))}
+  button,input{font:inherit;color:inherit}
+  button{cursor:pointer;border:0;background:none;touch-action:manipulation;transition:transform .12s var(--ease),background-color .15s,opacity .15s}
+  button:active{transform:scale(.97)}
+  button:focus-visible,input:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+  .top{display:flex;align-items:center;gap:10px;margin-bottom:14px}
+  .top img{width:34px;height:34px;border-radius:9px}
+  .top b{font-size:17px;letter-spacing:.2px}.top small{display:block;color:var(--muted);font-size:12.5px}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:14px}
+  .now{display:flex;gap:12px;align-items:center;margin-bottom:12px}
+  .now .ic{width:42px;height:42px;border-radius:12px;display:grid;place-items:center;background:rgba(255,122,48,.12);font-size:20px;flex:none}
+  .now small{color:var(--muted);font-size:12px;display:block}
+  .now b{display:block;font-size:14.5px;line-height:1.3;overflow:hidden;text-overflow:ellipsis;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+  .you{display:none;margin-bottom:12px;padding:14px;border-radius:16px;background:var(--grad);color:#1B0C03;font-weight:700;font-size:16px;text-align:center}
+  .you.on{display:block;animation:pop .5s var(--ease)}
+  @keyframes pop{from{transform:scale(.96);opacity:0}}
+  .primary{background:var(--grad);color:#1B0C03;font-weight:700;border-radius:13px;padding:14px 18px;width:100%;font-size:16px}
+  .primary:disabled{opacity:.5}
+  .ghost{background:rgba(255,255,255,.06);border:1px solid var(--line);border-radius:11px;padding:9px 13px;font-weight:600}
+  input[type=text],input[type=search]{width:100%;background:#0F1217;border:1px solid rgba(255,255,255,.14);border-radius:13px;padding:14px 15px;font-size:16px;outline:none}
+  input:focus{border-color:var(--accent)}
+  .join{margin-top:8vh;text-align:center}
+  .join h1{font-size:26px;margin:14px 0 6px}
+  .join p{color:var(--muted);margin:0 0 22px}
+  .join form{display:grid;gap:12px;text-align:left}
+  .err{color:#FF7B7B;font-size:13.5px;min-height:1.2em;margin-top:6px;text-align:center}
+  .tabs{position:fixed;left:0;right:0;bottom:0;display:grid;grid-template-columns:repeat(3,1fr);background:rgba(19,22,28,.96);backdrop-filter:blur(12px);border-top:1px solid var(--line);padding:6px 8px calc(6px + env(safe-area-inset-bottom));z-index:5}
+  .tabs button{padding:9px 4px;border-radius:12px;color:var(--muted);font-size:12.5px;font-weight:600;display:flex;flex-direction:column;align-items:center;gap:3px}
+  .tabs button span{font-size:19px;line-height:1}
+  .tabs button.on{color:var(--text);background:rgba(255,122,48,.12)}
+  .tabs b{background:var(--accent);color:#1B0C03;border-radius:9px;padding:0 6px;font-size:11px;margin-left:2px}
+  .sbar{position:sticky;top:0;z-index:2;background:var(--bg);padding:2px 0 10px}
+  .seg{display:flex;gap:6px;margin-top:8px}
+  .seg button{flex:1;padding:8px;border-radius:10px;font-size:13px;font-weight:600;color:var(--muted);background:rgba(255,255,255,.04);border:1px solid var(--line)}
+  .seg button.on{color:#1B0C03;background:var(--grad);border-color:transparent}
+  h3{font-size:12px;letter-spacing:1.2px;text-transform:uppercase;color:var(--muted);margin:16px 2px 8px;font-weight:700}
+  .list{display:grid;gap:8px}
+  .row{display:flex;gap:11px;align-items:center;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:8px}
+  .row .th{width:76px;height:43px;border-radius:8px;background:#222 center/cover;flex:none;position:relative}
+  .row .th i{position:absolute;right:3px;bottom:3px;font:600 10px ui-monospace,monospace;background:rgba(0,0,0,.7);padding:1px 4px;border-radius:4px;font-style:normal}
+  .row .tx{flex:1;min-width:0}
+  .row .tx b{display:block;font-size:13.5px;font-weight:600;line-height:1.3;overflow:hidden;text-overflow:ellipsis;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+  .row .tx small{color:var(--muted);font-size:12px}
+  .row .sing{background:var(--grad);color:#1B0C03;font-weight:700;border-radius:10px;padding:10px 13px;font-size:13.5px;flex:none;min-width:44px;min-height:44px}
+  .row .sing.done{background:rgba(61,220,151,.15);color:var(--ok)}
+  .row .x{width:44px;height:44px;border-radius:10px;color:var(--muted);font-size:20px;flex:none}
+  .pos{flex:none;width:38px;text-align:center;font:700 15px ui-monospace,monospace;color:var(--accent2)}
+  .q .row.me{border-color:rgba(255,122,48,.5);background:rgba(255,122,48,.07)}
+  .empty{color:var(--muted);text-align:center;padding:26px 10px;font-size:14px}
+  .spin{width:22px;height:22px;border:3px solid rgba(255,255,255,.15);border-top-color:var(--accent);border-radius:50%;animation:sp .7s linear infinite;margin:24px auto}
+  @keyframes sp{to{transform:rotate(360deg)}}
+  .toast{position:fixed;left:16px;right:16px;bottom:calc(84px + env(safe-area-inset-bottom));background:#20252E;border:1px solid rgba(255,255,255,.12);border-radius:13px;padding:12px 14px;font-size:14px;text-align:center;opacity:0;transform:translateY(8px);transition:opacity .2s var(--ease),transform .2s var(--ease);pointer-events:none;z-index:9}
+  .toast.on{opacity:1;transform:none}
+  .me-name{color:var(--muted);font-size:12.5px;text-align:right;margin-top:-6px}
+  .me-name button{color:var(--accent2);font-size:12.5px;padding:4px;text-decoration:underline}
+  [hidden]{display:none!important}
+  @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<div class="top"><img src="logo.png" alt=""><div><b>Karaoke-Party</b><small>SongGrabber</small></div></div>
+
+<section id="vJoin" class="join" hidden>
+  <div style="font-size:46px">🎤</div>
+  <h1>Wie heißt du?</h1>
+  <p>Einmal eintragen – deine Songs werden dir dann automatisch zugeordnet.</p>
+  <form id="fJoin"><input type="text" id="name" maxlength="40" autocomplete="nickname" placeholder="Dein Name" enterkeyhint="go"><button class="primary" id="bJoin">Mitmachen</button></form>
+  <div class="err" id="joinErr"></div>
+</section>
+
+<section id="vMain" hidden>
+  <div class="you" id="you">Du bist als Nächstes dran! 🎤</div>
+  <div class="card now"><div class="ic">🎶</div><div style="min-width:0"><small id="nowL">Gerade läuft</small><b id="nowT">Noch nichts – wünsch dir einen Song!</b></div></div>
+  <div class="me-name"><span id="meName"></span> · <button id="bRename">Name ändern</button></div>
+
+  <div id="pSearch">
+    <div class="sbar">
+      <form id="fSearch"><input type="search" id="q" placeholder="Song oder Interpret suchen …" enterkeyhint="search" autocomplete="off"></form>
+      <div class="seg"><button id="mSingle" class="on">Einzelne Songs</button><button id="mLong">Best-of &amp; Mixe</button></div>
+    </div>
+    <h3 id="resHead">Schon gespeichert – geht auch ohne Internet</h3>
+    <div class="list" id="res"></div>
+  </div>
+
+  <div id="pMine" hidden>
+    <h3>Meine Songs</h3>
+    <div class="list" id="mine"></div>
+  </div>
+
+  <div id="pQueue" class="q" hidden>
+    <h3>So geht's weiter</h3>
+    <div class="list" id="queue"></div>
+  </div>
+
+  <nav class="tabs">
+    <button class="on" data-p="pSearch"><span>🔎</span>Suchen</button>
+    <button data-p="pMine"><span>🎤</span><em style="font-style:normal">Meine Songs</em></button>
+    <button data-p="pQueue"><span>📋</span>Reihenfolge</button>
+  </nav>
+</section>
+<div class="toast" id="toast"></div>
+
+<script src="i18n.js"></script>
+<script>
+"use strict";
+const $ = s => document.querySelector(s);
+const BASE = location.pathname.replace(/[^/]*$/, "");
+const KEY = "sgParty:" + BASE;
+let me = {}, state = null, long = false, lastYou = false, results = [], wished = new Set();
+try { me = JSON.parse(localStorage.getItem(KEY) || "{}"); } catch (e) { me = {}; }
+
+const esc = s => String(s == null ? "" : s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+const dur = s => s ? Math.floor(s / 60) + ":" + String(s % 60).padStart(2, "0") : "";
+let tt = 0;
+function toast(m) { const t = $("#toast"); t.textContent = T(m); t.classList.add("on"); clearTimeout(tt); tt = setTimeout(() => t.classList.remove("on"), 2600); }
+async function api(path, body) {
+  const url = BASE + "api/" + path + (path.includes("?") ? "&" : "?") + "sid=" + encodeURIComponent(me.sid || "");
+  const r = await fetch(url, body ? { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(Object.assign({ sid: me.sid }, body)) } : {});
+  let d = {}; try { d = await r.json(); } catch (e) { }
+  if (!r.ok) { if (d.rejoin) { me = {}; save(); show(); } throw new Error(d.error || ("Fehler " + r.status)); }
+  return d;
+}
+function save() { try { localStorage.setItem(KEY, JSON.stringify(me)); } catch (e) { } }
+function show() { $("#vJoin").hidden = !!me.sid; $("#vMain").hidden = !me.sid; if (me.sid) $("#meName").textContent = me.name; else setTimeout(() => $("#name").focus(), 50); }
+
+$("#fJoin").onsubmit = async e => {
+  e.preventDefault();
+  const name = $("#name").value.trim();
+  if (!name) { $("#joinErr").textContent = T("Bitte einen Namen eingeben."); return; }
+  $("#bJoin").disabled = true;
+  try { const d = await api("join", { name }); me = { sid: d.sid, name: d.name }; save(); show(); refresh(); loadRes(""); }
+  catch (err) { $("#joinErr").textContent = T(err.message); }
+  $("#bJoin").disabled = false;
+};
+$("#bRename").onclick = () => { $("#name").value = me.name || ""; me.sid ? (me.renaming = true) : 0; $("#vJoin").hidden = false; $("#vMain").hidden = true; };
+
+// Tabs
+document.querySelectorAll(".tabs button").forEach(b => b.onclick = () => {
+  document.querySelectorAll(".tabs button").forEach(x => x.classList.toggle("on", x === b));
+  ["pSearch", "pMine", "pQueue"].forEach(id => $("#" + id).hidden = id !== b.dataset.p);
+  window.scrollTo(0, 0);
+});
+
+// Suche
+function rowHtml(s, i) {
+  return `<div class="row"><div class="th" style="background-image:url('${esc(s.thumb || "")}')">${s.duration ? `<i>${dur(s.duration)}</i>` : ""}</div>
+    <div class="tx"><b>${esc(s.title)}</b><small>${esc(s.channel || "")}${s.offline ? " · ✓ offline" : ""}</small></div>
+    <button class="sing ${wished.has(s.id) ? "done" : ""}" data-i="${i}">${wished.has(s.id) ? "✓" : esc(T("Singen"))}</button></div>`;
+}
+function renderRes() {
+  $("#res").innerHTML = results.length ? results.map(rowHtml).join("") : `<div class="empty">${esc(T($("#q").value.trim() ? "Nichts gefunden – anders schreiben oder nur den Interpreten suchen." : "Such oben nach deinem Lieblingssong."))}</div>`;
+  document.querySelectorAll("#res .sing").forEach(b => b.onclick = () => wish(results[+b.dataset.i], b));
+}
+let sq = 0;
+async function loadRes(text) {
+  const n = ++sq;
+  $("#resHead").textContent = T(text ? "Ergebnisse" : "Schon gespeichert – geht auch ohne Internet");
+  if (text) $("#res").innerHTML = `<div class="spin"></div>`;
+  try { const d = await api("search?q=" + encodeURIComponent(text) + "&long=" + (long ? 1 : 0)); if (n !== sq) return; results = d.results || []; renderRes(); }
+  catch (err) { if (n === sq) $("#res").innerHTML = `<div class="empty">${esc(T(err.message))}</div>`; }
+}
+$("#fSearch").onsubmit = e => { e.preventDefault(); $("#q").blur(); loadRes($("#q").value.trim()); };
+$("#mSingle").onclick = () => { long = false; $("#mSingle").classList.add("on"); $("#mLong").classList.remove("on"); if ($("#q").value.trim()) loadRes($("#q").value.trim()); };
+$("#mLong").onclick = () => { long = true; $("#mLong").classList.add("on"); $("#mSingle").classList.remove("on"); if ($("#q").value.trim()) loadRes($("#q").value.trim()); };
+async function wish(s, btn) {
+  if (!s || wished.has(s.id)) return;
+  btn.disabled = true;
+  try { await api("wish", { song: s }); wished.add(s.id); btn.classList.add("done"); btn.textContent = "✓"; toast("Ist drin! 🎉 Du siehst ihn unter „Meine Songs“."); setTimeout(refresh, 1300); }
+  catch (err) { toast(err.message); }
+  btn.disabled = false;
+}
+
+// Stand
+async function refresh() {
+  if (!me.sid) return;
+  try { state = await api("state"); } catch (e) { return; }
+  const now = state.now;
+  $("#nowL").textContent = T(now ? (now.singer ? "Jetzt singt " + now.singer : "Gerade läuft") : "Gerade läuft");
+  $("#nowT").textContent = now ? now.title : T("Noch nichts – wünsch dir einen Song!");
+  $("#you").classList.toggle("on", !!state.youNext);
+  if (state.youNext && !lastYou && navigator.vibrate) navigator.vibrate([120, 80, 120]);
+  lastYou = !!state.youNext;
+  const mine = state.mine || [];
+  document.querySelector('.tabs [data-p=pMine] em').innerHTML = esc(T("Meine Songs")) + (mine.length ? ` <b>${mine.length}</b>` : "");
+  $("#mine").innerHTML = mine.length ? mine.map((e, i) => `<div class="row"><span class="pos">${e.pos}.</span><div class="th" style="background-image:url('${esc(e.thumb || "")}')"></div><div class="tx"><b>${esc(e.title)}</b><small>${esc(T(e.pos === 1 ? "Du bist als Nächstes dran" : `noch ${e.pos - 1} vor dir`))}</small></div><button class="x" data-q="${esc(e.qid)}" title="${esc(T("Wieder entfernen"))}">✕</button></div>`).join("")
+    : `<div class="empty">${esc(T("Noch keine Songs – unter „Suchen“ einfach auf Singen tippen."))}</div>`;
+  document.querySelectorAll("#mine .x").forEach(b => b.onclick = async () => { b.disabled = true; try { await api("remove", { qid: b.dataset.q }); toast("Entfernt."); setTimeout(refresh, 1200); } catch (err) { toast(err.message); } });
+  const q = state.queue || [];
+  $("#queue").innerHTML = q.length ? q.map((e, i) => `<div class="row ${e.mine ? "me" : ""}"><span class="pos">${i + 1}.</span><div class="tx"><b>${esc(e.title)}</b><small>${esc(e.singer || "")}</small></div></div>`).join("")
+    : `<div class="empty">${esc(T("Die Warteschlange ist leer."))}</div>`;
+}
+show();
+if (window.I18N) I18N.start();
+if (me.sid) { refresh(); loadRes(""); }
+setInterval(refresh, 3000);
+document.addEventListener("visibilitychange", () => { if (!document.hidden) refresh(); });
+</script>
+</body>
+</html>

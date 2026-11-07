@@ -67,6 +67,11 @@ def german_strings():
     J = J[:J.index("const Mock = (() => {")] if "const Mock = (() => {" in J else J
     ca = J.index("const CHANGES = ["); cb = J.index("function renderChanges", ca)
     J = J[:ca] + J[cb:]
+    # Fernseher- und Handy-Seite: Text im HTML und Texte im Skript
+    for extra in ("tv.html", "party.html"):
+        X = _read(UI, extra)
+        J += "\n" + "\n".join(re.findall(r"<script>(.*?)</script>", X, flags=re.S))
+        H += re.sub(r"<(script|style|svg)\b.*?</\1>", "", X, flags=re.S)
     out = []
 
     def add(t):

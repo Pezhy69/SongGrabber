@@ -95,18 +95,21 @@
     </div>
 
     <nav class="nav">
+      <div class="nav-group">Musik holen</div>
       <button class="nav-item active" data-page="links"><svg><use href="#i-link"/></svg><span>Links &amp; Streams</span></button>
+      <button class="nav-item" data-page="abos"><svg><use href="#i-bell"/></svg><span>Abos</span><b class="count" id="aboCount"></b></button>
       <button class="nav-item" data-page="cd"><svg><use href="#i-disc"/></svg><span>Audio-CD</span></button>
-      <button class="nav-item" data-page="rec"><svg><use href="#i-mic"/></svg><span>Aufnahme</span><i class="rec-dot" id="navRecDot"></i></button>
-      <button class="nav-item" data-page="screen"><svg><use href="#i-screen"/></svg><span>Bildschirm</span><i class="rec-dot" id="navScrDot"></i></button>
       <button class="nav-item" data-page="files"><svg><use href="#i-file"/></svg><span>Dateien &amp; DVD</span></button>
-      <button class="nav-item" data-page="library"><svg><use href="#i-lib"/></svg><span>Bibliothek</span><b class="count" id="libCount"></b></button>
+      <div class="nav-group">Hören &amp; Singen</div>
       <button class="nav-item" data-page="player"><svg><use href="#i-phones"/></svg><span>Player</span><i class="eqbars" id="navEq"><b></b><b></b><b></b></i></button>
+      <button class="nav-item" data-page="library"><svg><use href="#i-lib"/></svg><span>Bibliothek</span><b class="count" id="libCount"></b></button>
       <button class="nav-item" data-page="radio"><svg><use href="#i-radio"/></svg><span>Radio &amp; Podcasts</span></button>
       <button class="nav-item" data-page="karaoke"><svg><use href="#i-stage"/></svg><span>Karaoke</span></button>
-      <button class="nav-item" data-page="abos"><svg><use href="#i-bell"/></svg><span>Abos</span><b class="count" id="aboCount"></b></button>
+      <div class="nav-group">Aufnehmen</div>
+      <button class="nav-item" data-page="rec"><svg><use href="#i-mic"/></svg><span>Ton &amp; Schallplatte</span><i class="rec-dot" id="navRecDot"></i></button>
+      <button class="nav-item" data-page="screen"><svg><use href="#i-screen"/></svg><span>Bildschirm</span><i class="rec-dot" id="navScrDot"></i></button>
       <div class="nav-sep"></div>
-      <button class="nav-item" data-page="queue"><svg><use href="#i-queue"/></svg><span>Warteschlange</span><b class="badge" id="queueBadge" hidden>0</b></button>
+      <button class="nav-item" data-page="queue"><svg><use href="#i-queue"/></svg><span>Aufträge</span><b class="badge" id="queueBadge" hidden>0</b></button>
       <button class="nav-item" data-page="settings"><svg><use href="#i-gear"/></svg><span>Einstellungen</span></button>
       <button class="nav-item" data-page="help"><svg><use href="#i-help"/></svg><span>Hilfe</span><kbd class="nav-kbd">F1</kbd></button>
     </nav>
@@ -499,6 +502,7 @@
               <button class="pp-btn sm" id="kaPlay" title="Abspielen/Pause (Leertaste)"><svg><use href="#i-pause"/></svg></button>
               <button class="pp-btn sm" id="kaNext" title="Nächster Song (N)"><svg><use href="#i-next"/></svg></button>
               <div class="ka-key" id="kaKey" title="Tonart: tiefer oder höher singen – das Tempo bleibt gleich (Tasten − und +)"><button id="kaKeyDn" title="Tiefer (−)">♭</button><span id="kaKeyV" title="Klick: zurück zur Original-Tonart">Tonart</span><button id="kaKeyUp" title="Höher (+)">♯</button></div>
+              <div class="ka-key ka-tempo" id="kaTempo" title="Tempo: langsamer oder schneller – die Tonart bleibt gleich (Tasten [ und ])"><button id="kaTempoDn" title="Langsamer ([)">−</button><span id="kaTempoV" title="Klick: zurück zum Original-Tempo">Tempo</span><button id="kaTempoUp" title="Schneller (])">+</button></div>
               <button class="ghost sm ka-recbtn" id="kaRecBtn" title="Mich jetzt aufnehmen (Stimme + Musik)"><i></i><span>Aufnahme</span></button>
               <button class="pp-btn sm" id="kaMute" title="Stumm"><svg><use href="#i-vol"/></svg></button><input type="range" id="kaVol" min="0" max="100" value="90" title="Lautstärke (↑ ↓)">
               <button class="pp-btn sm" id="kaFav" title="Als Favorit merken und für unterwegs speichern"><svg><use href="#i-star"/></svg></button>
@@ -546,7 +550,16 @@
         </div>
 
         <aside class="card ka-side">
-          <h4>Wer singt?</h4>
+          <div class="ka-party" id="kaParty">
+            <div id="kaPartyOff" class="ka-poff"><b>🎉 Party-Modus</b><small>Gäste scannen einen QR-Code und wünschen sich Songs vom Handy – ganz ohne Tippen am Rechner.</small><button class="primary sm" id="kaPartyGo">Party starten</button></div>
+            <div id="kaPartyOn" hidden>
+              <div class="ka-qr" id="kaQr" title="Mit der Handy-Kamera scannen"></div>
+              <div class="ka-purl"><b>Scannen und mitsingen</b><small id="kaPUrl"></small><small class="hint">Handy im selben WLAN wie dieser Rechner. Fragt Windows nach der Firewall: <b>Zulassen</b>.</small></div>
+              <div class="ka-pchips" id="kaPChips"></div>
+              <div class="ka-pact"><button class="ghost sm" id="kaPartyTv" title="QR-Code groß auf dem Fernseher zeigen"><svg><use href="#i-tv"/></svg>Auf den Fernseher</button><div class="grow"></div><button class="link" id="kaPartyEnd">Party beenden</button></div>
+            </div>
+          </div>
+          <h4 id="kaWhoH">Wer singt?</h4>
           <div class="ka-singer"><input id="kaSinger" list="kaSingers" placeholder="Name eingeben"><datalist id="kaSingers"></datalist></div>
           <small class="muted">Neue Songs kommen mit diesem Namen in die Warteschlange.</small>
           <div class="ka-recopt">
@@ -623,10 +636,10 @@
       <div class="pl-grid" id="libPlaylists" hidden></div>
     </section>
 
-    <!-- ---------- Warteschlange ---------- -->
+    <!-- ---------- Aufträge ---------- -->
     <section class="page" id="page-queue">
       <header class="page-head">
-        <div><h1>Warteschlange</h1><p>Alle Aufträge laufen nacheinander im Hintergrund – du kannst währenddessen weiterarbeiten.</p></div>
+        <div><h1>Aufträge</h1><p>Downloads, CD-Rips, Aufnahmen und Umwandlungen laufen nacheinander im Hintergrund – du kannst währenddessen weiterarbeiten.</p></div>
         <div class="head-actions">
           <button class="ghost" id="btnOpenOut"><svg><use href="#i-folder"/></svg>Zielordner öffnen</button>
           <button class="ghost" id="btnQueueClear">Fertige entfernen</button>
@@ -914,7 +927,7 @@
 <article id="h-start"><h2>Erste Schritte</h2>
 <ol class="steps"><li><b>Format wählen</b>: unten links <em>MP3</em> (klein, läuft überall), <em>WAV</em> (unkomprimiert) oder <em>FLAC</em> (verlustfrei, kleiner als WAV). Für fast alles reicht <em>MP3 · VBR V0</em>.</li>
 <li><b>Quelle wählen</b>: links in der Leiste <em>Links &amp; Streams</em>, <em>Audio-CD</em>, <em>Aufnahme</em> oder <em>Dateien &amp; DVD</em>.</li>
-<li><b>Starten</b>: Der Auftrag landet in der <em>Warteschlange</em> und läuft im Hintergrund. Du kannst sofort weiterarbeiten.</li>
+<li><b>Starten</b>: Der Auftrag landet unter <em>Aufträge</em> und läuft im Hintergrund. Du kannst sofort weiterarbeiten.</li>
 <li><b>Hereinziehen (Drag &amp; Drop)</b>: Dateien, Ordner und Links kannst du aus dem Explorer oder Browser ins Fenster ziehen. Ein Hinweis zeigt, was beim Loslassen passiert:
   <em>Dateien &amp; DVD</em> → umwandeln (auch Ordner und DVD-Ordner) · <em>Player</em> → abspielen bzw. anhängen (Musik, Ordner, Playlists, YouTube-Links) · <em>Audio-CD</em> → .cue-Abbild einlesen · <em>Links &amp; Streams</em> → Link öffnen (auch .url- und .txt-Dateien mit Links) · <em>Abos</em> → Kanal-Link übernehmen · <em>Bibliothek</em> → umwandeln und einsortieren.
   Bilder lassen sich auf ein <b>Cover</b> ziehen (CD, Tags bearbeiten), Ordner auf die Ordner-Felder in den <em>Einstellungen</em> und auf den Zielordner unten rechts. Überall sonst landen Audio und Video unter <em>Dateien &amp; DVD</em>.</li>
@@ -965,6 +978,8 @@
 <li><b>Mich aufnehmen</b>: Rechts <em>🔴 Beim Singen aufnehmen</em> einschalten – dann wird jeder Song mit Musik und deiner Stimme als MP3 gespeichert (Musik-Ordner → <code>Karaoke-Aufnahmen</code>, mit Name und Titel), auf Wunsch zusätzlich als Video (MP4). Oder während des Songs auf den roten Aufnahme-Knopf klicken. Oben links im Video steht dann „REC“ mit Mikrofon-Pegel. Danach erscheinen die Aufnahmen rechts: <em>Anhören</em>, Stimme lauter/leiser nachträglich anpassen, im Ordner zeigen oder löschen. Das Mikrofon ist das unter „Bildschirm“ gewählte (sonst das Standard-Mikrofon). Mit Kopfhörer klingt es am besten; über Lautsprecher nimmt das Mikro die Musik im Raum mit auf. Wird während der Aufnahme pausiert oder gespult, gibt es nur die MP3, kein Video.</li>
 <li><b>Zeitleiste & Tasten</b>: Die Leiste zeigt, wie lange der Song noch läuft, und lässt sich ziehen. <kbd>Leertaste</kbd> Pause, <kbd>←</kbd>/<kbd>→</kbd> 5 Sekunden spulen, <kbd>↑</kbd>/<kbd>↓</kbd> lauter/leiser, <kbd>N</kbd> nächster Song (in Best-of-Videos: nächster Song im Video). Mit der Maus geht dasselbe über ⏮ / ⏭ unter dem Video. Die Lautstärke wird gemerkt.</li>
 <li><b>Tonart</b> (♭ / ♯ in der Bedienleiste oder Tasten <kbd>−</kbd> / <kbd>+</kbd>): stellt den Song bis zu 6 Halbtöne tiefer oder höher – das Tempo bleibt gleich. Ist ein Song zu hoch, einfach 2–3 Schritte tiefer. Ein Klick auf die Zahl holt die Original-Tonart zurück. SongGrabber merkt sich die Tonart je Song.</li>
+<li><b>🎉 Party-Modus</b> (rechts oben <em>Party starten</em>): Ein QR-Code erscheint – Gäste scannen ihn mit der Handy-Kamera, tragen einmal ihren Namen ein und wünschen sich Songs direkt vom Handy, ohne App und ohne Tippen am Rechner. Jeder Wunsch gehört automatisch zu diesem Handy. Die Reihenfolge ist fair: Wer noch nicht dran war, kommt zuerst, auch wenn andere schon mehrere Songs gewünscht haben (höchstens 6 offene Wünsche pro Handy). Vor jedem Song zeigt SongGrabber „Als Nächstes: Name“ mit Countdown, und das Handy meldet „Du bist als Nächstes dran!“. <em>Auf den Fernseher</em> zeigt den QR-Code groß, solange noch nichts läuft. Wer kein Handy hat, wird wie bisher unter <em>Sänger ohne Handy</em> eingetragen. Die Handys müssen im selben WLAN sein wie der Rechner (geht auch ohne Internet, z. B. über den Hotspot des Laptops – dann nur mit gespeicherten ★ Favoriten). Beim ersten Mal fragt Windows nach der Firewall: <b>Zulassen</b> klicken. <em>Party beenden</em> sperrt den Zugang wieder; jede Party hat einen neuen Code.</li>
+<li><b>Tempo</b> (− / + neben der Tonart oder Tasten <kbd>[</kbd> / <kbd>]</kbd>): 75–125 %, die Tonart bleibt gleich – gut zum Üben schneller Songs. Wird je Song gemerkt. Mit geändertem Tempo entsteht beim Aufnehmen nur die MP3, kein Video.</li>
 <li><b>Fernseher</b> (Knopf mit dem Bildschirm oder Taste <kbd>T</kbd>): Das Video läuft im Vollbild auf dem zweiten Bildschirm – Fernseher oder Beamer per HDMI anschließen und in Windows mit <kbd>Win</kbd>+<kbd>P</kbd> <b>Erweitern</b> wählen. Auf dem Laptop bleiben Warteschlange, Suche und Bedienung; „Jetzt singt …“ und die Punkte erscheinen groß auf dem Fernseher. <kbd>Esc</kbd> am Fernseher oder <em>Wieder hier zeigen</em> beendet den Modus. Den Knopf <em>Fernseher</em> gibt es auch unter der Warteschlange, um ihn schon vor dem ersten Song einzuschalten.</li>
 <li><b>🏆 Punkte nach jedem Song</b> (rechts einschalten): SongGrabber hört beim Singen aufs Mikrofon und zeigt am Songende 30–100 Punkte mit Sternen. <em>Treffsicher</em> = wie sauber die Töne sitzen, <em>Dabei</em> = wie viel gesungen wurde, <em>Ruhige Töne</em> = wie gleichmäßig lange Töne gehalten werden. Das ist eine Spaß-Wertung ohne Vergleich mit der Original-Melodie. Mit Kopfhörer wird sie genauer, weil das Mikro dann nur dich hört.</li>
 <li><b>Verlauf &amp; Bestenliste</b> (Reiter <em>Verlauf</em>): alles, was gesungen wurde, mit Name, Uhrzeit und Punkten – oben die fünf besten. Ein Klick auf das Mikrofon singt den Song nochmal, <b>+</b> stellt ihn in die Warteschlange.</li>
@@ -1058,7 +1073,7 @@
 <li>Je Abo: Schalter zum Pausieren, <em>Jetzt prüfen</em> und Entfernen. Bereits geladene Titel bleiben dabei erhalten.</li>
 <li>Geprüft wird, solange SongGrabber läuft. Mit <em>Mit Windows starten</em> läuft es minimiert im Hintergrund.</li></ul></article>
 
-<article id="h-queue"><h2>Warteschlange (Aufträge)</h2>
+<article id="h-queue"><h2>Aufträge (Downloads &amp; Umwandlungen)</h2>
 <ul><li>Downloads, CD-Rips, Aufnahmen, Umwandlungen und Übertragungen laufen nacheinander mit Fortschrittsanzeige. Unten links in der Leiste siehst du den laufenden Auftrag.</li>
 <li><em>Abbrechen</em> geht jederzeit. Bei fertigen Aufträgen: <em>Abspielen</em> und <em>Anzeigen</em> (im Explorer), auch per Rechtsklick.</li>
 <li>Bei einem Fehler steht der Grund direkt am Auftrag. <em>Fertige entfernen</em> räumt die Liste auf, <em>Zielordner öffnen</em> zeigt die Musik.</li>
@@ -1104,7 +1119,7 @@
 <tr><td><kbd>N</kbd> / <kbd>P</kbd></td><td>nächster / vorheriger Titel (Player-Seite)</td></tr>
 <tr><td><kbd>S</kbd> · <kbd>R</kbd> · <kbd>M</kbd></td><td>Zufall · Wiederholen · Stumm (Player-Seite)</td></tr>
 <tr><td><kbd>V</kbd> · <kbd>B</kbd> · <kbd>I</kbd> · <kbd>L</kbd> · <kbd>Q</kbd> · <kbd>H</kbd> · <kbd>F11</kbd></td><td>Lichtshow wechseln · Lichter an/aus · Cover groß/klein · Songtext · rechte Leiste hoch/runter · Bedienung ein-/ausklappen · Vollbild (Player-Seite)</td></tr>
-<tr><td><kbd>N</kbd> · <kbd>−</kbd> / <kbd>+</kbd> · <kbd>T</kbd></td><td>nächster Song · Tonart tiefer / höher · Fernseher an/aus (Karaoke-Seite)</td></tr>
+<tr><td><kbd>N</kbd> · <kbd>−</kbd> / <kbd>+</kbd> · <kbd>[</kbd> / <kbd>]</kbd> · <kbd>T</kbd></td><td>nächster Song · Tonart tiefer / höher · Tempo langsamer / schneller · Fernseher an/aus (Karaoke-Seite)</td></tr>
 <tr><td><kbd>Entf</kbd></td><td>markierte Titel löschen (Bibliothek)</td></tr>
 <tr><td><kbd>Enter</kbd></td><td>Link analysieren / Abo hinzufügen</td></tr>
 <tr><td><kbd>Esc</kbd></td><td>Dialog oder Menü schließen</td></tr></table></article>
@@ -1123,7 +1138,8 @@
 <li><b>Nicht unter Linux</b>: die Frage nach dem Musik-Ordner beim Installieren (einfach unten rechts ändern) und das Setup-Programm selbst – dafür gibt es <code>install.sh</code>.</li></ul></article>
 
 <article id="h-faq"><h2>Probleme &amp; Fragen</h2>
-<dl><dt>Kann ich mich beim Singen über die Lautsprecher hören?</dt><dd>Das baut SongGrabber bewusst nicht ein: Windows verzögert das Mikrofon auf dem Weg zum Lautsprecher um etwa 50–150 Millisekunden – man hört sich dann wie ein Echo, das beim Singen stört, und über Lautsprecher kann es pfeifen. Besser: ein Karaoke-Mikrofon mit eingebautem Lautsprecher, ein USB-Mikrofon mit Kopfhörerbuchse („Direct Monitoring“) oder ein kleines Mischpult. Die Aufnahme in SongGrabber funktioniert mit allen.</dd>
+<dl><dt>Das Handy findet die Party nicht.</dt><dd>Handy und Rechner müssen im selben WLAN sein – Gäste-WLANs trennen Geräte oft voneinander. Beim ersten Start fragt Windows, ob SongGrabber im Netzwerk erreichbar sein darf: <b>Zulassen</b> (für private Netzwerke). Wurde das abgelehnt: <em>Windows-Sicherheit → Firewall- und Netzwerkschutz → App durch Firewall zulassen → SongGrabber</em> anhaken. Notfalls den Laptop als Hotspot nutzen und die Handys damit verbinden.</dd>
+<dt>Kann ich mich beim Singen über die Lautsprecher hören?</dt><dd>Das baut SongGrabber bewusst nicht ein: Windows verzögert das Mikrofon auf dem Weg zum Lautsprecher um etwa 50–150 Millisekunden – man hört sich dann wie ein Echo, das beim Singen stört, und über Lautsprecher kann es pfeifen. Besser: ein Karaoke-Mikrofon mit eingebautem Lautsprecher, ein USB-Mikrofon mit Kopfhörerbuchse („Direct Monitoring“) oder ein kleines Mischpult. Die Aufnahme in SongGrabber funktioniert mit allen.</dd>
 <dt>Die Tonart lässt sich nicht ändern.</dt><dd>Dafür braucht SongGrabber die Audio-Funktionen von Microsoft Edge WebView2 – auf sehr alten Windows-Versionen fehlen sie. Windows-Updates installieren hilft meist. Die Punkte und alles andere funktionieren trotzdem.</dd>
 <dt>Meine Stimme ist in der Karaoke-Aufnahme zu leise.</dt><dd>SongGrabber hebt die Stimme beim Mischen automatisch an. Ist sie trotzdem zu leise: bei der Aufnahme rechts <em>Stimme +6 dB</em> wählen (wird neu gemischt). Zeigt „REC“ im Video „Mikro sehr leise?“, in Windows unter <em>Einstellungen → System → Sound → Eingabe</em> die Eingangslautstärke des Mikrofons erhöhen. Welches Mikrofon benutzt wird, stellst du auf der Seite <em>Bildschirm</em> ein.</dd>
 <dt>Ein Karaoke-Video lädt nicht.</dt><dd>Manche Videos sind gesperrt oder nur in anderen Ländern verfügbar – SongGrabber springt dann nach ein paar Sekunden zum nächsten Song. Hilft oft auch: yt-dlp aktualisieren (Einstellungen → Werkzeuge). Ohne Internet laufen nur gespeicherte ★-Favoriten.</dd>
@@ -1234,7 +1250,7 @@
     <div class="w-steps">
       <div><b>1</b><h4>Quelle wählen</h4><p>Link einfügen, CD lesen, Schallplatte aufnehmen oder Datei hinzufügen.</p></div>
       <div><b>2</b><h4>Format wählen</h4><p>Unten links: MP3, WAV oder FLAC. Album, Genre und Cover kommen automatisch.</p></div>
-      <div><b>3</b><h4>Anhören</h4><p>Fertige Titel in der Warteschlange oder Bibliothek abspielen – und Playlists erstellen.</p></div>
+      <div><b>3</b><h4>Anhören</h4><p>Fertige Titel in der Bibliothek oder im Player abspielen – und Playlists erstellen.</p></div>
     </div>
     <footer><div class="grow muted">Hilfe jederzeit mit <kbd>F1</kbd></div><button class="ghost" id="wHelp">Hilfe öffnen</button><button class="primary" id="wGo">Los geht's</button></footer>
   </div>
@@ -1268,7 +1284,7 @@
 <article id="h-start"><h2>First steps</h2>
 <ol class="steps"><li><b>Choose a format</b>: bottom left, <em>MP3</em> (small, plays everywhere), <em>WAV</em> (uncompressed) or <em>FLAC</em> (lossless, smaller than WAV). <em>MP3 · VBR V0</em> is enough for almost everything.</li>
 <li><b>Choose a source</b>: in the bar on the left, <em>Links &amp; Streams</em>, <em>Audio CD</em>, <em>Recording</em> or <em>Files &amp; DVD</em>.</li>
-<li><b>Start</b>: the job goes into the <em>Queue</em> and runs in the background. You can keep working right away.</li>
+<li><b>Start</b>: the job goes to <em>Jobs</em> and runs in the background. You can keep working right away.</li>
 <li><b>Drag &amp; drop</b>: you can drag files, folders and links from Explorer or the browser into the window. A hint shows what happens when you drop:
   <em>Files &amp; DVD</em> → convert (also folders and DVD folders) · <em>Player</em> → play or append (music, folders, playlists, YouTube links) · <em>Audio CD</em> → read a .cue image · <em>Links &amp; Streams</em> → open the link (also .url and .txt files with links) · <em>Subscriptions</em> → use a channel link · <em>Library</em> → convert and sort in.
   Images can be dropped onto a <b>cover</b> (CD, edit tags), folders onto the folder fields in <em>Settings</em> and onto the output folder bottom right. Everywhere else, audio and video go to <em>Files &amp; DVD</em>.</li>
@@ -1319,6 +1335,8 @@
 <li><b>Record me</b>: on the right, turn on <em>🔴 Record while singing</em> – every song is then saved with music and your voice as MP3 (music folder → <code>Karaoke-Aufnahmen</code>, with name and title), optionally also as video (MP4). Or click the red record button during the song. “REC” with the microphone level then appears at the top left of the video. Afterwards the recordings appear on the right: <em>Play</em>, make the voice louder/quieter afterwards, show in folder or delete. The microphone is the one chosen under “Screen” (otherwise the default microphone). It sounds best with headphones; through speakers the mic also picks up the music in the room. If you pause or seek during the recording, you only get the MP3, no video.</li>
 <li><b>Timeline &amp; keys</b>: the bar shows how long the song has left and can be dragged. <kbd>Space</kbd> pause, <kbd>←</kbd>/<kbd>→</kbd> seek 5 seconds, <kbd>↑</kbd>/<kbd>↓</kbd> louder/quieter, <kbd>N</kbd> next song (in best-of videos: next song within the video). With the mouse use ⏮ / ⏭ below the video. The volume is remembered.</li>
 <li><b>Key</b> (♭ / ♯ in the control bar or the <kbd>−</kbd> / <kbd>+</kbd> keys): shifts the song up to 6 semitones lower or higher – the tempo stays the same. If a song is too high, just go 2–3 steps down. A click on the number restores the original key. SongGrabber remembers the key per song.</li>
+<li><b>🎉 Party mode</b> (<em>Start party</em> at the top right): a QR code appears – guests scan it with their phone camera, enter their name once and request songs right from the phone, with no app and no typing at the computer. Every request automatically belongs to that phone. The order is fair: whoever hasn't sung yet goes first, even if others have requested several songs (at most 6 open requests per phone). Before every song SongGrabber shows “Up next: name” with a countdown, and the phone says “You're up next!”. <em>On the TV</em> shows the QR code large while nothing is playing. People without a phone are added as before under <em>Singers without a phone</em>. The phones must be on the same Wi-Fi as the computer (works without internet too, e.g. via the laptop's hotspot – then only with saved ★ favorites). The first time, Windows asks about the firewall: click <b>Allow</b>. <em>End party</em> locks access again; every party gets a new code.</li>
+<li><b>Tempo</b> (− / + next to the key or the <kbd>[</kbd> / <kbd>]</kbd> keys): 75–125 %, the key stays the same – good for practicing fast songs. Remembered per song. With a changed tempo, recording only produces the MP3, no video.</li>
 <li><b>TV</b> (screen button or the <kbd>T</kbd> key): the video plays fullscreen on the second screen – connect a TV or projector via HDMI and choose <b>Extend</b> in Windows with <kbd>Win</kbd>+<kbd>P</kbd>. Queue, search and controls stay on the laptop; “Now singing …” and the points appear large on the TV. <kbd>Esc</kbd> on the TV or <em>Show here again</em> ends the mode. The <em>TV</em> button is also below the queue, so you can turn it on before the first song.</li>
 <li><b>🏆 Points after every song</b> (turn on at the right): SongGrabber listens to the microphone while you sing and shows 30–100 points with stars at the end of the song. <em>On pitch</em> = how cleanly the notes hit, <em>Singing</em> = how much was sung, <em>Steady notes</em> = how evenly long notes are held. It's a fun rating without comparing to the original melody. With headphones it's more accurate, because the mic only hears you.</li>
 <li><b>History &amp; leaderboard</b> (<em>History</em> tab): everything that was sung, with name, time and points – the top five at the top. A click on the microphone sings the song again, <b>+</b> adds it to the queue.</li>
@@ -1412,7 +1430,7 @@
 <li>Per subscription: switch to pause, <em>Check now</em> and remove. Tracks already downloaded are kept.</li>
 <li>Checking happens while SongGrabber is running. With <em>Start with Windows</em> it runs minimized in the background.</li></ul></article>
 
-<article id="h-queue"><h2>Queue (jobs)</h2>
+<article id="h-queue"><h2>Jobs (downloads &amp; conversions)</h2>
 <ul><li>Downloads, CD rips, recordings, conversions and transfers run one after another with a progress display. Bottom left in the bar you see the running job.</li>
 <li><em>Cancel</em> works at any time. For finished jobs: <em>Play</em> and <em>Show</em> (in Explorer), also by right-click.</li>
 <li>If something goes wrong, the reason is shown right on the job. <em>Remove finished</em> tidies up the list, <em>Open output folder</em> shows the music.</li>
@@ -1458,7 +1476,7 @@
 <tr><td><kbd>N</kbd> / <kbd>P</kbd></td><td>next / previous track (player page)</td></tr>
 <tr><td><kbd>S</kbd> · <kbd>R</kbd> · <kbd>M</kbd></td><td>Shuffle · repeat · mute (player page)</td></tr>
 <tr><td><kbd>V</kbd> · <kbd>B</kbd> · <kbd>I</kbd> · <kbd>L</kbd> · <kbd>Q</kbd> · <kbd>H</kbd> · <kbd>F11</kbd></td><td>Change light show · lights on/off · cover large/small · lyrics · right bar up/down · collapse/expand controls · fullscreen (player page)</td></tr>
-<tr><td><kbd>N</kbd> · <kbd>−</kbd> / <kbd>+</kbd> · <kbd>T</kbd></td><td>next song · key lower / higher · TV on/off (karaoke page)</td></tr>
+<tr><td><kbd>N</kbd> · <kbd>−</kbd> / <kbd>+</kbd> · <kbd>[</kbd> / <kbd>]</kbd> · <kbd>T</kbd></td><td>next song · key lower / higher · tempo slower / faster · TV on/off (karaoke page)</td></tr>
 <tr><td><kbd>Del</kbd></td><td>delete selected tracks (library)</td></tr>
 <tr><td><kbd>Enter</kbd></td><td>analyze link / add subscription</td></tr>
 <tr><td><kbd>Esc</kbd></td><td>close dialog or menu</td></tr></table></article>
@@ -1477,7 +1495,8 @@
 <li><b>Not on Linux</b>: the question about the music folder during installation (just change it bottom right) and the setup program itself – that's what <code>install.sh</code> is for.</li></ul></article>
 
 <article id="h-faq"><h2>Problems &amp; questions</h2>
-<dl><dt>Can I hear myself through the speakers while singing?</dt><dd>SongGrabber deliberately doesn't do this: Windows delays the microphone on its way to the speakers by about 50–150 milliseconds – you then hear yourself like an echo, which is distracting while singing, and speakers can cause feedback. Better: a karaoke microphone with built-in speaker, a USB microphone with a headphone jack (“direct monitoring”) or a small mixer. Recording in SongGrabber works with all of them.</dd>
+<dl><dt>The phone can't find the party.</dt><dd>Phone and computer must be on the same Wi-Fi – guest networks often keep devices apart. The first time, Windows asks whether SongGrabber may be reached on the network: <b>Allow</b> (for private networks). If that was declined: <em>Windows Security → Firewall &amp; network protection → Allow an app through firewall → SongGrabber</em>. If needed, use the laptop as a hotspot and connect the phones to it.</dd>
+<dt>Can I hear myself through the speakers while singing?</dt><dd>SongGrabber deliberately doesn't do this: Windows delays the microphone on its way to the speakers by about 50–150 milliseconds – you then hear yourself like an echo, which is distracting while singing, and speakers can cause feedback. Better: a karaoke microphone with built-in speaker, a USB microphone with a headphone jack (“direct monitoring”) or a small mixer. Recording in SongGrabber works with all of them.</dd>
 <dt>The key can't be changed.</dt><dd>This needs the audio features of Microsoft Edge WebView2 – they're missing on very old Windows versions. Installing Windows updates usually helps. Points and everything else still work.</dd>
 <dt>My voice is too quiet in the karaoke recording.</dt><dd>SongGrabber automatically boosts the voice when mixing. If it's still too quiet: choose <em>Voice +6 dB</em> next to the recording on the right (it's remixed). If “REC” in the video shows “mic very quiet?”, raise the microphone's input volume in Windows under <em>Settings → System → Sound → Input</em>. Which microphone is used is set on the <em>Screen</em> page.</dd>
 <dt>A karaoke video doesn't load.</dt><dd>Some videos are blocked or only available in other countries – SongGrabber then skips to the next song after a few seconds. Updating yt-dlp often helps too (Settings → Tools). Without internet only saved ★ favorites play.</dd>
@@ -1504,6 +1523,7 @@
 </template>
 <script src="i18n.js"></script>
 <script src="pitch.js"></script>
+<script src="qrcode.js"></script>
 <script>I18N.start();</script>
 <script src="app.js"></script>
 </body>

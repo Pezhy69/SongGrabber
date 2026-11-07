@@ -73,3 +73,7 @@ Abtastrate wie Quelle|sample rate as source
 · verlustfrei|· lossless
 \(Hauptbildschirm\)|(main screen)
 ^Tonart ([+−]\d)$|Key $1
+^Jetzt singt (.+)$|Now singing: $1
+^noch (\d+) vor dir$|$1 ahead of you
+^Tempo (\d+) %$|Tempo $1 %
+Du hast schon (\d+) Songs in der Warteschlange – erst mal singen! 🎤|You already have $1 songs in the queue – sing first! 🎤

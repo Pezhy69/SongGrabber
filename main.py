@@ -44,6 +44,8 @@ class Api:
         self._kara = karaoke.Karaoke(self._media, self._jobs)
         self._krec = karaoke.KaraRec()
         self._kscore = karaoke.KaraScore()
+        from agcore import party
+        self._party = party.Party(lambda q, long=False: karaoke.search(q, long=long), self._kara.party_thumb, self._kara.party_favorites)
         self._tv = None
         self._close_ok = False
         self._ly_cache = {}
@@ -409,6 +411,25 @@ class Api:
 
     def kara_score_stop(self, rate=True):
         return self._kscore.stop(bool(rate))
+
+    # --- Karaoke-Party (Handy-Wünsche über WLAN)
+    def party_start(self):
+        return self._party.start()
+
+    def party_stop(self):
+        return self._party.stop()
+
+    def party_info(self):
+        return self._party.info()
+
+    def party_poll(self):
+        return self._party.poll()
+
+    def party_sync(self, snap):
+        return self._party.sync(snap or {})
+
+    def party_add_singer(self, name):
+        return self._party.add_singer(name)
 
     def kara_history_add(self, entry):
         return self._kara.history_add(entry)
@@ -1244,6 +1265,7 @@ def main():
                       storage_path=os.path.join(paths.data_dir(), "webview"))
     finally:
         api._kscore.stop(False)
+        api._party.stop()
         api._screen.shutdown()
         bridge.shutdown(srv)
 

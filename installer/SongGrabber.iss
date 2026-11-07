@@ -235,7 +235,13 @@ Root: HKA; Subkey: "Software\Classes\SystemFileAssociations\.m3u8\shell\SongGrab
 Root: HKA; Subkey: "Software\Classes\SystemFileAssociations\.m3u8\shell\SongGrabberPlay\command"; ValueType: string; ValueName: ""; ValueData: """{app}\SongGrabber.exe"" --play ""%1"""; Tasks: player
 
 [Run]
+; Karaoke-Party: Handys im eigenen (privaten) WLAN dürfen SongGrabber erreichen – erspart die Firewall-Frage
+Filename: "{sys}\netsh.exe"; Parameters: "advfirewall firewall delete rule name=""SongGrabber Karaoke-Party"""; Flags: runhidden; Check: IsAdminInstallMode
+Filename: "{sys}\netsh.exe"; Parameters: "advfirewall firewall add rule name=""SongGrabber Karaoke-Party"" dir=in action=allow program=""{app}\{#AppExe}"" profile=private enable=yes"; Flags: runhidden; Check: IsAdminInstallMode
 Filename: "{app}\{#AppExe}"; Description: "{cm:Starten}"; Flags: nowait postinstall skipifsilent
+
+[UninstallRun]
+Filename: "{sys}\netsh.exe"; Parameters: "advfirewall firewall delete rule name=""SongGrabber Karaoke-Party"""; Flags: runhidden; Check: IsAdminInstallMode; RunOnceId: "DelFirewallRule"
 
 [UninstallDelete]
 Type: filesandordirs; Name: "{app}\bin"

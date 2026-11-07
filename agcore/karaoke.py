@@ -265,6 +265,18 @@ class Karaoke:
                     "history": self.data.get("history", [])[:300],
                     "folder": self.folder(), "starters": [{"name": n, "query": q} for n, q in STARTERS]}
 
+    # --- für die Party (Handy-Seite)
+    def party_thumb(self, vid):
+        with self.lock:
+            for f in self.data["favorites"]:
+                if f.get("id") == vid and f.get("thumb_file") and os.path.isfile(f["thumb_file"]):
+                    return f["thumb_file"]
+        return None
+
+    def party_favorites(self):
+        with self.lock:
+            return [dict(f, file=f.get("file") if f.get("file") and os.path.isfile(f["file"]) else "") for f in self.data["favorites"]]
+
     def save_queue(self, q, singers=None):
         with self.lock:
             self.data["queue"] = list(q or [])[:200]

@@ -225,7 +225,7 @@ $("#btnDownload").onclick = e => safe(e.currentTarget, async () => {
     }
   }
   const ids = await call("link_download", items, opts);
-  toast(`${ids.length} ${ids.length === 1 ? "Auftrag" : "Aufträge"} in der Warteschlange`, "ok");
+  toast(`${ids.length} ${ids.length === 1 ? "Auftrag gestartet" : "Aufträge gestartet"} – siehe Aufträge`, "ok");
   $("#urlInput").value = ""; $("#urlInput").focus();
 });
 $("#btnStreamStart").onclick = e => safe(e.currentTarget, async () => {
@@ -919,13 +919,15 @@ window.Scr = Scr;
 
 /* ---------------------------------------------------------------- Karaoke */
 const Kara = (() => {
+  const P = { on: false, url: "", singers: [], sung: {}, n: 0, poll: 0, synced: "" };
   const K = { tab: "songs", results: [], plItems: [], pl: null, favs: [], queue: [], singers: [], hist: [], cur: null, loaded: false, poll: 0 };
   const L = $("#kaVideo"), active = () => $("#page-karaoke").classList.contains("active");
   const tvSend = c => call("kara_tv_cmd", c).catch(() => { });
   /* Video-Stellvertreter: spielt hier im Fenster oder – im Fernseher-Modus – im zweiten Fenster.
      Die übrige Karaoke-Logik merkt keinen Unterschied. */
   const v = (() => {
-    let tv = false, st = { t: 0, d: 0, paused: true, ended: false }, src = "", vol = .9, muted = false, pitch = 0;
+    let tv = false, st = { t: 0, d: 0, paused: true, ended: false }, src = "", vol = .9, muted = false, pitch = 0, rate = 1;
+    const applyRate = () => { L.preservesPitch = true; L.defaultPlaybackRate = rate; L.playbackRate = rate; };
     const ls = {}, emit = ev => (ls[ev] || []).forEach(f => { try { f(); } catch (e) { console.error(e); } });
     ["playing", "pause", "seeking", "timeupdate", "loadedmetadata", "waiting", "ended", "error"].forEach(ev => L.addEventListener(ev, () => { if (!tv) emit(ev); }));
     L.addEventListener("dblclick", () => emit("dblclick"));
@@ -942,10 +944,11 @@ const Kara = (() => {
       get muted() { return muted; }, set muted(x) { muted = x; L.muted = x; if (tv) tvSend({ muted: x }); },
       play() { if (tv) { st.paused = false; tvSend({ play: 1 }); return Promise.resolve(); } return L.play(); },
       pause() { if (tv) tvSend({ pause: 1 }); else L.pause(); },
-      setSrc(x) { src = x; st = fresh(); if (tv) tvSend({ src: x, t: 0, play: 0 }); else L.src = x; },
+      setSrc(x) { src = x; st = fresh(); if (tv) tvSend({ src: x, t: 0, play: 0, rate }); else { L.src = x; applyRate(); } },
       clear() { src = ""; st = fresh(); L.pause(); L.removeAttribute("src"); L.load(); if (tv) tvSend({ src: "", idle: T("Gleich geht's los …") }); },
       hasSrc: () => !!src,
       async setPitch(n) { pitch = n; if (tv) { tvSend({ pitch: n }); return true; } return KPitch.set(L, n); },
+      setRate(r) { rate = r; applyRate(); if (tv) tvSend({ rate: r }); },
       toTv(on) {
         if (on === tv) return;
         const t = tv ? st.t : L.currentTime || 0, paused = tv ? st.paused : L.paused;
@@ -953,9 +956,9 @@ const Kara = (() => {
         if (on) {
           st = { t, d: isFinite(L.duration) ? L.duration : 0, paused, ended: false };
           L.pause(); L.removeAttribute("src"); L.load();
-          tvSend({ src, t, play: src && !paused ? 1 : 0, vol, muted, pitch, lang: I18N.lang, ...(src ? {} : { idle: T("Gleich geht's los …") }) });
+          tvSend({ src, t, play: src && !paused ? 1 : 0, vol, muted, pitch, rate, lang: I18N.lang, ...(src ? {} : { idle: T("Gleich geht's los …") }) });
         } else if (src) {
-          L.src = src; L.volume = vol; L.muted = muted;
+          L.src = src; L.volume = vol; L.muted = muted; applyRate();
           const go = () => { L.currentTime = t; if (!paused) L.play().catch(() => { }); };
           L.readyState >= 1 ? go() : L.addEventListener("loadedmetadata", go, { once: true });
           if (pitch) KPitch.set(L, pitch);
@@ -1088,7 +1091,7 @@ const Kara = (() => {
   /* --- Warteschlange */
   const singer = () => { const n = $("#kaSinger").value.trim(); if (n && !K.singers.includes(n)) { K.singers.unshift(n); $("#kaSingers").innerHTML = K.singers.map(x => `<option value="${esc(x)}">`).join(""); } return n; };
   const slim = s => ({ id: s.id, title: s.title, channel: s.channel, duration: s.duration, thumb: s.thumb });
-  function addQ(s) { K.queue.push({ song: slim(s), singer: singer() }); renderQueue(); save(); toast(`In der Warteschlange: ${s.title}`); }
+  function addQ(s) { K.queue.push({ song: slim(s), singer: singer() }); fair(); renderQueue(); save(); toast(`In der Warteschlange: ${s.title}`); }
   function renderQueue() {
     $("#kaSingers").innerHTML = K.singers.map(x => `<option value="${esc(x)}">`).join("");
     $("#kaQN").textContent = K.queue.length ? K.queue.length + " Songs" : "";
@@ -1096,6 +1099,7 @@ const Kara = (() => {
     $("#kaQueue").innerHTML = now + (K.queue.length ? K.queue.map((e, i) => `<div class="ka-q" data-i="${i}"><i>${i + 1}</i><div><b title="${esc(e.song.title)}">${esc(e.song.title)}</b><small>${esc(e.singer || "")}</small></div><button class="x" title="Entfernen"><svg><use href="#i-x"/></svg></button></div>`).join("") : (K.cur ? "" : `<div class="ka-empty">Noch leer – bei einem Song auf <b>+</b> klicken.</div>`));
     $$("#kaQueue .ka-q[data-i] .x").forEach(b => b.onclick = () => { K.queue.splice(+b.closest(".ka-q").dataset.i, 1); renderQueue(); save(); });
     $("#kaStart").hidden = !K.queue.length || !!K.cur;
+    partySync();
   }
   /* --- Singen */
   function singNow(s) { K.queue.unshift({ song: slim(s), singer: singer() }); next(); }
@@ -1104,9 +1108,10 @@ const Kara = (() => {
     stopRec();
     const e = K.queue.shift(); save();
     if (!e) { stop(); toast("Warteschlange ist leer – das war's! 🎤"); return; }
+    const inter = P.on ? intermission(e) : null;          // Party: „Als Nächstes …“ zeigen, während das Video lädt
     K.cur = e; K.chapters = []; K.file = ""; K.recWanted = $("#kaRecOn").checked; K.scoreWanted = $("#kaScoreOn").checked; renderQueue(); chUi();
     Player.pause(); try { $("#audio2").pause(); } catch { }        // Musik/Radio anhalten
-    v.clear(); keyLoad(e.song.id);
+    v.clear(); keyLoad(e.song.id); tempoLoad(e.song.id);
     $("#kaStage").hidden = false; $("#kaLoad").hidden = false; loadTxt("Video wird geladen …");
     $("#kaNowT").textContent = e.song.title; $("#kaNowS").textContent = e.singer ? "Es singt: " + e.singer : "";
     $("#kaFav").classList.toggle("on", !!favOf(e.song.id));
@@ -1120,6 +1125,7 @@ const Kara = (() => {
       await new Promise(ok => setTimeout(ok, 500));
     }
     if (r.error) { $("#kaLoad").hidden = true; toast("Dieses Video lässt sich nicht laden: " + r.error, "err"); setTimeout(() => { if (K.cur === e) next(); }, 3500); return; }
+    if (inter) { $("#kaLoad").hidden = true; await inter; if (K.cur !== e) return; }
     K.chapters = r.chapters || []; K.file = r.file || ""; chUi();
     v.setSrc(r.src); v.volume = +$("#kaVol").value / 100; seekUi();
     v.play().catch(() => { });
@@ -1135,10 +1141,12 @@ const Kara = (() => {
   }
   function leave() {                                   // aktuellen Song verlassen (Verlauf, Punkte-Mikro aus)
     const e = K.cur; if (!e) return;
+    if (P.on && (v.currentTime || 0) > 30) { const k = (e.singer || "").toLowerCase(); P.sung[k] = (P.sung[k] || 0) + 1; }
+    interDone();
     if (K.scoring) { K.scoring = null; call("kara_score_stop", false).catch(() => { }); }
     if ((v.currentTime || 0) > 30) logSong(e, null);
   }
-  function stop() { leave(); stopRec(); scoreHide(); v.clear(); K.cur = null; K.chapters = []; chUi(); $("#kaStage").hidden = true; full(false); renderQueue(); }
+  function stop() { leave(); stopRec(); scoreHide(); v.clear(); K.cur = null; K.chapters = []; chUi(); $("#kaStage").hidden = true; full(false); renderQueue(); lobbyTv(); }
   v.on("playing", () => {
     $("#kaLoad").hidden = true; nextShown = false; $("#kaPlay").innerHTML = `<svg><use href="#i-pause"/></svg>`;
     if (K.recWanted && !K.recOn) { K.recWanted = false; startRec(); }
@@ -1287,6 +1295,8 @@ const Kara = (() => {
     else if (e.key === "+" || e.code === "NumpadAdd") keyStep(1);
     else if (e.key === "-" || e.code === "NumpadSubtract") keyStep(-1);
     else if (e.key === "t" || e.key === "T") tvToggle();
+    else if (e.key === "[") tempoSet((K.tempo || 100) - 5);
+    else if (e.key === "]") tempoSet((K.tempo || 100) + 5);
   });
   /* Vollbild: Mauszeiger und Leiste verschwinden nach 2,5 s Ruhe */
   let idleT = 0;
@@ -1311,6 +1321,26 @@ const Kara = (() => {
   }
   const keyStep = d => keySet((K.key || 0) + d);
   function keyLoad(id) { const n = keyMem[id] || 0; if (n || K.key) keySet(n, true); else keyUi(0); }
+  /* --- Tempo (75–125 %, Tonhöhe bleibt) */
+  let tempoMem = {};
+  try { tempoMem = JSON.parse(localStorage.getItem("kaTempo") || "{}"); } catch { }
+  function tempoUi(p) {
+    $("#kaTempoV").textContent = p === 100 ? T("Tempo") : p + " %";
+    $("#kaTempo").classList.toggle("on", p !== 100);
+    $("#kaTempoDn").disabled = p <= 75; $("#kaTempoUp").disabled = p >= 125;
+  }
+  function tempoSet(p, quiet) {
+    p = Math.max(75, Math.min(125, Math.round(p / 5) * 5));
+    K.tempo = p; tempoUi(p); v.setRate(p / 100);
+    if (K.cur) { if (p !== 100) tempoMem[K.cur.song.id] = p; else delete tempoMem[K.cur.song.id]; try { localStorage.setItem("kaTempo", JSON.stringify(tempoMem)); } catch { } }
+    if (K.recOn && !quiet) call("kara_rec_dirty").catch(() => { });          // Video passt dann nicht mehr zum Ton → nur MP3
+    if (!quiet && K.cur) over(p === 100 ? "Original-Tempo" : `Tempo ${p} %`, p < 100 ? "langsamer – Tonart bleibt" : p > 100 ? "schneller – Tonart bleibt" : "", 1600);
+  }
+  const tempoLoad = id => { const p = tempoMem[id] || 100; if (p !== 100 || (K.tempo && K.tempo !== 100)) tempoSet(p, true); else tempoUi(100); };
+  $("#kaTempoDn").onclick = () => tempoSet((K.tempo || 100) - 5);
+  $("#kaTempoUp").onclick = () => tempoSet((K.tempo || 100) + 5);
+  $("#kaTempoV").onclick = () => tempoSet(100);
+  tempoUi(100);
   $("#kaKeyDn").onclick = () => keyStep(-1);
   $("#kaKeyUp").onclick = () => keyStep(1);
   $("#kaKeyV").onclick = () => keySet(0);
@@ -1336,12 +1366,101 @@ const Kara = (() => {
     ["#kaTv", "#kaTv2"].forEach(id => { $(id).classList.toggle("on", on); $(id).title = on ? "Fernseher-Modus beenden – Video wieder hier zeigen (T)" : "Auf dem Fernseher zeigen – Video im Vollbild auf dem zweiten Bildschirm, Bedienung bleibt hier (T)"; });
   }
   function tvEvent(ev, st) {
-    if (ev === "ready") { tvWait = false; v.toTv(true); tvUi(); if (fsOn) full(false); if (K.cur) { over(K.cur.singer ? `Jetzt singt: ${esc(K.cur.singer)}` : esc(K.cur.song.title), K.cur.singer ? esc(K.cur.song.title) : "", 3500); } return; }
+    if (ev === "ready") { tvWait = false; v.toTv(true); tvUi(); if (fsOn) full(false); lobbyTv(); if (K.cur) { over(K.cur.singer ? `Jetzt singt: ${esc(K.cur.singer)}` : esc(K.cur.song.title), K.cur.singer ? esc(K.cur.song.title) : "", 3500); } return; }
     if (ev === "closed" || ev === "esc") { tvWait = false; if (v.tv) v.toTv(false); if (ev === "esc") call("kara_tv", false).catch(() => { }); tvUi(); return; }
     v.tvEvent(ev, st);
   }
   window.addEventListener("message", e => { if (e.data && e.data.sgtv) tvEvent(e.data.sgtv, e.data.st); });   // Demo-Modus (Browser)
   $("#kaTv").onclick = () => tvToggle(); $("#kaTv2").onclick = () => tvToggle(); $("#kaTvBack").onclick = tvOff;
+
+  /* --- Party: Gäste wünschen sich Songs vom Handy */
+  function qrSvg(text, px) {
+    const q = qrcode(0, "M"); q.addData(text); q.make();
+    const n = q.getModuleCount(), m = 2, size = n + m * 2; let d = "";
+    for (let r = 0; r < n; r++) for (let c = 0; c < n; c++) if (q.isDark(r, c)) d += `M${c + m} ${r + m}h1v1h-1z`;
+    return `<svg viewBox="0 0 ${size} ${size}" width="${px}" height="${px}" shape-rendering="crispEdges" role="img" aria-label="QR-Code"><rect width="${size}" height="${size}" style="fill:#fff;stroke:none"/><path d="${d}" style="fill:#111;stroke:none"/></svg>`;
+  }
+  function fair() {                                    // faire Reihenfolge: wer noch nicht dran war, kommt zuerst
+    if (!P.on) return;
+    const cnt = {}, cur = K.cur ? (K.cur.singer || "").toLowerCase() : null;
+    K.queue.forEach(e => {
+      if (e.n == null) e.n = ++P.n;
+      const k = (e.singer || "").toLowerCase();
+      e._r = (P.sung[k] || 0) + (k === cur ? 1 : 0) + (cnt[k] || 0); cnt[k] = (cnt[k] || 0) + 1;
+    });
+    K.queue.sort((a, b) => a._r - b._r || a.n - b.n);
+  }
+  function partyUi() {
+    $("#kaPartyOff").hidden = P.on; $("#kaPartyOn").hidden = !P.on;
+    $("#kaWhoH").textContent = T(P.on ? "Sänger ohne Handy" : "Wer singt?");
+    if (!P.on) return;
+    $("#kaPUrl").textContent = P.url.replace(/^https?:\/\//, "");
+    const open = {}; K.queue.forEach(e => { const k = (e.singer || "").toLowerCase(); open[k] = (open[k] || 0) + 1; });
+    const nextK = K.queue[0] ? (K.queue[0].singer || "").toLowerCase() : "";
+    $("#kaPChips").innerHTML = P.singers.length ? P.singers.map(x => { const k = x.name.toLowerCase(); return `<span class="chip ${k === nextK ? "next" : ""}" title="${x.pc ? "ohne Handy" : "mit Handy"}">${x.pc ? "" : "📱 "}${esc(x.name)}${open[k] ? ` <b>${open[k]}</b>` : ""}</span>`; }).join("")
+      : `<span class="muted">${esc(T("Noch niemand – scannt den Code!"))}</span>`;
+  }
+  function lobbyHtml() {
+    const chips = P.singers.map(x => `<span>${esc(x.name)}</span>`).join("");
+    return `<div class="ka-score ka-lobby"><div class="lb-qr">${qrSvg(P.url, 400)}</div><div class="lb-tx"><b>Scannen und mitsingen 🎤</b><p>Handy-Kamera auf den Code halten, Namen eintragen, Song wünschen – fertig.</p><small>${esc(P.url.replace(/^https?:\/\//, ""))}</small>${chips ? `<div class="lb-chips">${chips}</div>` : ""}</div></div>`;
+  }
+  function lobbyTv() { if (v.tv) tvSend({ score: P.on && !K.cur ? T(lobbyHtml()) : "" }); }
+  function partySync() {
+    if (!P.on) return;
+    const q = K.queue.map((e, i) => { if (!e.qid) e.qid = "q" + Date.now().toString(36) + i; return { qid: e.qid, sid: e.sid || "", singer: e.singer || "", title: e.song.title, id: e.song.id, thumb: e.song.thumb || "" }; });
+    const snap = { queue: q, now: K.cur ? { title: K.cur.song.title, singer: K.cur.singer || "", sid: K.cur.sid || "" } : null, next: q[0] ? { title: q[0].title, singer: q[0].singer, sid: q[0].sid } : null };
+    const key = JSON.stringify(snap); if (key === P.synced) return; P.synced = key;
+    call("party_sync", snap).catch(() => { });
+    partyUi();
+  }
+  async function partyPoll() {
+    if (!P.on) return;
+    let r; try { r = await call("party_poll"); } catch { r = null; }
+    if (!P.on) return;
+    if (r) {
+      const before = P.singers.length; P.singers = r.singers || P.singers; let changed = false;
+      for (const a of r.actions || []) {
+        if (a.type === "join") toast(`${a.name} macht mit 🎉`);
+        else if (a.type === "wish" && a.song) { K.queue.push({ song: a.song, singer: a.name, sid: a.sid, n: ++P.n }); changed = true; toast(`${a.name} wünscht sich: ${a.song.title}`); if (K.queue.length === 1 && K.cur) call("kara_prepare", a.song).catch(() => { }); }
+        else if (a.type === "remove") { const i = K.queue.findIndex(e => e.qid === a.qid && e.sid === a.sid); if (i >= 0) { K.queue.splice(i, 1); changed = true; } }
+      }
+      if (changed) { fair(); save(); renderQueue(); }
+      if (changed || before !== P.singers.length) { partyUi(); lobbyTv(); }
+    }
+    P.poll = setTimeout(partyPoll, 1000);
+  }
+  async function partyStart() {
+    let r; try { r = await call("party_start"); } catch (e) { toast(String(e.message || e), "err"); return; }
+    Object.assign(P, { on: true, url: r.url, singers: r.singers || [], synced: "" });
+    $("#kaQr").innerHTML = qrSvg(P.url, 220);
+    fair(); renderQueue(); partyUi(); lobbyTv(); partyPoll();
+  }
+  async function partyEnd() {
+    if (!confirm("Party beenden? Die Handys können danach nichts mehr wünschen – die Warteschlange bleibt.")) return;
+    P.on = false; clearTimeout(P.poll); await call("party_stop").catch(() => { });
+    partyUi(); lobbyTv();
+  }
+  $("#kaPartyGo").onclick = partyStart;
+  $("#kaPartyEnd").onclick = partyEnd;
+  $("#kaPartyTv").onclick = () => { if (v.tv) lobbyTv(); else tvToggle(); };
+  $("#kaSinger").addEventListener("change", () => { const n = $("#kaSinger").value.trim(); if (P.on && n) call("party_add_singer", n).catch(() => { }); });
+
+  /* Zwischenbildschirm „Als Nächstes …“ (Party) */
+  let interResolve = null;
+  function interDone() { if (interResolve) { const f = interResolve; interResolve = null; $("#kaScore").innerHTML = ""; if (v.tv) tvSend({ score: "" }); f(); } }
+  function intermission(e) {
+    interDone();
+    return new Promise(ok => {
+      interResolve = ok;
+      const who = e.singer ? esc(e.singer) : esc(T("Weiter geht's"));
+      const card = btn => `<div class="ka-score ka-inter"><div class="sc-card"><small>Als Nächstes</small><b class="im-who">${who}</b><span class="im-song">${esc(e.song.title)}</span>
+        <div class="im-cd"><b style="--from:8"></b></div><em class="sc-p">Mach dich bereit! 🎤</em>${btn ? `<button class="primary sm" data-go>Jetzt starten</button>` : `<div class="im-qr">${qrSvg(P.url, 120)}<small>Noch mitmachen? Scannen!</small></div>`}</div></div>`;
+      $("#kaScore").innerHTML = card(true);
+      if (v.tv) tvSend({ score: T(card(false)) });
+      $("#kaScore [data-go]").onclick = interDone;
+      setTimeout(() => { if (interResolve === ok) interDone(); }, 8000);
+    });
+  }
 
   /* --- Punkte am Songende */
   let scoreDone = null;
@@ -1391,7 +1510,7 @@ const Kara = (() => {
   $("#kaQClear").onclick = () => { K.queue = []; renderQueue(); save(); };
   $("#kaSinger").onchange = () => { singer(); save(); };
   $("#kaHistClear").onclick = () => { if (!confirm("Verlauf und Bestenliste löschen?")) return; K.hist = []; call("kara_history_clear").catch(() => { }); renderHist(); };
-  return { enter, tvEvent };
+  return { enter, tvEvent, party: P };
 })();
 window.Kara = Kara;
 
@@ -1535,7 +1654,7 @@ $("#btnKeepLive").onclick = () => {
 
 /* ---------------------------------------------------------------- Neu in dieser Version (bei jeder Version ergänzen!) */
 const CHANGES = [
-  ["1.12.0", ["<b>English</b>: SongGrabber gibt es jetzt auch auf Englisch – automatisch wie Windows oder unter Einstellungen → Sprache umschalten (mit englischer Hilfe)", "<b>Karaoke</b>: Karaoke-Videos von YouTube suchen und singen – ohne Werbung, mit fertigen Playlists (Schlager, 80er, Disney …)", "<b>Wer singt?</b> Sänger-Warteschlange mit „Jetzt singt …“ und „Als Nächstes …“", "<b>★ Favoriten offline</b>: werden im Ordner „Karaoke“ gespeichert und laufen auch ohne Internet – z. B. beim Camping", "<b>Mich aufnehmen</b>: Stimme + Musik als MP3 (auf Wunsch MP4), Stimme nachträglich lauter/leiser", "<b>Tonart ändern</b> (♭/♯): Song tiefer oder höher singen, das Tempo bleibt gleich – je Song gemerkt", "<b>Fernseher-Modus</b>: Video im Vollbild auf dem zweiten Bildschirm, Bedienung bleibt auf dem Laptop", "<b>🏆 Punkte</b> nach jedem Song mit Sternen, dazu <b>Verlauf & Bestenliste</b>", "<b>Hall auf der Stimme</b> für die Aufnahme: Raum, Bühne oder Konzerthalle – auch nachträglich", "<b>Best-of &amp; Mixe</b>: lange Karaoke-Videos mit Songliste – ⏭ bzw. N springt zum nächsten Song im Video", "Zeitleiste mit Restzeit, Tasten (Leertaste, ←/→, ↑/↓, N)", "Radio: <b>Sofort mitschneiden</b> – der laufende Song von Anfang an (stoppt am Songende) oder ab jetzt, auch im Mini-Player"]],
+  ["1.12.0", ["<b>English</b>: SongGrabber gibt es jetzt auch auf Englisch – automatisch wie Windows oder unter Einstellungen → Sprache umschalten (mit englischer Hilfe)", "<b>Karaoke</b>: Karaoke-Videos von YouTube suchen und singen – ohne Werbung, mit fertigen Playlists (Schlager, 80er, Disney …)", "<b>Wer singt?</b> Sänger-Warteschlange mit „Jetzt singt …“ und „Als Nächstes …“", "<b>★ Favoriten offline</b>: werden im Ordner „Karaoke“ gespeichert und laufen auch ohne Internet – z. B. beim Camping", "<b>Mich aufnehmen</b>: Stimme + Musik als MP3 (auf Wunsch MP4), Stimme nachträglich lauter/leiser", "<b>🎉 Party-Modus</b>: Gäste scannen einen QR-Code und wünschen sich Songs vom Handy – faire Reihenfolge, „Als Nächstes“-Bildschirm und „Du bist dran!“ aufs Handy", "<b>Tonart ändern</b> (♭/♯): Song tiefer oder höher singen, das Tempo bleibt gleich – je Song gemerkt", "<b>Tempo</b> 75–125 %, die Tonart bleibt gleich", "Linke Leiste übersichtlich in Gruppen: Musik holen · Hören & Singen · Aufnehmen", "Besser lesbar, ruhigere Animationen – und „Animationen reduzieren“ von Windows wird beachtet", "<b>Fernseher-Modus</b>: Video im Vollbild auf dem zweiten Bildschirm, Bedienung bleibt auf dem Laptop", "<b>🏆 Punkte</b> nach jedem Song mit Sternen, dazu <b>Verlauf & Bestenliste</b>", "<b>Hall auf der Stimme</b> für die Aufnahme: Raum, Bühne oder Konzerthalle – auch nachträglich", "<b>Best-of &amp; Mixe</b>: lange Karaoke-Videos mit Songliste – ⏭ bzw. N springt zum nächsten Song im Video", "Zeitleiste mit Restzeit, Tasten (Leertaste, ←/→, ↑/↓, N)", "Radio: <b>Sofort mitschneiden</b> – der laufende Song von Anfang an (stoppt am Songende) oder ab jetzt, auch im Mini-Player"]],
   ["1.11.0", ["<b>Bildschirm aufnehmen</b>: Zoom, Teams, Webinar oder Live-Coaching als MP4-Video – ganzer Bildschirm oder nur ein Fenster, mit Vorschau", "Neue Lichtshows: <b>Nordlicht</b>, <b>Disco-Kugel</b>, <b>Lava-Lampe</b> und <b>Feuerwerk</b> (statt Tesla)", "Player: <b>rechte Leiste hochrollen</b> wie ein Rollo (Q) und <b>Bedienung einklappen</b> zu kleinen Knöpfen (H) – Drüberfahren zeigt alles, nach 1 Minute Ruhe passiert es von selbst", "<b>Bereich zeichnen</b>: nur einen Ausschnitt aufnehmen – z. B. nur das Video in YouTube, Zoom oder Teams", "Klar sichtbar, welcher Ton mit drauf ist: <b>Ton vom PC</b> und/oder <b>dein Mikrofon</b> – mit Pegelanzeige", "<b>Mikrofon während der Aufnahme an/aus</b> – z. B. nur kurz einschalten, um etwas zu sagen", "<b>Kleine Aufnahme-Leiste</b> oben rechts mit Uhr, Pause und Stopp – unter Windows im Video unsichtbar", "Fertiges Video direkt in SongGrabber ansehen – saubere Dateinamen ohne Emojis", "Pause, Verwerfen, auf Wunsch zusätzlich als MP3 – und beim Schließen geht keine laufende Aufnahme verloren"]],
   ["1.10.0", ["<b>SongGrabber für Linux</b>: Ubuntu, Mint, Debian, Fedora, Arch, openSUSE – mit <code>install.sh</code>, Startmenü-Eintrag, Papierkorb, Audio-CDs, Systemsound und „Alles am PC“ über MPRIS", "Update-Hinweis verlinkt automatisch die passende Datei für Windows bzw. Linux"]],
   ["1.9.1", ["<b>Mini-Player</b> friert nicht mehr ein – Fenster wird zuverlässig klein, bleibt im Vordergrund und kommt genau so zurück", "Knöpfe oben im Player bleiben bei jeder Fenstergröße sichtbar"]],
@@ -1556,7 +1675,7 @@ const CHANGES = [
 ];
 // English change notes (recent versions only – older ones are summarized)
 const CHANGES_EN = [
-  ["1.12.0", ["<b>English</b>: SongGrabber now speaks English – automatically like Windows, or switch under Settings → Language (help included)", "<b>Karaoke</b>: search and sing karaoke videos from YouTube – without ads, with ready-made playlists (party hits, 80s, Disney …)", "<b>Who's singing?</b> Singer queue with “Now singing …” and “Up next …”", "<b>★ Favorites offline</b>: saved in the “Karaoke” folder and play without internet too – e.g. when camping", "<b>Record me</b>: voice + music as MP3 (optionally MP4), make the voice louder/quieter afterwards", "<b>Change the key</b> (♭/♯): sing a song lower or higher, the tempo stays the same – remembered per song", "<b>TV mode</b>: video fullscreen on the second screen, controls stay on the laptop", "<b>🏆 Points</b> after every song with stars, plus <b>history & leaderboard</b>", "<b>Reverb on the voice</b> for recordings: room, stage or concert hall – also afterwards", "<b>Best-of &amp; mixes</b>: long karaoke videos with a song list – ⏭ or N jumps to the next song within the video", "Timeline with remaining time, keys (space, ←/→, ↑/↓, N)", "Radio: <b>Record right away</b> – the current song from its beginning (stops at the end of the song) or from now on, also in the mini player"]],
+  ["1.12.0", ["<b>English</b>: SongGrabber now speaks English – automatically like Windows, or switch under Settings → Language (help included)", "<b>Karaoke</b>: search and sing karaoke videos from YouTube – without ads, with ready-made playlists (party hits, 80s, Disney …)", "<b>Who's singing?</b> Singer queue with “Now singing …” and “Up next …”", "<b>★ Favorites offline</b>: saved in the “Karaoke” folder and play without internet too – e.g. when camping", "<b>Record me</b>: voice + music as MP3 (optionally MP4), make the voice louder/quieter afterwards", "<b>🎉 Party mode</b>: guests scan a QR code and request songs from their phone – fair order, “Up next” screen and “You're up!” on the phone", "<b>Change the key</b> (♭/♯): sing a song lower or higher, the tempo stays the same – remembered per song", "<b>Tempo</b> 75–125 %, the key stays the same", "Sidebar neatly grouped: Get music · Listen & sing · Record", "Easier to read, calmer animations – and Windows “reduce animations” is respected", "<b>TV mode</b>: video fullscreen on the second screen, controls stay on the laptop", "<b>🏆 Points</b> after every song with stars, plus <b>history & leaderboard</b>", "<b>Reverb on the voice</b> for recordings: room, stage or concert hall – also afterwards", "<b>Best-of &amp; mixes</b>: long karaoke videos with a song list – ⏭ or N jumps to the next song within the video", "Timeline with remaining time, keys (space, ←/→, ↑/↓, N)", "Radio: <b>Record right away</b> – the current song from its beginning (stops at the end of the song) or from now on, also in the mini player"]],
   ["1.11.0", ["<b>Record screen</b>: Zoom, Teams, webinars or live coaching as MP4 video – whole screen or just one window, with preview", "New light shows: <b>Aurora</b>, <b>Disco ball</b>, <b>Lava lamp</b> and <b>Fireworks</b> (instead of Tesla)", "Player: <b>roll up the right bar</b> like a blind (Q) and <b>collapse the controls</b> into small buttons (H) – hovering shows everything, after 1 minute of inactivity it happens by itself", "<b>Draw an area</b>: record only part of the screen – e.g. just the video in YouTube, Zoom or Teams", "Clearly visible which sound is included: <b>PC sound</b> and/or <b>your microphone</b> – with level meter", "<b>Microphone on/off during recording</b>", "<b>Small recording bar</b> at the top right with clock, pause and stop – invisible in the video on Windows", "Watch the finished video right in SongGrabber – clean file names without emojis", "Pause, discard, optionally also as MP3 – and a running recording is never lost when closing"]],
   ["1.10.0", ["<b>SongGrabber for Linux</b>: Ubuntu, Mint, Debian, Fedora, Arch, openSUSE – with <code>install.sh</code>, start menu entry, trash, audio CDs, system sound and “Everything on the PC” via MPRIS", "The update note automatically links the right file for Windows or Linux"]],
   ["1.3 – 1.9", ["Player with light shows, equalizer, crossfade, lyrics and mini player · radio &amp; podcasts · play YouTube without download · audio CD ripping with MusicBrainz · vinyl/cassette recording · tag editor, library clean-up, transfer to USB/phone · subscriptions · music recognition. Details: release notes on GitHub."]],
@@ -1887,7 +2006,7 @@ const Player = (() => {
           "-",
           t.kind === "file" && { icon: "i-tag", label: "Tags bearbeiten …", fn: () => openTagEditor([t.path]) },
           t.kind === "file" && { icon: "i-folder", label: "Im Ordner anzeigen", fn: () => call("open_path", t.path) },
-          t.kind === "stream" && { icon: "i-down", label: "Herunterladen (als MP3 …)", fn: () => { call("link_download", [{ url: t.url, title: t.title, artist: t.artist }], {}); toast("Download gestartet – siehe Warteschlange", "ok"); } },
+          t.kind === "stream" && { icon: "i-down", label: "Herunterladen (als MP3 …)", fn: () => { call("link_download", [{ url: t.url, title: t.title, artist: t.artist }], {}); toast("Download gestartet – siehe Aufträge", "ok"); } },
           t.kind === "stream" && { icon: "i-link", label: "Im Browser öffnen", fn: () => call("open_url", t.url) },
           t.kind === "radio" && { icon: "i-mic", label: "Sender mitschneiden", fn: () => recordRadio(t) },
           t.kind === "podcast" && { icon: "i-down", label: "Folge herunterladen", fn: () => { call("podcast_download", { title: t.show, author: t.show, image: t.image }, { title: t.title, url: t.url, date: 0, image: t.image }); toast("Download gestartet", "ok"); } },
@@ -3062,7 +3181,7 @@ async function openCleanup() {
     sel.forEach(c => c.closest(".cl-file").remove());
     toast(`${res.deleted} Dateien ${res.recycle ? "in den Papierkorb verschoben" : "gelöscht"}`, "ok"); count(); loadLibrary();
   });
-  if ($("#clFill")) $("#clFill").onclick = e => safe(e.currentTarget, async () => { await call("cleanup_fill", r.fill); e.currentTarget.disabled = true; toast(`${r.fill.length} Titel werden ergänzt – läuft in der Warteschlange`, "ok"); });
+  if ($("#clFill")) $("#clFill").onclick = e => safe(e.currentTarget, async () => { await call("cleanup_fill", r.fill); e.currentTarget.disabled = true; toast(`${r.fill.length} Titel werden ergänzt – siehe Aufträge`, "ok"); });
   if ($("#clDirs")) $("#clDirs").onclick = e => safe(e.currentTarget, async () => { const n = await call("cleanup_empty", r.empty); e.currentTarget.disabled = true; toast(`${n} leere Ordner entfernt`, "ok"); });
 }
 
@@ -3135,7 +3254,7 @@ function bindLibRows(arr) {
         { icon: "i-list", label: "An Wiedergabeliste anhängen", fn: () => Player.addPaths(sel) },
         "-",
         { icon: "i-tag", label: sel.length > 1 ? `Tags von ${sel.length} Titeln bearbeiten …` : "Tags bearbeiten …", fn: () => openTagEditor(sel) },
-        { icon: "i-lyrics", label: "Songtext suchen & einbetten", fn: async () => { await call("lyrics_files", sel); toast("Songtexte werden gesucht – siehe Warteschlange", "ok"); } },
+        { icon: "i-lyrics", label: "Songtext suchen & einbetten", fn: async () => { await call("lyrics_files", sel); toast("Songtexte werden gesucht – siehe Aufträge", "ok"); } },
         { icon: "i-finger", label: "Titel erkennen (Fingerabdruck)", fn: () => identifyFiles(sel) },
         { icon: "i-cut", label: "Anfang/Ende kürzen …", disabled: sel.length > 1, fn: () => openTrim(p) },
         { icon: "i-usb", label: "Auf USB-Stick/Handy übertragen …", fn: () => openExport(sel.length > 1 ? "Auswahl" : (it.artist || "Musik"), sel) },
@@ -3361,7 +3480,7 @@ async function identifyFiles(sel) {
     return;
   }
   await call("identify_files", sel);
-  toast(`${sel.length} Titel werden erkannt – siehe Warteschlange`, "ok");
+  toast(`${sel.length} Titel werden erkannt – siehe Aufträge`, "ok");
 }
 $("#btnAcoustKey").onclick = () => call("open_url", "https://acoustid.org/new-application");
 
@@ -3458,7 +3577,7 @@ async function openExport(name, paths) {
   async function go_(btn) {
     await safe(btn, async () => {
       await call("export_start", $("#exName").value.trim() || name, paths, target, $("#exMode").value, $("#exNum").checked);
-      closeDialog(); toast("Übertragung läuft – siehe Warteschlange", "ok"); go("queue");
+      closeDialog(); toast("Übertragung läuft – siehe Aufträge", "ok"); go("queue");
     });
   }
 }
@@ -3709,7 +3828,7 @@ async function openOnlineSearch(q0) {
     $$("#osRes [data-p]").forEach(b => b.onclick = () => Player.playEntries([en[+b.dataset.p]]));
     $$("#osRes [data-n]").forEach(b => b.onclick = () => Player.addEntries([en[+b.dataset.n]], { nextUp: true }));
     $$("#osRes [data-a]").forEach(b => b.onclick = () => Player.addEntries([en[+b.dataset.a]]));
-    $$("#osRes [data-d]").forEach(b => b.onclick = async () => { await call("link_download", [{ url: r[+b.dataset.d].url, title: r[+b.dataset.d].title }], {}); toast("Download gestartet – siehe Warteschlange", "ok"); });
+    $$("#osRes [data-d]").forEach(b => b.onclick = async () => { await call("link_download", [{ url: r[+b.dataset.d].url, title: r[+b.dataset.d].title }], {}); toast("Download gestartet – siehe Aufträge", "ok"); });
   });
   $("#osGo").onclick = run; $("#osQ").addEventListener("keydown", e => { if (e.key === "Enter") run(); });
   setTimeout(() => $("#osQ").focus(), 50); if (q0) run();
@@ -3860,7 +3979,7 @@ async function openShow(feed) {
     const e = sh.episodes[+r.dataset.i];
     r.querySelector(".pbtn").onclick = () => Player.playEntries([epEntry(sh, e)]);
     r.querySelector("[data-a=add]").onclick = () => Player.addEntries([epEntry(sh, e)]);
-    r.querySelector("[data-a=dl]").onclick = async () => { await call("podcast_download", sh, e); toast("Folge wird heruntergeladen – siehe Warteschlange", "ok"); };
+    r.querySelector("[data-a=dl]").onclick = async () => { await call("podcast_download", sh, e); toast("Folge wird heruntergeladen – siehe Aufträge", "ok"); };
   });
 }
 
@@ -3907,7 +4026,7 @@ const Mock = (() => {
     ["Bon Jovi – It's My Life (Karaoke Version)", "Sing King", 226], ["DJ Ötzi – Ein Stern (der deinen Namen trägt) Karaoke", "Karaoke Hits DE", 235], ["Udo Jürgens – Griechischer Wein (Karaoke)", "KaraFun Deutschland", 228],
     ["Queen – Bohemian Rhapsody (Karaoke Version)", "Sing King", 356], ["Nena – 99 Luftballons (Karaoke)", "Zoom Karaoke", 232]]
     .map(([t, ch, d], i) => ({ id: "k" + i + q.length, title: t, channel: ch, duration: d, thumb: kThumb(t, i), score: 5 }));
-  let kfav = [], kprep = {}, krec = 0, qrec = null, ktv = null;
+  let kfav = [], kprep = {}, krec = 0, qrec = null, ktv = null, kparty = null;
   const kNow = Math.floor(Date.now() / 1000);
   let khist = [["Helene Fischer – Atemlos durch die Nacht (Karaoke)", "Kathy", 91, 3600], ["ABBA – Dancing Queen (Karaoke Version)", "Pezhy", 78, 3000], ["Bon Jovi – It's My Life (Karaoke)", "Pezhy", 84, 2400], ["Nena – 99 Luftballons (Karaoke)", "Kathy", null, 1200]]
     .map(([t, who, sc, ago], i) => ({ song: { id: "h" + i, title: t, channel: "Sing King", duration: 220, thumb: "" }, singer: who, at: kNow - ago, ...(sc != null ? { score: sc } : {}) }));
@@ -3975,6 +4094,17 @@ const Mock = (() => {
       ktv = window.open("tv.html", "sgtv", "width=960,height=540");
       const w = ktv, iv = setInterval(() => { if (!w || w.closed) { clearInterval(iv); if (ktv === w) { ktv = null; window.postMessage({ sgtv: "closed" }, "*"); } } }, 500);
       return { ok: true };
+    },
+    party_start: () => { kparty = { n: 0, singers: [] }; return { on: true, url: "http://192.168.178.24:8930/p/Xk3fP9aQ2LmW/", ip: "192.168.178.24", port: 8930, singers: [] }; },
+    party_stop: () => { kparty = null; return true; }, party_sync: () => true, party_add_singer: n => "pc-" + n,
+    party_poll: () => {
+      if (!kparty) return { actions: [], singers: [] };
+      const k = kparty, t = ++k.n, act = [];
+      const script = Mock.__partyScript || { 2: ["join", "Kathy"], 3: ["join", "Lea"], 4: ["join", "Tom"], 5: ["wish", "Lea", "ABBA – Dancing Queen (Karaoke Version)"], 6: ["wish", "Lea", "Queen – Bohemian Rhapsody (Karaoke)"], 7: ["wish", "Tom", "Bon Jovi – It's My Life (Karaoke)"], 8: ["wish", "Kathy", "Helene Fischer – Atemlos durch die Nacht (Karaoke)"] };
+      const s = script[t];
+      if (s && s[0] === "join") { const sid = "s" + t; k.singers.push({ sid, name: s[1] }); act.push({ type: "join", sid, name: s[1] }); }
+      if (s && s[0] === "wish") { const who = k.singers.find(x => x.name === s[1]); act.push({ type: "wish", sid: who.sid, name: s[1], song: { id: "w" + t, title: s[2], channel: "Sing King", duration: 215, thumb: "" } }); }
+      return { actions: act, singers: k.singers };
     },
     kara_tv_cmd: c => { if (ktv) ktv.postMessage({ sgcmd: c }, "*"); return !!ktv; },
     kara_playlists: q => new Promise(r => setTimeout(() => r(["Schlager Karaoke – die besten Party-Hits", "Deutsche Schlager zum Mitsingen", "Ballermann Karaoke 2026", "Schlager Klassiker Karaoke", "Après-Ski Karaoke", "Helene & Co. – Karaoke"].map((t, i) => ({ url: "pl" + i, title: t, channel: ["KaraFun Deutschland", "Sing King", "Karaoke Hits DE"][i % 3], count: 20 + i * 7, thumb: kThumb(t, i + 3) }))), 400)),

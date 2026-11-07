@@ -49,6 +49,7 @@ const TV = (() => {
       if (!c.src) { v.pause(); v.removeAttribute("src"); v.load(); idle.hidden = false; }
       else {
         if (v.getAttribute("src") !== c.src) { v.src = c.src; }
+        if (c.rate) { v.defaultPlaybackRate = c.rate; v.playbackRate = c.rate; }
         if (c.t) { const go = () => { v.currentTime = c.t; }; v.readyState >= 1 ? go() : v.addEventListener("loadedmetadata", go, { once: true }); }
         if (c.play) v.play().catch(() => { });
       }
@@ -59,6 +60,7 @@ const TV = (() => {
     if (c.seek !== undefined) v.currentTime = c.seek;
     if (c.vol !== undefined) v.volume = c.vol;
     if (c.muted !== undefined) v.muted = c.muted;
+    if (c.rate !== undefined) { v.preservesPitch = true; v.defaultPlaybackRate = c.rate; v.playbackRate = c.rate; }
     if (c.pitch !== undefined && c.pitch !== pitch) { pitch = c.pitch; await KPitch.set(v, pitch); }
     if (c.over) { clearTimeout(overT); over.innerHTML = c.over.html; over.classList.add("on"); if (c.over.ms) overT = setTimeout(() => over.classList.remove("on"), c.over.ms); }
     if (c.overOff) over.classList.remove("on");

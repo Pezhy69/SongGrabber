@@ -13,6 +13,7 @@ Mitgelieferte Programme (Ordner "bin")
 Verwendete Bibliotheken
 -----------------------
 - pywebview – BSD-3-Clause · https://pywebview.flowrl.com
+- qrcode-generator (Kazuhiko Arase) – MIT · https://github.com/kazuhikoarase/qrcode-generator
 - mutagen – GPL-2.0-or-later · https://github.com/quodlibet/mutagen
 - SoundCard – BSD-3-Clause · https://github.com/bastibe/SoundCard
 - NumPy – BSD-3-Clause · https://numpy.org

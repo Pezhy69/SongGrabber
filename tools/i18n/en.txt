@@ -1187,3 +1187,82 @@ SongGrabber|SongGrabber
 MB als|MB as
 Register an application|Register an application
 → Name „SongGrabber“, Version „1“ → speichern.|→ name “SongGrabber”, version “1” → save.
+Musik holen|Get music
+Hören & Singen|Listen & sing
+Aufnehmen|Record
+Ton & Schallplatte|Audio & vinyl
+Aufträge|Jobs
+Aufträge (Downloads & Umwandlungen)|Jobs (downloads & conversions)
+Downloads, CD-Rips, Aufnahmen und Umwandlungen laufen nacheinander im Hintergrund – du kannst währenddessen weiterarbeiten.|Downloads, CD rips, recordings and conversions run one after another in the background – you can keep working meanwhile.
+Fertige Titel in der Bibliothek oder im Player abspielen – und Playlists erstellen.|Play finished tracks in the library or player – and create playlists.
+Auftrag gestartet|Job started
+Aufträge gestartet|jobs started
+– siehe Aufträge|– see Jobs
+Download gestartet – siehe Aufträge|Download started – see Jobs
+Folge wird heruntergeladen – siehe Aufträge|Episode is being downloaded – see Jobs
+Songtexte werden gesucht – siehe Aufträge|Searching lyrics – see Jobs
+Titel werden erkannt – siehe Aufträge|Recognizing tracks – see Jobs
+Übertragung läuft – siehe Aufträge|Transfer running – see Jobs
+Titel werden ergänzt – siehe Aufträge|Tracks are being completed – see Jobs
+🎉 Party-Modus|🎉 Party mode
+Gäste scannen einen QR-Code und wünschen sich Songs vom Handy – ganz ohne Tippen am Rechner.|Guests scan a QR code and request songs from their phone – no typing at the computer.
+Party starten|Start party
+Party beenden|End party
+Scannen und mitsingen|Scan and sing along
+Scannen und mitsingen 🎤|Scan and sing along 🎤
+Handy im selben WLAN wie dieser Rechner. Fragt Windows nach der Firewall:|Phone on the same Wi-Fi as this computer. If Windows asks about the firewall:
+Zulassen|Allow
+Auf den Fernseher|On the TV
+QR-Code groß auf dem Fernseher zeigen|Show the QR code large on the TV
+Mit der Handy-Kamera scannen|Scan with the phone camera
+Sänger ohne Handy|Singers without a phone
+Noch niemand – scannt den Code!|Nobody yet – scan the code!
+ohne Handy|without a phone
+mit Handy|with a phone
+Handy-Kamera auf den Code halten, Namen eintragen, Song wünschen – fertig.|Point the phone camera at the code, enter your name, pick a song – done.
+macht mit 🎉|joined 🎉
+wünscht sich:|requests:
+Party beenden? Die Handys können danach nichts mehr wünschen – die Warteschlange bleibt.|End the party? Phones can't request songs afterwards – the queue stays.
+Weiter geht's|Up next
+Als Nächstes|Up next
+Mach dich bereit! 🎤|Get ready! 🎤
+Jetzt starten|Start now
+Noch mitmachen? Scannen!|Want to join? Scan!
+im-qr|im-qr
+Karaoke-Party|Karaoke party
+Wie heißt du?|What's your name?
+Einmal eintragen – deine Songs werden dir dann automatisch zugeordnet.|Enter it once – your songs are then assigned to you automatically.
+Dein Name|Your name
+Mitmachen|Join
+Du bist als Nächstes dran! 🎤|You're up next! 🎤
+Du bist als Nächstes dran|You're up next
+Gerade läuft|Now playing
+Noch nichts – wünsch dir einen Song!|Nothing yet – request a song!
+Name ändern|Change name
+Song oder Interpret suchen …|Search song or artist …
+Ergebnisse|Results
+Schon gespeichert – geht auch ohne Internet|Already saved – works without internet too
+Meine Songs|My songs
+So geht's weiter|Coming up
+Suchen|Search
+Reihenfolge|Order
+Ist drin! 🎉 Du siehst ihn unter „Meine Songs“.|You're in! 🎉 You'll find it under “My songs”.
+Entfernt.|Removed.
+Wieder entfernen|Remove again
+Nichts gefunden – anders schreiben oder nur den Interpreten suchen.|Nothing found – try a different spelling or just the artist.
+Such oben nach deinem Lieblingssong.|Search for your favorite song above.
+Noch keine Songs – unter „Suchen“ einfach auf Singen tippen.|No songs yet – just tap Sing under “Search”.
+Die Party ist voll.|The party is full.
+Gerade viel los – gleich nochmal versuchen.|Busy right now – try again in a moment.
+Suche fehlgeschlagen.|Search failed.
+Kein Song.|No song.
+Bitte zuerst den Namen eintragen.|Please enter your name first.
+Diese Party gibt es nicht (mehr).|This party doesn't exist (anymore).
+Party-Server startet nicht:|Party server won't start:
+Tempo: langsamer oder schneller – die Tonart bleibt gleich (Tasten [ und ])|Tempo: slower or faster – the key stays the same (keys [ and ])
+Klick: zurück zum Original-Tempo|Click: back to the original tempo
+Langsamer ([)|Slower ([)
+Schneller (])|Faster (])
+Original-Tempo|Original tempo
+langsamer – Tonart bleibt|slower – key stays the same
+schneller – Tonart bleibt|faster – key stays the same

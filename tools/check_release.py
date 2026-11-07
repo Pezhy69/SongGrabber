@@ -14,7 +14,7 @@ read = lambda p: open(os.path.join(ROOT, p), encoding="utf-8-sig").read()  # noq
 
 # Funktionen, die in der Hilfe beschrieben sein müssen (Begriff, wie er in der Hilfe steht)
 FEATURES = [
-    "Sofort mitschneiden", "Tonart", "Fernseher", "Punkte nach jedem Song", "Bestenliste", "Hall auf der Stimme", "Radio-Mitschnitte", "Karaoke", "Wer singt?", "Alle offline holen", "Best-of", "Mich aufnehmen", "Songliste",
+    "Sofort mitschneiden", "Tonart", "Fernseher", "Party-Modus", "Das Handy findet die Party nicht", "Punkte nach jedem Song", "Bestenliste", "Hall auf der Stimme", "Radio-Mitschnitte", "Karaoke", "Wer singt?", "Alle offline holen", "Best-of", "Mich aufnehmen", "Songliste",
     "Bildschirm aufnehmen", "Ton vom PC", "Mein Mikrofon", "Ein Fenster / Programm", "Einverständnis", "kleine Leiste", "Bereich zeichnen", "Rechte Leiste wegschieben", "Bedienung einklappen", "Mikrofon unterwegs an/aus",
     "install.sh", "MPRIS", "Sprache",
     "Überblenden", "Lautstärke angleichen", "Mini-Player", "Aufräumen", "Doppelte Titel", "Leere Ordner", "Nach Updates suchen",

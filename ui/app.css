@@ -1357,3 +1357,64 @@ body.no-outbar .outbar{display:none}
   .sc-n{animation:none!important;--n:var(--to)}
   .sc-bars i::after{animation:none!important}
 }
+
+/* Linke Leiste in Gruppen */
+.nav-group{font:700 10.5px var(--font);letter-spacing:1.3px;text-transform:uppercase;color:var(--dim);padding:12px 12px 4px}
+.nav-group:first-child{padding-top:0}
+.nav{gap:2px}
+.nav-item{padding:8px 12px}
+.brand{padding-bottom:16px}
+@media (max-height:820px){.nav-item{padding:6.5px 12px}.nav-group{padding:9px 12px 3px}.brand{padding-bottom:12px}.nav-sep{margin:7px 8px}}
+.side{overflow-y:auto;scrollbar-width:none}
+
+/* ---------- Karaoke-Party ---------- */
+.ka-party{margin:-2px 0 16px;padding-bottom:16px;border-bottom:1px solid var(--line)}
+.ka-poff{display:grid;gap:6px;padding:14px;border-radius:12px;background:linear-gradient(160deg,rgba(255,181,71,.10),rgba(255,122,48,.03));border:1px solid rgba(255,181,71,.22)}
+.ka-poff b{font:700 15px var(--disp)}
+.ka-poff small{color:var(--muted);line-height:1.45}
+.ka-poff button{justify-self:start;margin-top:4px}
+.ka-qr{display:grid;place-items:center;background:#fff;border-radius:12px;padding:6px;width:min(100%,168px);margin:0 auto}
+.ka-qr svg{width:100%;height:auto;display:block}
+.ka-purl{text-align:center;margin:10px 0 8px;display:grid;gap:3px}
+.ka-purl b{font:700 14.5px var(--disp)}
+.ka-purl small{color:var(--muted);font:12px var(--mono);word-break:break-all}
+.ka-purl small.hint{font:11.5px/1.4 var(--font);word-break:normal}
+.ka-pchips{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin:6px 0 10px;font-size:12.5px}
+.ka-pchips .chip{padding:4px 10px;border-radius:20px;background:var(--raise);border:1px solid var(--line2);white-space:nowrap}
+.ka-pchips .chip b{color:var(--accent2);margin-left:2px}
+.ka-pchips .chip.next{border-color:var(--accent);background:rgba(255,122,48,.12)}
+.ka-pact{display:flex;align-items:center;gap:8px}
+.ka-pact svg{width:15px;height:15px}
+.ka-tempo span{min-width:52px}
+
+/* Lobby (Fernseher) und Zwischenbildschirm */
+.ka-lobby{gap:5em;padding:4em;background:radial-gradient(ellipse at 30% 40%,rgba(255,122,48,.18),transparent 60%),#06070a;backdrop-filter:none}
+.lb-qr{background:#fff;border-radius:1.6em;padding:1.2em;width:min(42vh,46vw);flex:none;box-shadow:0 30px 80px -30px rgba(255,122,48,.6)}
+.lb-qr svg{width:100%;height:auto;display:block}
+.lb-tx{max-width:28em}
+.lb-tx b{display:block;font:800 3.2em/1.1 var(--disp);margin-bottom:.4em}
+.lb-tx p{font-size:1.5em;color:#C9CDD6;margin:0 0 .8em;line-height:1.4}
+.lb-tx small{font:1.1em var(--mono);color:var(--muted)}
+.lb-chips{display:flex;flex-wrap:wrap;gap:.5em;margin-top:1.6em}
+.lb-chips span{font-size:1.25em;padding:.3em .9em;border-radius:2em;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12)}
+@property --c{syntax:"<integer>";initial-value:0;inherits:false}
+@keyframes im-down{from{--c:8}to{--c:0}}
+.ka-inter .sc-card{min-width:min(420px,86%)}
+.im-who{display:block;font:800 3.4em/1.05 var(--disp);background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent;margin:.1em 0 .15em}
+.im-song{display:block;font-size:1.25em;color:#D9DCE3;margin-bottom:1em}
+.im-cd b{display:inline-grid;place-items:center;width:3.2em;height:3.2em;border-radius:50%;border:2px solid rgba(255,181,71,.45);font:700 1.5em var(--mono);color:var(--accent2);animation:im-down 8s linear forwards;counter-reset:c var(--c)}
+.im-cd b::after{content:counter(c)}
+.im-qr{display:flex;align-items:center;gap:1em;justify-content:center;margin-top:.4em}
+.im-qr svg{width:6em;height:6em;border-radius:.5em}
+.im-qr small{color:var(--muted);font-size:1em;max-width:9em;text-align:left}
+@media (prefers-reduced-motion: reduce){.im-cd b{animation:none!important;--c:8}}
+.ka-qr svg,.lb-qr svg,.im-qr svg{stroke:none;fill:none}
+.ka-purl small b{font:inherit;font-weight:700;color:var(--text)}
+#kaVol{min-width:64px}
+@media (max-width:1560px){
+  .ka-ctrl{gap:6px;padding:10px 10px}
+  .ka-now{min-width:90px}
+  .ka-key button{width:26px}
+  .ka-key span,.ka-tempo span{min-width:44px;font-size:11.5px}
+  #kaVol{width:72px}
+}

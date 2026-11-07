@@ -10,6 +10,10 @@
 - **Wer singt?** – Sänger-Warteschlange mit Einblendung „Jetzt singt …“ und „Als Nächstes …“, Vollbild für den Fernseher
 - **Mich aufnehmen**: beim Singen Stimme + Musik als MP3 speichern, auf Wunsch auch als Video – Stimme nachträglich lauter/leiser
 - **Best-of & Mixe**: lange Karaoke-Videos (oft 1 Std.) mit Songliste – ⏭ / N springt zum nächsten Song im Video
+- **🎉 Party-Modus**: Gäste scannen einen QR-Code und wünschen sich Songs vom Handy (ohne App, ohne Tippen am Rechner) – faire Reihenfolge, „Als Nächstes“-Bildschirm mit Countdown, „Du bist dran!“ aufs Handy
+- **Tempo** 75–125 %, die Tonart bleibt gleich
+- **Linke Leiste in Gruppen**: Musik holen · Hören & Singen · Aufnehmen; „Warteschlange“ für Downloads heißt jetzt „Aufträge“
+- **Design-Feinschliff**: besser lesbare Hinweistexte, ruhigere Animationen, „Animationen reduzieren“ von Windows wird beachtet
 - **Tonart ändern** (♭/♯): Song bis zu 6 Halbtöne tiefer oder höher – das Tempo bleibt gleich, wird je Song gemerkt
 - **Fernseher-Modus**: Karaoke-Video im Vollbild auf dem zweiten Bildschirm (Fernseher/Beamer), Warteschlange und Bedienung bleiben auf dem Laptop
 - **🏆 Punkte nach jedem Song** mit Sternen (Spaß-Wertung übers Mikrofon), dazu **Verlauf & Bestenliste**
