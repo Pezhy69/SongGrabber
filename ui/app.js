@@ -2555,10 +2555,11 @@ const Viz = (() => {
   const raySprites = {};
   function raySprite(col) {                 // ein senkrechter Lichtstreifen: unten hell, nach oben verblassend
     if (raySprites[col]) return raySprites[col];
-    const c = document.createElement("canvas"); c.width = 4; c.height = 128; const g = c.getContext("2d");
-    const gr = g.createLinearGradient(0, 0, 0, 128);
-    gr.addColorStop(0, rgba(col, 0)); gr.addColorStop(.55, rgba(col, .35)); gr.addColorStop(.86, rgba(col, 1)); gr.addColorStop(.93, rgba("#ffffff", .55)); gr.addColorStop(1, rgba(col, 0));
-    g.fillStyle = gr; g.fillRect(0, 0, 4, 128);
+    const c = document.createElement("canvas"); c.width = 4; c.height = 512; const g = c.getContext("2d");
+    const gr = g.createLinearGradient(0, 0, 0, 512);
+    gr.addColorStop(0, rgba(col, 0)); gr.addColorStop(.45, rgba(col, .18)); gr.addColorStop(.82, rgba(col, .7)); gr.addColorStop(.94, rgba(col, 1));
+    gr.addColorStop(.965, rgba("#ffffff", .5)); gr.addColorStop(.982, rgba(col, .55)); gr.addColorStop(1, rgba(col, 0));     // klare, helle Unterkante
+    g.fillStyle = gr; g.fillRect(0, 0, 4, 512);
     return (raySprites[col] = c);
   }
   let auC = null, auX = null;
@@ -2570,7 +2571,8 @@ const Viz = (() => {
     for (const s of stars) { x.globalAlpha = .2 + .45 * Math.abs(Math.sin(now * .6 + s[3])); x.fillStyle = "#fff"; x.fillRect(s[0] * W, s[1] * H * 1.4, s[2] * D * .8, s[2] * D * .8); }
     x.globalAlpha = 1;
     // Lichtschleier klein zeichnen und weich hochskalieren – keine harten Streifen
-    const cw = Math.max(80, Math.round(W / 6)), ch = Math.max(50, Math.round(H / 6));
+    // nur waagerecht verkleinern (gegen Streifen), senkrecht volle Auflösung → klare Unterkante, feine Strahlen
+    const cw = Math.max(120, Math.round(W / 4)), ch = H;
     if (!auC || auC.width !== cw || auC.height !== ch) { auC = document.createElement("canvas"); auC.width = cw; auC.height = ch; auX = auC.getContext("2d"); }
     auX.globalCompositeOperation = "source-over"; auX.clearRect(0, 0, cw, ch); auX.globalCompositeOperation = "lighter";
     const n = bars.length, hi = bandAvg(46, 72);
@@ -2583,11 +2585,12 @@ const Viz = (() => {
         // Pegel über mehrere Bänder gemittelt → sanft statt zappelig
         const k0 = rg[0] + t * (rg[1] - rg[0]), b = ((bars[Math.floor(k0)] || 0) + (bars[Math.min(n - 1, Math.floor(k0) + 1)] || 0) + (bars[Math.max(0, Math.floor(k0) - 1)] || 0)) / 3;
         const hgt = ch * (.12 + .13 * Math.sin(t * 4 + now * .35 + ph) ** 2 + lv * .22 + b * .1 + bassV * .04);
-        const band = .45 + .55 * Math.pow(Math.sin(t * 9 + now * .45 + ph * 3) * .5 + .5, 1.5);
+        const band = .45 + .55 * Math.pow(Math.sin(t * 9 + now * .45 + ph * 3) * .5 + .5, 1.5)
+          * (.78 + .22 * Math.sin(t * 140 + now * .6 + ph * 5) * Math.sin(t * 57 - now * .4));      // feine senkrechte Strahlen
         const shimmer = 1 + hi * .35 * Math.sin(now * 5 + t * 10 + ph);
         const edge = Math.min(1, t * 5, (1 - t) * 5);
         auX.globalAlpha = Math.min(1, (.32 + lv * .75 + beat * .15) * band * shimmer * edge * str);
-        auX.drawImage(spr, i, base - hgt, 1.6, hgt * 1.08);
+        auX.drawImage(spr, i, base - hgt, 1.4, hgt * 1.08);
       }
     });
     x.save(); x.globalCompositeOperation = "lighter"; x.imageSmoothingEnabled = true; x.imageSmoothingQuality = "high";
@@ -2669,56 +2672,100 @@ const Viz = (() => {
     x.fillStyle = glow; x.fillRect(cx - R * 3, cy - R * 3, R * 6, R * 6); x.restore();
   }
 
-  /* Lava-Lampe: zähe Wachsblasen steigen und sinken, verschmelzen und teilen sich – Bass lässt sie anschwellen */
-  let lvC = null, lvX = null, lvImg = null, lvG = null, lvBlobs = [], lvE = 0, lvT = 0, lvTime = 0;
+  /* Lava-Lampe: eine echte Lampe – Glas, Metallsockel, Wachs von unten beleuchtet. Bass lässt das Wachs anschwellen */
+  let lvC = null, lvX = null, lvImg = null, lvF = null, lvBlobs = [], lvE = 0, lvT = 0, lvTime = 0;
   function lava(p, bassV) {
     const now = performance.now() / 1000, dt = Math.min(.1, lvT ? now - lvT : 0); lvT = now;
     lvE += (energy - lvE) * .02;
-    lvTime += dt * (.55 + lvE * .5);                       // lauter = etwas lebhafter, aber nie hektisch
-    const g0 = x.createLinearGradient(0, 0, 0, H);
-    g0.addColorStop(0, "#05030b"); g0.addColorStop(.6, p.sky[0]); g0.addColorStop(1, rgba(p.c[0], .35));
-    x.fillStyle = g0; x.fillRect(0, 0, W, H);
-    const cw = Math.max(120, Math.round(W / 5)), ch = Math.max(70, Math.round(H / 5));
-    if (!lvC || lvC.width !== cw || lvC.height !== ch) { lvC = document.createElement("canvas"); lvC.width = cw; lvC.height = ch; lvX = lvC.getContext("2d"); lvImg = lvX.createImageData(cw, ch); lvG = document.createElement("canvas"); lvG.width = Math.ceil(cw / 4); lvG.height = Math.ceil(ch / 4); }
-    if (lvBlobs.length !== 7) lvBlobs = Array.from({ length: 7 }, (_, i) => ({ x: .1 + (i / 6) * .8 + (Math.random() - .5) * .06, ph: Math.random() * 6.28, sp: .1 + Math.random() * .12, r: .07 + Math.random() * .05, wx: Math.random() * 6.28 }));
+    lvTime += dt * (.5 + lvE * .45);                        // lauter = etwas lebhafter, aber nie hektisch
     const c0 = hexRgb(p.c[0]), c1 = hexRgb(p.c[1]), c2 = hexRgb(p.c[2] || p.c[0]);
-    const swell = 1 + bassV * .22 + beat * .08, S = Math.min(cw, ch);
-    const B = lvBlobs.map(b => [
-      (b.x + Math.sin(lvTime * .23 + b.wx) * .05) * cw,
-      (.5 - .46 * Math.sin(lvTime * b.sp + b.ph)) * ch,          // langsames Steigen und Sinken
-      (b.r * S * swell * (1 + .15 * Math.sin(lvTime * .7 + b.ph))) ** 2]);
-    // Boden- und Deckenwachs: flache Blasen, an denen die anderen „andocken“
-    B.push([cw * .5, ch * 1.08, (cw * .55) ** 2 * .055], [cw * .5, -ch * .1, (cw * .5) ** 2 * .03]);
-    // Wachs: klare Kante, von unten warm angeleuchtet, heller Rand wie bei echtem Wachs im Glas
-    const d = lvImg.data, heat = .85 + beat * .25;
-    for (let yy = 0, k = 0; yy < ch; yy++) {
-      const ty = yy / ch, lit = (.55 + ty * .6) * heat;
-      const base = [c0[0] + (c1[0] - c0[0]) * (1 - ty), c0[1] + (c1[1] - c0[1]) * (1 - ty), c0[2] + (c1[2] - c0[2]) * (1 - ty)];
-      for (let xx = 0; xx < cw; xx++, k += 4) {
-        let f = 0;
-        for (let i = 0; i < B.length; i++) { const dx = xx - B[i][0], dy = yy - B[i][1]; f += B[i][2] / (dx * dx + dy * dy + 1); }
-        if (f < .9) { d[k + 3] = 0; continue; }
-        const a = Math.min(1, (f - .9) / .12), rim = Math.max(0, 1 - (f - .9) / .45), inner = Math.min(1, (f - 1) * .25);
-        d[k] = Math.min(255, base[0] * lit * (1 - inner * .08) + c2[0] * inner * .08 + rim * 110);
-        d[k + 1] = Math.min(255, base[1] * lit * (1 - inner * .08) + c2[1] * inner * .08 + rim * 90);
-        d[k + 2] = Math.min(255, base[2] * lit * (1 - inner * .08) + c2[2] * inner * .08 + rim * 110);
-        d[k + 3] = a * a * (3 - 2 * a) * 255;
+    // Lampe: Maße
+    const LH = H * .86, top = H * .07, cx = W * .42;
+    const capH = LH * .1, glassT = top + capH, glassH = LH * .62, baseT = glassT + glassH, baseH = LH - capH - glassH;
+    const hw = t => LH * (.062 + .1 * Math.sin(Math.min(1, t * 1.05) * Math.PI * .82) ** 1.15);   // halbe Glasbreite, t = 0 oben … 1 unten
+    const hwMax = LH * .165;
+    // Raum: dunkel, warmer Schein der Lampe an der Wand
+    x.fillStyle = "#040308"; x.fillRect(0, 0, W, H);
+    const room = x.createRadialGradient(cx, glassT + glassH * .6, 0, cx, glassT + glassH * .6, Math.max(W, H) * .7);
+    room.addColorStop(0, rgba(p.c[0], .30 + lvE * .15 + beat * .08)); room.addColorStop(.35, rgba(p.c[1], .10)); room.addColorStop(1, "rgba(0,0,0,0)");
+    x.fillStyle = room; x.fillRect(0, 0, W, H);
+    const flo = x.createLinearGradient(0, top + LH, 0, H); flo.addColorStop(0, rgba(p.c[0], .14)); flo.addColorStop(1, "rgba(0,0,0,0)");
+    x.fillStyle = flo; x.fillRect(0, top + LH - 2, W, H);
+    // Wachs im Glas: Puffer nur so groß wie das Glas, halbe Auflösung
+    const sc = Math.min(1, 300 / Math.max(1, glassH));
+    const bw = Math.max(40, Math.round(hwMax * 2 * sc)), bh = Math.max(80, Math.round(glassH * sc));
+    if (!lvC || lvC.width !== bw || lvC.height !== bh) { lvC = document.createElement("canvas"); lvC.width = bw; lvC.height = bh; lvX = lvC.getContext("2d"); lvImg = lvX.createImageData(bw, bh); lvF = new Float32Array(bw * bh); }
+    if (lvBlobs.length !== 6) lvBlobs = Array.from({ length: 6 }, (_, i) => ({ x: .3 + (i % 3) * .2 + (Math.random() - .5) * .08, ph: Math.random() * 6.28, sp: .12 + Math.random() * .1, r: .085 + Math.random() * .05, wx: Math.random() * 6.28 }));
+    const swell = 1 + bassV * .18 + beat * .06;
+    const B = lvBlobs.map(b => {
+      const yy = .52 - .42 * Math.sin(lvTime * b.sp + b.ph), w = hw(yy) / hwMax;            // in der schmalen Spitze schmaler
+      return [(.5 + (b.x - .5) * w * .9 + Math.sin(lvTime * .21 + b.wx) * .05 * w) * bw, yy * bh, (b.r * bw * swell * (.75 + .25 * w) * (1 + .12 * Math.sin(lvTime * .7 + b.ph))) ** 2];
+    });
+    B.push([bw * .5, bh * 1.06, (bw * .5) ** 2 * .55]);                                        // Wachs am Boden
+    const F = lvF, d = lvImg.data;
+    for (let yy = 0, k = 0; yy < bh; yy++) {
+      const lim = hw(yy / bh) * sc;
+      for (let xx = 0; xx < bw; xx++, k++) {
+        if (Math.abs(xx + .5 - bw / 2) > lim) { F[k] = 0; continue; }
+        let f = 0; for (let i = 0; i < B.length; i++) { const dx = xx - B[i][0], dy = yy - B[i][1]; f += B[i][2] / (dx * dx + dy * dy + 1); }
+        F[k] = f;
+      }
+    }
+    const heat = .9 + beat * .2 + lvE * .1;
+    for (let yy = 0, k = 0; yy < bh; yy++) {
+      const ty = yy / bh, lit = (.5 + ty * .75) * heat, lim = hw(ty) * sc;
+      const base = [c1[0] + (c0[0] - c1[0]) * ty, c1[1] + (c0[1] - c1[1]) * ty, c1[2] + (c0[2] - c1[2]) * ty];
+      for (let xx = 0; xx < bw; xx++, k++) {
+        const o = k * 4, f = F[k], ex = Math.abs(xx + .5 - bw / 2) / Math.max(1, lim);
+        if (ex > 1) { d[o + 3] = 0; continue; }
+        // Flüssigkeit: leicht gefärbt, unten wärmer
+        let r = 12 + c0[0] * .10 * lit, g = 8 + c0[1] * .08 * lit, bl = 18 + c0[2] * .10 * lit, al = 205;
+        if (f > .82) {
+          const fx = (F[k + 1] || f) - (F[k - 1] || f), fy = (F[k + bw] || f) - (F[k - bw] || f), gl = Math.hypot(fx, fy), nl = gl || 1;
+          const nx = -fx / nl, ny = -fy / nl, sure = Math.min(1, gl * 6);                      // an Sattelpunkten (zwischen Blasen) kein Glanz
+          const edge = Math.min(1, (f - .82) / .2), a2 = edge * edge * (3 - 2 * edge);
+          const rim = Math.max(0, 1 - (f - .82) / .6);
+          const deep = Math.min(1, Math.max(0, (f - 1.05) / .9));                                  // tief in der Blase: kein Glanz mehr
+          const spec = Math.max(0, nx * -.55 + ny * -.83) ** 4 * (1 - rim * .5) * sure * (1 - deep) * .7;   // Glanz von oben links
+          const under = Math.max(0, ny) * .35 * sure;                                                      // von unten angeleuchtet
+          const wr = base[0] * lit * (1 + under) + rim * 60 + spec * 170, wg = base[1] * lit * (1 + under) + rim * 45 + spec * 160, wb = base[2] * lit * (1 + under) + rim * 60 + spec * 170;
+          r += (wr - r) * a2; g += (wg - g) * a2; bl += (wb - bl) * a2; al += (255 - al) * a2;
+        }
+        const side = ex ** 6;                                                                       // Glas wird zum Rand dunkler
+        d[o] = Math.min(255, r * (1 - side * .6)); d[o + 1] = Math.min(255, g * (1 - side * .6)); d[o + 2] = Math.min(255, bl * (1 - side * .6));
+        d[o + 3] = al * Math.min(1, (1 - ex) * lim * .9 + .2);
       }
     }
     lvX.putImageData(lvImg, 0, 0);
-    // Leuchten: dieselben Blasen sehr klein und unscharf dahinter (statt teurem Schatten)
-    const gx = lvG.getContext("2d"); gx.clearRect(0, 0, lvG.width, lvG.height); gx.drawImage(lvC, 0, 0, lvG.width, lvG.height);
+    // Leuchten des Wachses in den Raum
     x.save(); x.imageSmoothingEnabled = true; x.imageSmoothingQuality = "high";
-    x.globalCompositeOperation = "lighter"; x.globalAlpha = .45 + beat * .25; x.drawImage(lvG, -W * .02, -H * .02, W * 1.04, H * 1.04);
-    x.globalCompositeOperation = "source-over"; x.globalAlpha = 1; x.drawImage(lvC, 0, 0, W, H);
+    x.globalCompositeOperation = "lighter"; x.globalAlpha = .22 + beat * .12; x.filter = "blur(" + Math.round(hwMax * .35) + "px)";
+    x.drawImage(lvC, cx - hwMax * 1.4, glassT - glassH * .1, hwMax * 2.8, glassH * 1.2);
+    x.filter = "none"; x.globalCompositeOperation = "source-over"; x.globalAlpha = 1;
+    x.drawImage(lvC, cx - hwMax, glassT, hwMax * 2, glassH);
     x.restore();
-    // Glaslicht: weicher Glanzstreifen links, Wärme von unten
-    const gl = x.createLinearGradient(0, 0, W, 0);
-    gl.addColorStop(0, "rgba(255,255,255,0)"); gl.addColorStop(.08, "rgba(255,255,255,.05)"); gl.addColorStop(.14, "rgba(255,255,255,0)"); gl.addColorStop(1, "rgba(0,0,0,.25)");
-    x.fillStyle = gl; x.fillRect(0, 0, W, H);
-    const hb = x.createRadialGradient(W * .45, H * 1.05, 0, W * .45, H * 1.05, H * .7);
-    hb.addColorStop(0, rgba(p.c[0], .25 + lvE * .2 + beat * .1)); hb.addColorStop(1, "rgba(0,0,0,0)");
-    x.save(); x.globalCompositeOperation = "lighter"; x.fillStyle = hb; x.fillRect(0, 0, W, H); x.restore();
+    // Glas: Spiegelung links, Kante
+    x.save();
+    x.beginPath();
+    for (let i = 0; i <= 40; i++) { const t = i / 40; x.lineTo(cx - hw(t), glassT + t * glassH); }
+    for (let i = 40; i >= 0; i--) { const t = i / 40; x.lineTo(cx + hw(t), glassT + t * glassH); }
+    x.closePath(); x.strokeStyle = "rgba(255,255,255,.14)"; x.lineWidth = 1.2 * D; x.stroke(); x.clip();
+    const sh = x.createLinearGradient(cx - hwMax, 0, cx + hwMax, 0);
+    sh.addColorStop(0, "rgba(255,255,255,0)"); sh.addColorStop(.16, "rgba(255,255,255,.13)"); sh.addColorStop(.24, "rgba(255,255,255,.02)"); sh.addColorStop(.8, "rgba(255,255,255,0)"); sh.addColorStop(.88, "rgba(255,255,255,.06)"); sh.addColorStop(1, "rgba(255,255,255,0)");
+    x.fillStyle = sh; x.fillRect(cx - hwMax, glassT, hwMax * 2, glassH);
+    const bulb = x.createRadialGradient(cx, baseT, 0, cx, baseT, hwMax * 1.3);
+    bulb.addColorStop(0, rgba("#fff1d0", .35 + beat * .15)); bulb.addColorStop(1, "rgba(0,0,0,0)");
+    x.globalCompositeOperation = "lighter"; x.fillStyle = bulb; x.fillRect(cx - hwMax * 1.5, baseT - hwMax * 1.4, hwMax * 3, hwMax * 1.6);
+    x.restore();
+    // Metall: Kappe oben, Sockel unten (spiegelt die Wachsfarbe)
+    const metal = (x0, x1) => { const m = x.createLinearGradient(x0, 0, x1, 0); m.addColorStop(0, "#15151c"); m.addColorStop(.25, "#5d5f6c"); m.addColorStop(.42, "#c9cbd6"); m.addColorStop(.55, "#6e7080"); m.addColorStop(.8, rgba(p.c[0], .55)); m.addColorStop(1, "#101016"); return m; };
+    const capTop = hw(0) * .7, capBot = hw(0) * 1.05;
+    x.fillStyle = metal(cx - capBot, cx + capBot);
+    x.beginPath(); x.moveTo(cx - capTop, top); x.lineTo(cx + capTop, top); x.lineTo(cx + capBot, glassT + 1); x.lineTo(cx - capBot, glassT + 1); x.closePath(); x.fill();
+    const bTop = hw(1) * 1.02, bMid = hw(1) * .86, bBot = LH * .2, waist = baseT + baseH * .32;
+    x.fillStyle = metal(cx - bBot, cx + bBot);
+    x.beginPath(); x.moveTo(cx - bTop, baseT - 1); x.lineTo(cx + bTop, baseT - 1); x.lineTo(cx + bMid, waist); x.lineTo(cx + bBot, top + LH); x.lineTo(cx - bBot, top + LH); x.lineTo(cx - bMid, waist); x.closePath(); x.fill();
+    x.fillStyle = "rgba(0,0,0,.35)"; x.fillRect(cx - bBot, top + LH - 2 * D, bBot * 2, 2 * D);
   }
 
   /* Feuerwerk: Raketen steigen im Takt auf – je lauter, desto größer die Explosion */
@@ -2737,9 +2784,13 @@ const Viz = (() => {
     }
     cityCache = c; cityKey = key; return c;
   }
+  const FW_G = .00016;                                   // Schwerkraft (Anteil der Höhe je Bild)
   function launch(p, power) {
-    const sx = W * (.12 + Math.random() * .62);
-    rockets.push({ x: sx, y: H, vx: (Math.random() - .5) * 1.4 * D, vy: -(H * (.0115 + Math.random() * .004 + power * .004)), c: p.c[Math.floor(Math.random() * 3)], p: power });
+    const sx = W * (.1 + Math.random() * .66);
+    // Gipfel im oberen Himmel: 14–48 % von oben, lauter = etwas höher – nie aus dem Bild
+    const apex = H * Math.max(.1, .14 + Math.random() * .34 - Math.min(1, power) * .06);
+    const vy = -Math.sqrt(2 * FW_G * H * (H - apex));
+    rockets.push({ x: sx, y: H, vx: (Math.random() - .5) * .9 * D, vy, c: p.c[Math.floor(Math.random() * 3)], p: Math.min(1.3, power) });
   }
   function fireworks(p, bassV) {
     x.fillStyle = "rgba(3,3,10,.18)"; x.fillRect(0, 0, W, H);
@@ -2750,12 +2801,12 @@ const Viz = (() => {
     else if (!playing && Math.random() < .004) launch(p, .3);
     x.save(); x.globalCompositeOperation = "lighter";
     for (const r of rockets) {
-      r.x += r.vx; r.y += r.vy; r.vy += H * .00016;
+      r.x += r.vx; r.y += r.vy; r.vy += H * FW_G;
       x.fillStyle = rgba("#fff3d6", .9); x.fillRect(r.x - D, r.y - D, 2.4 * D, 2.4 * D);
       if (Math.random() < .7) sparks.push({ x: r.x, y: r.y, vx: (Math.random() - .5) * .6 * D, vy: Math.random() * D, l: .5, c: "#ffcf8a", s: 1.4 });
-      if (r.vy >= -H * .0012) {                       // Gipfel: Explosion
-        r.done = true; skyFlash = Math.min(1, skyFlash + .4 + r.p * .4);
-        const cnt = Math.round(70 + r.p * 120), sp = (2.2 + r.p * 3.2) * D, ring = Math.random() < .3, c2 = p.c[Math.floor(Math.random() * 3)];
+      if (r.vy >= -H * .0008) {                       // Gipfel: Explosion
+        r.done = true; skyFlash = Math.min(1, skyFlash + .35 + r.p * .35);
+        const cnt = Math.round(80 + r.p * 110), sp = H * (.0034 + r.p * .0036), ring = Math.random() < .3, c2 = p.c[Math.floor(Math.random() * 3)];
         for (let i = 0; i < cnt; i++) {
           const ang = Math.random() * Math.PI * 2, v = ring ? sp : sp * (.3 + Math.random() * .8);
           sparks.push({ x: r.x, y: r.y, vx: Math.cos(ang) * v, vy: Math.sin(ang) * v, l: 1, c: i % 4 === 0 ? c2 : r.c, s: 2.2, tw: Math.random() < .3 });
@@ -2764,7 +2815,7 @@ const Viz = (() => {
     }
     rockets = rockets.filter(r => !r.done && r.y > -50);
     for (const s of sparks) {
-      s.x += s.vx; s.y += s.vy; s.vx *= .975; s.vy = s.vy * .975 + .045 * D; s.l -= .011;
+      s.x += s.vx; s.y += s.vy; s.vx *= .975; s.vy = s.vy * .975 + H * .00005; s.l -= .011;
       const al = Math.max(0, s.l) * (s.tw && Math.random() < .4 ? .3 : 1);
       x.fillStyle = rgba(s.c, al); const sz = s.s * D * (.6 + s.l * .6); x.fillRect(s.x - sz / 2, s.y - sz / 2, sz, sz);
     }
