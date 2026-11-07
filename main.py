@@ -412,6 +412,9 @@ class Api:
     def kara_score_stop(self, rate=True):
         return self._kscore.stop(bool(rate))
 
+    def kara_score_split(self):
+        return self._kscore.split()
+
     # --- Karaoke-Party (Handy-Wünsche über WLAN)
     def party_start(self):
         return self._party.start()

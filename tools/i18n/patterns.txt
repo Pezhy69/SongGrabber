@@ -77,3 +77,10 @@ Abtastrate wie Quelle|sample rate as source
 ^noch (\d+) vor dir$|$1 ahead of you
 ^Tempo (\d+) %$|Tempo $1 %
 Du hast schon (\d+) Songs in der Warteschlange – erst mal singen! 🎤|You already have $1 songs in the queue – sing first! 🎤
+^Unter den gespeicherten Songs ist nichts mit „(.+)“\.$|Nothing matching “$1” among your saved songs.
+^Offline-Modus: nur die (\d+) gespeicherten Songs – auch auf den Handys\.$|Offline mode: only your $1 saved songs – on the phones too.
+^(\d+) Songs in der Warteschlange sind nicht gespeichert – sie werden übersprungen\.$|$1 songs in the queue aren't saved – they'll be skipped.
+^Übersprungen \(nicht gespeichert\): (.+)$|Skipped (not saved): $1
+^⚔️ Battle: (.+) gegen (.+)$|⚔️ Battle: $1 vs. $2
+^⚔️ (.+) gegen (.+)$|⚔️ $1 vs. $2
+^🏆 (.+) gewinnt!$|🏆 $1 wins!

@@ -5,7 +5,7 @@
 ; =====================================================================
 
 #ifndef AppVersion
-  #define AppVersion "1.12.0"
+  #define AppVersion "1.13.0"
 #endif
 #define AppName      "SongGrabber"
 #define AppPublisher "Pezhy"

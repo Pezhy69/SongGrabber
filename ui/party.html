@@ -66,6 +66,7 @@
   .me-name button{color:var(--accent2);font-size:12.5px;padding:4px;text-decoration:underline}
   [hidden]{display:none!important}
   @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+  .offnote{display:flex;gap:9px;align-items:center;margin:4px 0 10px;padding:11px 13px;border-radius:12px;background:rgba(80,200,140,.1);border:1px solid rgba(80,200,140,.35);font-size:14px}
 </style>
 </head>
 <body>
@@ -89,6 +90,7 @@
       <form id="fSearch"><input type="search" id="q" placeholder="Song oder Interpret suchen …" enterkeyhint="search" autocomplete="off"></form>
       <div class="seg"><button id="mSingle" class="on">Einzelne Songs</button><button id="mLong">Best-of &amp; Mixe</button></div>
     </div>
+    <div class="offnote" id="offNote" hidden>📴 <span>Heute nur gespeicherte Songs – such dir einen aus der Liste aus.</span></div>
     <h3 id="resHead">Schon gespeichert – geht auch ohne Internet</h3>
     <div class="list" id="res"></div>
   </div>
@@ -117,7 +119,7 @@
 const $ = s => document.querySelector(s);
 const BASE = location.pathname.replace(/[^/]*$/, "");
 const KEY = "sgParty:" + BASE;
-let me = {}, state = null, long = false, lastYou = false, results = [], wished = new Set();
+let me = {}, state = null, long = false, lastYou = false, results = [], wished = new Set(), offline = null;
 try { me = JSON.parse(localStorage.getItem(KEY) || "{}"); } catch (e) { me = {}; }
 
 const esc = s => String(s == null ? "" : s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
@@ -165,7 +167,7 @@ function renderRes() {
 let sq = 0;
 async function loadRes(text) {
   const n = ++sq;
-  $("#resHead").textContent = T(text ? "Ergebnisse" : "Schon gespeichert – geht auch ohne Internet");
+  $("#resHead").textContent = T(text ? "Ergebnisse" : offline ? "Gespeicherte Songs" : "Schon gespeichert – geht auch ohne Internet");
   if (text) $("#res").innerHTML = `<div class="spin"></div>`;
   try { const d = await api("search?q=" + encodeURIComponent(text) + "&long=" + (long ? 1 : 0)); if (n !== sq) return; results = d.results || []; renderRes(); }
   catch (err) { if (n === sq) $("#res").innerHTML = `<div class="empty">${esc(T(err.message))}</div>`; }
@@ -185,6 +187,11 @@ async function wish(s, btn) {
 async function refresh() {
   if (!me.sid) return;
   try { state = await api("state"); } catch (e) { return; }
+  if (offline !== !!state.offline) {
+    const first = offline === null; offline = !!state.offline;
+    $("#offNote").hidden = !offline; document.querySelector("#pSearch .seg").hidden = offline;
+    if (!first || offline) loadRes($("#q").value.trim());
+  }
   const now = state.now;
   $("#nowL").textContent = T(now ? (now.singer ? "Jetzt singt " + now.singer : "Gerade läuft") : "Gerade läuft");
   $("#nowT").textContent = now ? now.title : T("Noch nichts – wünsch dir einen Song!");

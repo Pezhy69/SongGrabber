@@ -23,14 +23,21 @@ CHANNELS = ("sing king", "karafun", "zoom karaoke", "karaoke version", "singsong
 GOOD = re.compile(r"karaoke|instrumental with lyrics|sing ?along|mitsing", re.I)
 BAD = re.compile(r"reaction|tutorial|how to sing|live|cover by|vocal coach|react|lesson|gesangsunterricht", re.I)
 
-# Fertige Playlists zum Losstarten (YouTube-Suchen nach Playlists)
+# Fertige Playlists zum Losstarten (YouTube-Suchen nach Playlists), in Gruppen
 STARTERS = [
-    ("Party-Hits", "party hits karaoke playlist"), ("Schlager", "schlager karaoke playlist"),
-    ("Deutsche Hits", "deutsche hits karaoke playlist"), ("80er", "80s karaoke playlist"),
-    ("90er", "90s karaoke playlist"), ("2000er", "2000s karaoke playlist"), ("Rock-Klassiker", "rock classics karaoke playlist"),
-    ("Pop aktuell", "pop hits karaoke playlist 2026"), ("Disney", "disney karaoke playlist"),
-    ("Kinderlieder", "kinderlieder karaoke playlist"), ("Balladen", "ballads karaoke playlist"),
-    ("Weihnachten", "christmas karaoke playlist"),
+    ("Genre", "Party-Hits", "party hits karaoke playlist"), ("Genre", "Schlager", "schlager karaoke playlist"),
+    ("Genre", "80er", "80s karaoke playlist"), ("Genre", "90er", "90s karaoke playlist"),
+    ("Genre", "2000er", "2000s karaoke playlist"), ("Genre", "Rock-Klassiker", "rock classics karaoke playlist"),
+    ("Genre", "Pop aktuell", "pop hits karaoke playlist 2026"), ("Genre", "Disney", "disney karaoke playlist"),
+    ("Genre", "Kinderlieder", "kinderlieder karaoke playlist"), ("Genre", "Weihnachten", "christmas karaoke playlist"),
+    ("Sprache", "Deutsche Songs", "deutsche hits karaoke playlist"), ("Sprache", "Englische Hits", "english pop hits karaoke playlist"),
+    ("Sprache", "Spanisch & Latin", "canciones en español karaoke playlist"), ("Sprache", "Italienisch", "canzoni italiane karaoke playlist"),
+    ("Sprache", "Französisch", "chansons françaises karaoke playlist"), ("Sprache", "Türkisch", "türkçe karaoke playlist"),
+    ("Stimmung", "Zum Mitgrölen", "singalong anthems karaoke playlist"), ("Stimmung", "Ruhige Balladen", "ballads karaoke playlist"),
+    ("Stimmung", "Gute Laune", "feel good songs karaoke playlist"), ("Stimmung", "Herzschmerz", "sad love songs karaoke playlist"),
+    ("Stimmung", "Après-Ski & Mallorca", "apres ski mallorca karaoke playlist"),
+    ("Duette", "Duette", "duets karaoke playlist"), ("Duette", "Deutsche Duette", "deutsche duette karaoke playlist"),
+    ("Duette", "Disney-Duette", "disney duets karaoke playlist"), ("Duette", "Musical-Duette", "musical duets karaoke playlist"),
 ]
 
 
@@ -263,7 +270,8 @@ class Karaoke:
                 favs.append(f)
             return {"favorites": favs, "singers": self.data.get("singers", []), "queue": self.data.get("queue", []),
                     "history": self.data.get("history", [])[:300],
-                    "folder": self.folder(), "starters": [{"name": n, "query": q} for n, q in STARTERS]}
+                    "folder": self.folder(), "offline": bool(paths.settings().get("kara_offline")),
+                    "starters": [{"group": g, "name": n, "query": q} for g, n, q in STARTERS]}
 
     # --- für die Party (Handy-Seite)
     def party_thumb(self, vid):
@@ -692,6 +700,12 @@ class KaraScore:
             a.start()
             self.cur = a
         return True
+
+    def split(self):
+        """Battle: bisherigen Teil werten und sofort für den zweiten Sänger weiter zuhören."""
+        res = self.stop(True)
+        self.start()
+        return res
 
     def stop(self, rate=True):
         with self.lock:

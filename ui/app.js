@@ -920,7 +920,10 @@ window.Scr = Scr;
 /* ---------------------------------------------------------------- Karaoke */
 const Kara = (() => {
   const P = { on: false, url: "", singers: [], sung: {}, n: 0, poll: 0, synced: "" };
-  const K = { tab: "songs", results: [], plItems: [], pl: null, favs: [], queue: [], singers: [], hist: [], cur: null, loaded: false, poll: 0 };
+  const K = { tab: "songs", results: [], plItems: [], pl: null, favs: [], queue: [], singers: [], hist: [], cur: null, loaded: false, poll: 0, who: "solo", offline: false };
+  /* Wer singt: allein, zu zweit (Duett) oder gegeneinander (Battle) */
+  const whoTxt = e => !e ? "" : e.singer2 ? (e.mode === "battle" ? `${e.singer} vs. ${e.singer2}` : `${e.singer} & ${e.singer2}`) : (e.singer || "");
+  const isOff = id => { const f = K.favs.find(x => x.id === id); return !!(f && f.offline); };
   const L = $("#kaVideo"), active = () => $("#page-karaoke").classList.contains("active");
   const tvSend = c => call("kara_tv_cmd", c).catch(() => { });
   /* Video-Stellvertreter: spielt hier im Fenster oder – im Fernseher-Modus – im zweiten Fenster.
@@ -972,7 +975,7 @@ const Kara = (() => {
   const save = () => call("kara_queue", K.queue, K.singers).catch(() => { });
 
   async function enter() {
-    if (!K.loaded) { await refresh(); K.loaded = true; const s = await call("kara_state"); K.queue = s.queue || []; K.singers = s.singers || []; starters(s.starters || []); $("#kaSinger").value = K.singers[0] || ""; renderQueue(); }
+    if (!K.loaded) { await refresh(); K.loaded = true; const s = await call("kara_state"); K.queue = s.queue || []; K.singers = s.singers || []; starters(s.starters || []); $("#kaSinger").value = K.singers[0] || ""; offlineSet(!!s.offline, true); renderQueue(); }
     else refresh();
     if (!K.results.length && K.tab === "songs") $("#kaQ").focus();
   }
@@ -987,20 +990,26 @@ const Kara = (() => {
     clearTimeout(K.poll);
     if (K.favs.some(f => f.loading !== null && f.loading !== undefined)) K.poll = setTimeout(refresh, 1500);
   }
+  const GROUPS = { Genre: "Genre & Jahrzehnt", Sprache: "Sprache", Stimmung: "Stimmung", Duette: "Duette 👥" };
   function starters(list) {
-    $("#kaStarters").innerHTML = list.map(s => `<span data-q="${esc(s.query)}">${esc(s.name)}</span>`).join("");
-    $$("#kaStarters span").forEach(c => c.onclick = () => { $$("#kaStarters span").forEach(x => x.classList.toggle("on", x === c)); findLists(c.dataset.q); });
+    const gs = [...new Set(list.map(s => s.group || "Genre"))];
+    $("#kaStarters").innerHTML = gs.map(g => `<div class="ka-stg"><small>${esc(GROUPS[g] || g)}</small><div class="chips rp-tags">${list.filter(s => (s.group || "Genre") === g).map(s => `<span data-q="${esc(s.query)}" data-g="${esc(g)}">${esc(s.name)}</span>`).join("")}</div></div>`).join("");
+    $$("#kaStarters span").forEach(c => c.onclick = () => {
+      $$("#kaStarters span").forEach(x => x.classList.toggle("on", x === c)); findLists(c.dataset.q);
+      if (c.dataset.g === "Duette" && K.who === "solo") toast("Tipp: Rechts unter „Wer singt?“ auf 👥 Duett stellen – dann singt ihr zu zweit.");
+    });
   }
   function tab(t) {
     K.tab = t; $$("#kaTabs button").forEach(b => b.classList.toggle("active", b.dataset.t === t));
     $("#kaSongs").hidden = t !== "songs"; $("#kaLists").hidden = t !== "lists"; $("#kaFavs").hidden = t !== "favs"; $("#kaHist").hidden = t !== "hist";
     if (t === "favs") renderFavs();
     if (t === "hist") renderHist();
-    if (t === "lists" && !$("#kaPl").children.length) { const c = $("#kaStarters span"); if (c) c.click(); }
+    if (t === "lists" && !K.offline && !$("#kaPl").children.length) { const c = $("#kaStarters span"); if (c) c.click(); }
   }
   function card(s, extra = "") {
     const f = favOf(s.id), badge = f ? (f.offline ? `<span class="badge2 off">✓ offline</span>` : f.loading != null ? `<span class="badge2 load">lädt ${Math.round(f.loading * 100)} %</span>` : f.error ? `<span class="badge2">Fehler</span>` : `<span class="badge2">nur online</span>`) : "";
-    return `<div class="ka-card" data-id="${esc(s.id)}"><div class="ka-th" style="background-image:url('${esc(s.thumb || "")}')">${badge}<em>${durTxt(s.duration)}</em><div class="play"><svg><use href="#i-play"/></svg></div></div>
+    const na = K.offline && !(f && f.offline);
+    return `<div class="ka-card${na ? " na" : ""}" data-id="${esc(s.id)}"${na ? ` title="${esc(T("Nicht gespeichert – im Offline-Modus nicht spielbar"))}"` : ""}><div class="ka-th" style="background-image:url('${esc(s.thumb || "")}')">${badge}<em>${durTxt(s.duration)}</em><div class="play"><svg><use href="#i-play"/></svg></div></div>
       <div class="ka-info"><b title="${esc(s.title)}">${esc(s.title)}</b><small>${esc(s.channel || "")}</small></div>
       <div class="ka-act"><button class="primary sm" data-a="sing"><svg><use href="#i-stage"/></svg>Singen</button><button class="ghost sm" data-a="q" title="In die Warteschlange"><svg><use href="#i-plus"/></svg></button><div class="grow"></div>${extra}<button class="ghost sm star ${f ? "on" : ""}" data-a="fav" title="${f ? "Favorit – gespeichert für offline" : "Als Favorit merken und offline speichern"}"><svg><use href="#i-star"/></svg></button></div></div>`;
   }
@@ -1018,12 +1027,38 @@ const Kara = (() => {
   }
   /* --- Suche */
   async function find() {
-    const q = $("#kaQ").value.trim(); if (!q) return;
+    const q = $("#kaQ").value.trim();
+    if (K.offline) { tab("songs"); return findOffline(q); }
+    if (!q) return;
     tab("songs"); $("#kaList").innerHTML = `<div class="ka-empty">Suche Karaoke-Versionen von „${esc(q)}“ …</div>`;
     try { K.results = await call("kara_search", q, !!K.long); }
     catch (e) { K.results = []; $("#kaList").innerHTML = `<div class="ka-empty">${esc(String(e.message || e))}<br>Kein Internet? Deine <a href="#" id="kaToFav">★ Favoriten</a> laufen auch offline.</div>`; const l = $("#kaToFav"); if (l) l.onclick = ev => { ev.preventDefault(); tab("favs"); }; return; }
     $("#kaList").innerHTML = K.results.length ? K.results.map(s => card(s)).join("") : `<div class="ka-empty">Nichts gefunden – anders schreiben oder nur den Interpreten suchen.</div>`;
     bind($("#kaList"), K.results);
+  }
+  function findOffline(q) {
+    const w = q.toLowerCase().split(/\s+/).filter(Boolean);
+    K.results = K.favs.filter(f => f.offline && w.every(x => `${f.title} ${f.channel || ""}`.toLowerCase().includes(x)));
+    $("#kaList").innerHTML = K.results.length ? K.results.map(s => card(s)).join("")
+      : `<div class="ka-empty">${K.favs.some(f => f.offline) ? `Unter den gespeicherten Songs ist nichts mit „${esc(q)}“.` : "Noch keine Songs gespeichert. Mit Internet bei einem Song auf ★ klicken – dann läuft er auch offline."}</div>`;
+    bind($("#kaList"), K.results);
+  }
+  /* Offline-Schalter: nur gespeicherte Songs zeigen, spielen und auf dem Handy anbieten */
+  function offlineSet(on, quiet) {
+    K.offline = !!on;
+    const b = $("#kaOffline"); b.classList.toggle("on", K.offline); b.setAttribute("aria-checked", K.offline ? "true" : "false");
+    $("#page-karaoke").classList.toggle("ka-offmode", K.offline);
+    $("#kaOffNote").hidden = !K.offline;
+    $("#kaQ").placeholder = T(K.offline ? "In den gespeicherten Songs suchen …" : "Song oder Interpret – z. B. „Atemlos“, „ABBA“, „Bon Jovi“ …");
+    if (quiet) return;
+    call("save_settings", { kara_offline: K.offline }).catch(() => { });
+    const n = K.favs.filter(f => f.offline).length;
+    toast(K.offline ? (n ? `Offline-Modus: nur die ${n} gespeicherten Songs – auch auf den Handys.` : "Offline-Modus an – aber noch kein Song gespeichert (★ bei einem Song).") : "Offline-Modus aus – wieder alle Songs von YouTube.");
+    if (K.offline) { if (K.tab === "lists") tab("songs"); findOffline($("#kaQ").value.trim()); }
+    else { K.results = []; $("#kaList").innerHTML = ""; if ($("#kaQ").value.trim()) find(); }
+    const skip = K.queue.filter(e => !isOff(e.song.id)).length;
+    if (K.offline && skip) toast(skip === 1 ? "1 Song in der Warteschlange ist nicht gespeichert – er wird übersprungen." : `${skip} Songs in der Warteschlange sind nicht gespeichert – sie werden übersprungen.`);
+    renderAll(); renderQueue(); if (K.tab === "favs") renderFavs();
   }
   async function findLists(q) {
     $("#kaPlHead").hidden = true; $("#kaPl").innerHTML = `<div class="ka-empty">Suche Playlists …</div>`;
@@ -1060,12 +1095,12 @@ const Kara = (() => {
       buttons: [...(f && f.offline ? [{ label: "Entfernen & Datei löschen", fn: async () => { closeDialog(); await call("kara_remove", s.id, true); refresh(); } }] : []),
         { label: f && f.offline ? "Nur entfernen" : "Entfernen", cls: "primary", fn: async () => { closeDialog(); await call("kara_remove", s.id, false); refresh(); } }, { label: "Abbrechen" }] });
   }
-  function renderAll() { if (K.results.length) { $("#kaList").innerHTML = K.results.map(s => card(s)).join(""); bind($("#kaList"), K.results); } if (K.plItems.length && !$("#kaPlHead").hidden) { $("#kaPl").innerHTML = K.plItems.map(s => card(s)).join(""); bind($("#kaPl"), K.plItems); } }
+  function renderAll() { if (K.results.length && K.offline) { $("#kaList").innerHTML = K.results.map(s => card(s)).join(""); bind($("#kaList"), K.results); return; } if (K.results.length) { $("#kaList").innerHTML = K.results.map(s => card(s)).join(""); bind($("#kaList"), K.results); } if (K.plItems.length && !$("#kaPlHead").hidden) { $("#kaPl").innerHTML = K.plItems.map(s => card(s)).join(""); bind($("#kaPl"), K.plItems); } }
   /* --- Verlauf & Bestenliste */
   const ago = ts => { const d = new Date(ts * 1000), now = new Date(); const same = d.toDateString() === now.toDateString(); return same ? d.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) : d.toLocaleDateString([], { day: "2-digit", month: "2-digit" }) + " " + d.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }); };
   function histRow(h, i, best) {
     return `<div class="ka-hrow" data-i="${i}">${best ? `<i class="rank">${best}</i>` : ""}<div class="th" style="background-image:url('${esc(h.song.thumb || "")}')"></div>
-      <div class="tx"><b title="${esc(h.song.title)}">${esc(h.song.title)}</b><small>${esc(h.singer || "")}${h.singer ? " · " : ""}${ago(h.at)}</small></div>
+      <div class="tx"><b title="${esc(h.song.title)}">${esc(h.song.title)}</b><small>${esc(whoTxt(h))}${h.mode === "battle" && h.vs ? ` · ⚔️ ${h.won ? "🏆 " : ""}vs. ${esc(h.vs)}` : ""}${h.singer ? " · " : ""}${ago(h.at)}</small></div>
       ${h.score != null ? `<span class="pts">${h.score}</span>` : ""}
       <button class="ghost sm" data-a="sing" title="Nochmal singen"><svg><use href="#i-stage"/></svg></button><button class="ghost sm" data-a="q" title="In die Warteschlange"><svg><use href="#i-plus"/></svg></button></div>`;
   }
@@ -1077,13 +1112,13 @@ const Kara = (() => {
     $("#kaHistClear").hidden = !K.hist.length;
     $$("#kaHist .ka-hrow").forEach(r => {
       const h = K.hist[+r.dataset.i]; if (!h) return;
-      r.querySelector("[data-a=sing]").onclick = () => { $("#kaSinger").value = h.singer || $("#kaSinger").value; singNow(h.song); };
+      r.querySelector("[data-a=sing]").onclick = () => { $("#kaSinger").value = h.singer || $("#kaSinger").value; if (h.singer2 && h.mode === "duet") { whoSet("duet"); $("#kaSinger2").value = h.singer2; } singNow(h.song); };
       r.querySelector("[data-a=q]").onclick = () => addQ(h.song);
     });
   }
-  function logSong(e, res) {
-    if (!e || e.logged) return; e.logged = true;
-    const h = { song: e.song, singer: e.singer || "", at: Math.floor(Date.now() / 1000), ...(res && res.score != null ? { score: res.score } : {}) };
+  function logSong(e, res, extra) {
+    if (!e || (e.logged && !extra)) return; e.logged = true;
+    const h = { song: e.song, singer: e.singer || "", at: Math.floor(Date.now() / 1000), ...(e.singer2 && e.mode === "duet" ? { singer2: e.singer2, mode: "duet" } : {}), ...(res && res.score != null ? { score: res.score } : {}), ...(extra || {}) };
     K.hist.unshift(h); call("kara_history_add", h).catch(() => { });
     if (K.tab === "hist") renderHist();
   }
@@ -1091,29 +1126,44 @@ const Kara = (() => {
   /* --- Warteschlange */
   const singer = () => { const n = $("#kaSinger").value.trim(); if (n && !K.singers.includes(n)) { K.singers.unshift(n); $("#kaSingers").innerHTML = K.singers.map(x => `<option value="${esc(x)}">`).join(""); } return n; };
   const slim = s => ({ id: s.id, title: s.title, channel: s.channel, duration: s.duration, thumb: s.thumb });
-  function addQ(s) { K.queue.push({ song: slim(s), singer: singer() }); fair(); renderQueue(); save(); toast(`In der Warteschlange: ${s.title}`); }
+  const singer2 = () => { const n = $("#kaSinger2").value.trim(); if (n && !K.singers.includes(n)) K.singers.unshift(n); return n; };
+  function entry(s) {                                   // neuer Eintrag mit dem, was rechts unter „Wer singt?“ steht
+    if (K.offline && !isOff(s.id)) { toast("Offline-Modus: Dieser Song ist nicht gespeichert.", "err"); return null; }
+    const e = { song: slim(s), singer: singer() };
+    if (K.who !== "solo") {
+      const b = singer2();
+      if (!e.singer || !b) { toast(K.who === "battle" ? "Für ein Battle braucht es zwei Namen." : "Für ein Duett braucht es zwei Namen.", "err"); $(e.singer ? "#kaSinger2" : "#kaSinger").focus(); return null; }
+      if (b.toLowerCase() === e.singer.toLowerCase()) { toast("Bitte zwei verschiedene Namen eintragen.", "err"); $("#kaSinger2").focus(); return null; }
+      Object.assign(e, { singer2: b, mode: K.who });
+    }
+    return e;
+  }
+  function addQ(s) { const e = entry(s); if (!e) return; K.queue.push(e); fair(); renderQueue(); save(); toast(`In der Warteschlange: ${s.title}`); }
   function renderQueue() {
     $("#kaSingers").innerHTML = K.singers.map(x => `<option value="${esc(x)}">`).join("");
-    $("#kaQN").textContent = K.queue.length ? K.queue.length + " Songs" : "";
-    const now = K.cur ? `<div class="ka-q now"><i>▶</i><div><b>${esc(K.cur.song.title)}</b><small>${esc(K.cur.singer || "")}</small></div><span></span></div>` : "";
-    $("#kaQueue").innerHTML = now + (K.queue.length ? K.queue.map((e, i) => `<div class="ka-q" data-i="${i}"><i>${i + 1}</i><div><b title="${esc(e.song.title)}">${esc(e.song.title)}</b><small>${esc(e.singer || "")}</small></div><button class="x" title="Entfernen"><svg><use href="#i-x"/></svg></button></div>`).join("") : (K.cur ? "" : `<div class="ka-empty">Noch leer – bei einem Song auf <b>+</b> klicken.</div>`));
+    $("#kaQN").textContent = K.queue.length ? (K.queue.length === 1 ? "1 Song" : K.queue.length + " Songs") : "";
+    const now = K.cur ? `<div class="ka-q now"><i>▶</i><div><b>${esc(K.cur.song.title)}</b><small>${esc(whoTxt(K.cur))}</small></div><span></span></div>` : "";
+    $("#kaQueue").innerHTML = now + (K.queue.length ? K.queue.map((e, i) => `<div class="ka-q" data-i="${i}"><i>${i + 1}</i><div><b title="${esc(e.song.title)}">${esc(e.song.title)}</b><small>${e.mode ? (e.mode === "battle" ? "⚔️ " : "👥 ") : ""}${esc(whoTxt(e))}${K.offline && !isOff(e.song.id) ? ` · <span class="warn">${esc(T("nicht gespeichert"))}</span>` : ""}</small></div><button class="x" title="Entfernen"><svg><use href="#i-x"/></svg></button></div>`).join("") : (K.cur ? "" : `<div class="ka-empty">Noch leer – bei einem Song auf <b>+</b> klicken.</div>`));
     $$("#kaQueue .ka-q[data-i] .x").forEach(b => b.onclick = () => { K.queue.splice(+b.closest(".ka-q").dataset.i, 1); renderQueue(); save(); });
     $("#kaStart").hidden = !K.queue.length || !!K.cur;
     partySync();
   }
   /* --- Singen */
-  function singNow(s) { K.queue.unshift({ song: slim(s), singer: singer() }); next(); }
+  function singNow(s) { const e = entry(s); if (!e) return; K.queue.unshift(e); next(); }
   async function next() {
     leave();
     stopRec();
-    const e = K.queue.shift(); save();
+    let e = K.queue.shift();
+    while (e && K.offline && !isOff(e.song.id)) { toast(`Übersprungen (nicht gespeichert): ${e.song.title}`); e = K.queue.shift(); }
+    save();
     if (!e) { stop(); toast("Warteschlange ist leer – das war's! 🎤"); return; }
+    if (e.mode === "battle") { if (Math.random() < .5) [e.singer, e.singer2] = [e.singer2, e.singer]; e.half = 0; e.resA = undefined; }
     const inter = P.on ? intermission(e) : null;          // Party: „Als Nächstes …“ zeigen, während das Video lädt
-    K.cur = e; K.chapters = []; K.file = ""; K.recWanted = $("#kaRecOn").checked; K.scoreWanted = $("#kaScoreOn").checked; renderQueue(); chUi();
+    K.cur = e; K.chapters = []; K.file = ""; K.recWanted = $("#kaRecOn").checked; K.scoreWanted = $("#kaScoreOn").checked || e.mode === "battle"; renderQueue(); chUi();
     Player.pause(); try { $("#audio2").pause(); } catch { }        // Musik/Radio anhalten
     v.clear(); keyLoad(e.song.id); tempoLoad(e.song.id);
     $("#kaStage").hidden = false; $("#kaLoad").hidden = false; loadTxt("Video wird geladen …");
-    $("#kaNowT").textContent = e.song.title; $("#kaNowS").textContent = e.singer ? "Es singt: " + e.singer : "";
+    $("#kaNowT").textContent = e.song.title; $("#kaNowS").textContent = e.mode === "battle" ? `⚔️ ${e.singer} vs. ${e.singer2}` : e.singer2 ? "Es singen: " + whoTxt(e) : e.singer ? "Es singt: " + e.singer : "";
     $("#kaFav").classList.toggle("on", !!favOf(e.song.id));
     if (active()) $("#kaStage").scrollIntoView({ behavior: "smooth", block: "start" });
     let r;
@@ -1129,7 +1179,9 @@ const Kara = (() => {
     K.chapters = r.chapters || []; K.file = r.file || ""; chUi();
     v.setSrc(r.src); v.volume = +$("#kaVol").value / 100; seekUi();
     v.play().catch(() => { });
-    over(e.singer ? `Jetzt singt: ${esc(e.singer)}` : esc(e.song.title), e.singer ? esc(e.song.title) : (r.offline ? "offline" : ""), 4500);
+    if (e.mode === "battle") over(`⚔️ ${esc(e.singer)} gegen ${esc(e.singer2)}`, `🪙 Die Münze sagt: <b>${esc(e.singer)}</b> fängt an – zur Hälfte wird gewechselt`, 6500);
+    else if (e.singer2) over(`Jetzt singen: ${esc(e.singer)} &amp; ${esc(e.singer2)}`, esc(e.song.title), 4500);
+    else over(e.singer ? `Jetzt singt: ${esc(e.singer)}` : esc(e.song.title), e.singer ? esc(e.song.title) : (r.offline ? "offline" : ""), 4500);
     if (K.queue[0]) call("kara_prepare", K.queue[0].song).catch(() => { });   // nächsten Song schon im Hintergrund laden
   }
   const loadTxt = t => { $("#kaLoad span").textContent = t; };
@@ -1407,8 +1459,8 @@ const Kara = (() => {
   function lobbyTv() { if (v.tv) tvSend({ score: P.on && !K.cur ? T(lobbyHtml()) : "" }); }
   function partySync() {
     if (!P.on) return;
-    const q = K.queue.map((e, i) => { if (!e.qid) e.qid = "q" + Date.now().toString(36) + i; return { qid: e.qid, sid: e.sid || "", singer: e.singer || "", title: e.song.title, id: e.song.id, thumb: e.song.thumb || "" }; });
-    const snap = { queue: q, now: K.cur ? { title: K.cur.song.title, singer: K.cur.singer || "", sid: K.cur.sid || "" } : null, next: q[0] ? { title: q[0].title, singer: q[0].singer, sid: q[0].sid } : null };
+    const q = K.queue.map((e, i) => { if (!e.qid) e.qid = "q" + Date.now().toString(36) + i; return { qid: e.qid, sid: e.sid || "", singer: whoTxt(e), title: e.song.title, id: e.song.id, thumb: e.song.thumb || "" }; });
+    const snap = { queue: q, now: K.cur ? { title: K.cur.song.title, singer: whoTxt(K.cur), sid: K.cur.sid || "" } : null, next: q[0] ? { title: q[0].title, singer: q[0].singer, sid: q[0].sid } : null };
     const key = JSON.stringify(snap); if (key === P.synced) return; P.synced = key;
     call("party_sync", snap).catch(() => { });
     partyUi();
@@ -1452,7 +1504,7 @@ const Kara = (() => {
     interDone();
     return new Promise(ok => {
       interResolve = ok;
-      const who = e.singer ? esc(e.singer) : esc(T("Weiter geht's"));
+      const who = e.singer ? esc(e.mode === "battle" ? `${e.singer} ⚔️ ${e.singer2}` : whoTxt(e)) : esc(T("Weiter geht's"));
       const card = btn => `<div class="ka-score ka-inter"><div class="sc-card"><small>Als Nächstes</small><b class="im-who">${who}</b><span class="im-song">${esc(e.song.title)}</span>
         <div class="im-cd"><b style="--from:8"></b></div><em class="sc-p">Mach dich bereit! 🎤</em>${btn ? `<button class="primary sm" data-go>Jetzt starten</button>` : `<div class="im-qr">${qrSvg(P.url, 120)}<small>Noch mitmachen? Scannen!</small></div>`}</div></div>`;
       $("#kaScore").innerHTML = card(true);
@@ -1468,7 +1520,7 @@ const Kara = (() => {
   function scoreHtml(e, r, btn) {
     const stars = r.score >= 90 ? 5 : r.score >= 80 ? 4 : r.score >= 70 ? 3 : r.score >= 55 ? 2 : 1;
     const bar = (lbl, p) => `<div><span>${lbl}</span><i style="--p:${p}%"></i><em>${p}</em></div>`;
-    return `<div class="ka-score"><div class="sc-card"><small>${esc(e.singer || e.song.title)}</small>
+    return `<div class="ka-score"><div class="sc-card"><small>${esc(whoTxt(e) || e.song.title)}</small>
       <b class="sc-n" style="--to:${r.score}"></b><span class="sc-of">Punkte</span>
       <div class="sc-stars">${"★".repeat(stars)}<s>${"★".repeat(5 - stars)}</s></div><em class="sc-p">${praise(r.score)}</em>
       <div class="sc-bars">${bar("Treffsicher", r.inton)}${bar("Dabei", r.presence)}${bar("Ruhige Töne", r.stable)}</div>
@@ -1484,11 +1536,55 @@ const Kara = (() => {
       setTimeout(() => { if (scoreDone === ok) scoreHide(); }, 9000);
     });
   }
+  /* --- Battle: zur Hälfte wechseln, am Ende gewinnt, wer mehr Punkte hat */
+  function battleTick() {
+    const e = K.cur, d = v.duration, t = v.currentTime || 0;
+    if (!e || e.mode !== "battle" || !(d > 40) || e.half === 2) return;
+    if (e.half === 0 && t >= d / 2 - 6) { e.half = 1; over(`Gleich wechseln! 🔁`, `${esc(e.singer2)}, mach dich bereit`, 5000); }
+    if (t >= d / 2) {
+      e.half = 2; over(`🔁 Wechsel! Jetzt: ${esc(e.singer2)}`, esc(e.song.title), 5000);
+      if (K.scoring === e) call("kara_score_split").then(r => { e.resA = r && r.score != null ? r : null; }).catch(() => { e.resA = null; });
+      else e.resA = null;
+    }
+  }
+  v.on("timeupdate", battleTick);
+  function battleHtml(e, a, b, btn) {
+    const sa = a ? a.score : 0, sb = b ? b.score : 0, win = sa === sb ? 0 : sa > sb ? 1 : 2;
+    const col = (name, r, me) => { const st = !r ? 0 : r.score >= 90 ? 5 : r.score >= 80 ? 4 : r.score >= 70 ? 3 : r.score >= 55 ? 2 : 1;
+      return `<div class="bt-col ${win === me ? "win" : ""}">${win === me ? `<i class="bt-crown">👑</i>` : ""}<small>${esc(name)}</small><b class="sc-n" style="--to:${r ? r.score : 0}"></b><div class="sc-stars">${"★".repeat(st)}<s>${"★".repeat(5 - st)}</s></div>${r ? `<em>${esc(T("Treffsicher"))} ${r.inton} · ${esc(T("Dabei"))} ${r.presence}</em>` : `<em>${esc(T("kaum Gesang erkannt"))}</em>`}</div>`; };
+    return `<div class="ka-score ka-battle"><div class="sc-card"><small>⚔️ Battle · ${esc(e.song.title)}</small>
+      <div class="bt-cols">${col(e.singer, a, 1)}<span class="bt-vs">vs.</span>${col(e.singer2, b, 2)}</div>
+      <em class="sc-p bt-res">${win ? `🏆 ${esc(win === 1 ? e.singer : e.singer2)} gewinnt!` : "Unentschieden! 🤝"}</em>
+      ${btn ? `<button class="primary sm" data-next>${K.queue.length ? "Weiter" : "Fertig"}</button>` : ""}</div></div>`;
+  }
+  function showBattle(e, a, b) {
+    return new Promise(ok => {
+      scoreDone = ok;
+      $("#kaScore").innerHTML = battleHtml(e, a, b, true);
+      if (v.tv) tvSend({ score: T(battleHtml(e, a, b, false)) });
+      const bt = $("#kaScore [data-next]"); if (bt) bt.onclick = scoreHide;
+      setTimeout(() => { if (scoreDone === ok) scoreHide(); }, 12000);
+    });
+  }
   async function finish() {                         // Song zu Ende gespielt
     const e = K.cur; if (!e || K.finishing) return; K.finishing = true;
     stopRec();
     let res = null;
     if (K.scoring) { K.scoring = null; res = await call("kara_score_stop", true).catch(() => null); }
+    if (e.mode === "battle" && e.half === 2) {
+      for (let i = 0; i < 20 && e.resA === undefined; i++) await new Promise(ok => setTimeout(ok, 100));
+      const a = e.resA || null, b = res && res.score != null ? res : null;
+      if (res && res.error) toast("Punkte: Mikrofon nicht erreichbar – " + res.error, "err");
+      const sa = a ? a.score : 0, sb = b ? b.score : 0;
+      e.logged = true;
+      logSong({ song: e.song, singer: e.singer }, a, { mode: "battle", vs: e.singer2, won: sa > sb });
+      logSong({ song: e.song, singer: e.singer2 }, b, { mode: "battle", vs: e.singer, won: sb > sa });
+      if ((a || b) && K.cur === e) await showBattle(e, a, b);
+      else if (!a && !b) toast("Keine Punkte – vom Mikrofon kam kaum Gesang an.");
+      K.finishing = false;
+      if (K.cur === e) next();
+      return;
+    }
     logSong(e, res);
     if (res && res.error) toast("Punkte: Mikrofon nicht erreichbar – " + res.error, "err");
     if (res && res.score != null && K.cur === e) await showScore(e, res);
@@ -1509,6 +1605,18 @@ const Kara = (() => {
   $("#kaStart").onclick = () => next();
   $("#kaQClear").onclick = () => { K.queue = []; renderQueue(); save(); };
   $("#kaSinger").onchange = () => { singer(); save(); };
+  function whoSet(w) {
+    K.who = w; $$("#kaWho button").forEach(b => b.classList.toggle("active", b.dataset.w === w));
+    $("#kaSinger2Wrap").hidden = w === "solo"; $("#kaAnd").textContent = w === "battle" ? "vs." : "&";
+    $("#kaSinger").placeholder = T(w === "solo" ? "Name eingeben" : "Erster Name");
+    $("#kaWhoHint").textContent = T(w === "duet" ? "Ihr singt zusammen – die Punkte gelten für euch beide." : w === "battle" ? "Ihr teilt euch den Song: Die Münze entscheidet, wer anfängt, zur Hälfte wird gewechselt. Wer mehr Punkte hat, gewinnt." : "Neue Songs kommen mit diesem Namen in die Warteschlange.");
+    try { localStorage.setItem("kaWho", w); } catch { }
+  }
+  $$("#kaWho button").forEach(b => b.onclick = () => { whoSet(b.dataset.w); if (b.dataset.w !== "solo" && !$("#kaSinger2").value.trim()) $($("#kaSinger").value.trim() ? "#kaSinger2" : "#kaSinger").focus(); });
+  try { const w = localStorage.getItem("kaWho"); if (w === "duet" || w === "battle") whoSet(w); } catch { }
+  $("#kaSinger2").onchange = () => { singer2(); save(); const n = $("#kaSinger2").value.trim(); if (P.on && n) call("party_add_singer", n).catch(() => { }); };
+  $("#kaOffline").onclick = () => offlineSet(!K.offline);
+  $("#kaOffFav").onclick = ev => { ev.preventDefault(); tab("favs"); };
   $("#kaHistClear").onclick = () => { if (!confirm("Verlauf und Bestenliste löschen?")) return; K.hist = []; call("kara_history_clear").catch(() => { }); renderHist(); };
   return { enter, tvEvent, party: P };
 })();
@@ -1654,6 +1762,7 @@ $("#btnKeepLive").onclick = () => {
 
 /* ---------------------------------------------------------------- Neu in dieser Version (bei jeder Version ergänzen!) */
 const CHANGES = [
+  ["1.13.0", ["<b>⚔️ Battle</b>: Zwei singen gegeneinander – Münzwurf, Wechsel zur Hälfte, am Ende beide Punktzahlen und ein Sieger 👑", "<b>👥 Duett</b>: zu zweit singen mit gemeinsamen Punkten", "<b>Playlists nach Sprache, Stimmung und Duetten</b>: Deutsche Songs, Zum Mitgrölen, Ruhige Balladen, Herzschmerz, Duette …", "<b>Nur offline</b>: ein Klick, und es laufen nur gespeicherte Songs – auch die Party-Handys sehen nur diese"]],
   ["1.12.0", ["<b>English</b>: SongGrabber gibt es jetzt auch auf Englisch – automatisch wie Windows oder unter Einstellungen → Sprache umschalten (mit englischer Hilfe)", "<b>Karaoke</b>: Karaoke-Videos von YouTube suchen und singen – ohne Werbung, mit fertigen Playlists (Schlager, 80er, Disney …)", "<b>Wer singt?</b> Sänger-Warteschlange mit „Jetzt singt …“ und „Als Nächstes …“", "<b>★ Favoriten offline</b>: werden im Ordner „Karaoke“ gespeichert und laufen auch ohne Internet – z. B. beim Camping", "<b>Mich aufnehmen</b>: Stimme + Musik als MP3 (auf Wunsch MP4), Stimme nachträglich lauter/leiser", "<b>🎉 Party-Modus</b>: Gäste scannen einen QR-Code und wünschen sich Songs vom Handy – faire Reihenfolge, „Als Nächstes“-Bildschirm und „Du bist dran!“ aufs Handy", "<b>Tonart ändern</b> (♭/♯): Song tiefer oder höher singen, das Tempo bleibt gleich – je Song gemerkt", "<b>Tempo</b> 75–125 %, die Tonart bleibt gleich", "Linke Leiste übersichtlich in Gruppen: Musik holen · Hören & Singen · Aufnehmen", "Besser lesbar, ruhigere Animationen – und „Animationen reduzieren“ von Windows wird beachtet", "Lichtshows schöner: Lava-Lampe mit scharfen, glänzenden Blasen, Feuerwerk explodiert im Bild, Polarlicht gestochen scharf", "<b>Fernseher-Modus</b>: Video im Vollbild auf dem zweiten Bildschirm, Bedienung bleibt auf dem Laptop", "<b>🏆 Punkte</b> nach jedem Song mit Sternen, dazu <b>Verlauf & Bestenliste</b>", "<b>Hall auf der Stimme</b> für die Aufnahme: Raum, Bühne oder Konzerthalle – auch nachträglich", "<b>Best-of &amp; Mixe</b>: lange Karaoke-Videos mit Songliste – ⏭ bzw. N springt zum nächsten Song im Video", "Zeitleiste mit Restzeit, Tasten (Leertaste, ←/→, ↑/↓, N)", "Radio: <b>Sofort mitschneiden</b> – der laufende Song von Anfang an (stoppt am Songende) oder ab jetzt, auch im Mini-Player"]],
   ["1.11.0", ["<b>Bildschirm aufnehmen</b>: Zoom, Teams, Webinar oder Live-Coaching als MP4-Video – ganzer Bildschirm oder nur ein Fenster, mit Vorschau", "Neue Lichtshows: <b>Nordlicht</b>, <b>Disco-Kugel</b>, <b>Lava-Lampe</b> und <b>Feuerwerk</b> (statt Tesla)", "Player: <b>rechte Leiste hochrollen</b> wie ein Rollo (Q) und <b>Bedienung einklappen</b> zu kleinen Knöpfen (H) – Drüberfahren zeigt alles, nach 1 Minute Ruhe passiert es von selbst", "<b>Bereich zeichnen</b>: nur einen Ausschnitt aufnehmen – z. B. nur das Video in YouTube, Zoom oder Teams", "Klar sichtbar, welcher Ton mit drauf ist: <b>Ton vom PC</b> und/oder <b>dein Mikrofon</b> – mit Pegelanzeige", "<b>Mikrofon während der Aufnahme an/aus</b> – z. B. nur kurz einschalten, um etwas zu sagen", "<b>Kleine Aufnahme-Leiste</b> oben rechts mit Uhr, Pause und Stopp – unter Windows im Video unsichtbar", "Fertiges Video direkt in SongGrabber ansehen – saubere Dateinamen ohne Emojis", "Pause, Verwerfen, auf Wunsch zusätzlich als MP3 – und beim Schließen geht keine laufende Aufnahme verloren"]],
   ["1.10.0", ["<b>SongGrabber für Linux</b>: Ubuntu, Mint, Debian, Fedora, Arch, openSUSE – mit <code>install.sh</code>, Startmenü-Eintrag, Papierkorb, Audio-CDs, Systemsound und „Alles am PC“ über MPRIS", "Update-Hinweis verlinkt automatisch die passende Datei für Windows bzw. Linux"]],
@@ -1675,6 +1784,7 @@ const CHANGES = [
 ];
 // English change notes (recent versions only – older ones are summarized)
 const CHANGES_EN = [
+  ["1.13.0", ["<b>⚔️ Battle</b>: two sing head to head – coin toss, switch halfway, both scores and a winner 👑 at the end", "<b>👥 Duet</b>: sing as a pair with shared points", "<b>Playlists by language, mood and duets</b>: German songs, sing-along anthems, quiet ballads, heartbreak, duets …", "<b>Offline only</b>: one click and only saved songs play – the party phones see only these too"]],
   ["1.12.0", ["<b>English</b>: SongGrabber now speaks English – automatically like Windows, or switch under Settings → Language (help included)", "<b>Karaoke</b>: search and sing karaoke videos from YouTube – without ads, with ready-made playlists (party hits, 80s, Disney …)", "<b>Who's singing?</b> Singer queue with “Now singing …” and “Up next …”", "<b>★ Favorites offline</b>: saved in the “Karaoke” folder and play without internet too – e.g. when camping", "<b>Record me</b>: voice + music as MP3 (optionally MP4), make the voice louder/quieter afterwards", "<b>🎉 Party mode</b>: guests scan a QR code and request songs from their phone – fair order, “Up next” screen and “You're up!” on the phone", "<b>Change the key</b> (♭/♯): sing a song lower or higher, the tempo stays the same – remembered per song", "<b>Tempo</b> 75–125 %, the key stays the same", "Sidebar neatly grouped: Get music · Listen & sing · Record", "Easier to read, calmer animations – and Windows “reduce animations” is respected", "Nicer light shows: lava lamp with crisp, glossy blobs, fireworks burst on screen, sharp northern lights", "<b>TV mode</b>: video fullscreen on the second screen, controls stay on the laptop", "<b>🏆 Points</b> after every song with stars, plus <b>history & leaderboard</b>", "<b>Reverb on the voice</b> for recordings: room, stage or concert hall – also afterwards", "<b>Best-of &amp; mixes</b>: long karaoke videos with a song list – ⏭ or N jumps to the next song within the video", "Timeline with remaining time, keys (space, ←/→, ↑/↓, N)", "Radio: <b>Record right away</b> – the current song from its beginning (stops at the end of the song) or from now on, also in the mini player"]],
   ["1.11.0", ["<b>Record screen</b>: Zoom, Teams, webinars or live coaching as MP4 video – whole screen or just one window, with preview", "New light shows: <b>Aurora</b>, <b>Disco ball</b>, <b>Lava lamp</b> and <b>Fireworks</b> (instead of Tesla)", "Player: <b>roll up the right bar</b> like a blind (Q) and <b>collapse the controls</b> into small buttons (H) – hovering shows everything, after 1 minute of inactivity it happens by itself", "<b>Draw an area</b>: record only part of the screen – e.g. just the video in YouTube, Zoom or Teams", "Clearly visible which sound is included: <b>PC sound</b> and/or <b>your microphone</b> – with level meter", "<b>Microphone on/off during recording</b>", "<b>Small recording bar</b> at the top right with clock, pause and stop – invisible in the video on Windows", "Watch the finished video right in SongGrabber – clean file names without emojis", "Pause, discard, optionally also as MP3 – and a running recording is never lost when closing"]],
   ["1.10.0", ["<b>SongGrabber for Linux</b>: Ubuntu, Mint, Debian, Fedora, Arch, openSUSE – with <code>install.sh</code>, start menu entry, trash, audio CDs, system sound and “Everything on the PC” via MPRIS", "The update note automatically links the right file for Windows or Linux"]],
@@ -4096,8 +4206,8 @@ const Mock = (() => {
         source: o.source === "win:11" ? "Zoom Meeting" : o.source === "win:12" ? "Wochenmeeting Vertrieb | Microsoft Teams" : "Bildschirm 1",
         result: scr.state === "done" ? { mp4: "C:\\Users\\Pezhy\\Music\\SongGrabber\\Bildschirmaufnahmen\\2026-10-31 14-05 Zoom Meeting.mp4", mp3: o.mp3 ? "x.mp3" : "", duration: el, size: el * 92000, has_audio: !!(o.sys_audio || o.mic) } : null };
     },
-    kara_state: () => ({ favorites: kfav, history: khist, singers: ["Kathy", "Pezhy"], queue: [], folder: "C:\\Users\\Pezhy\\Music\\SongGrabber\\Karaoke",
-      starters: [["Party-Hits"], ["Schlager"], ["Deutsche Hits"], ["80er"], ["90er"], ["2000er"], ["Rock-Klassiker"], ["Pop aktuell"], ["Disney"], ["Kinderlieder"], ["Balladen"], ["Weihnachten"]].map(([n]) => ({ name: n, query: n.toLowerCase() + " karaoke playlist" })) }),
+    kara_state: () => (kfav.forEach(f => { if (f.loading != null) { f.loading += .3; if (f.loading >= 1) { f.loading = null; f.offline = true; } } }), { favorites: kfav, history: khist, singers: ["Kathy", "Pezhy"], queue: [], folder: "C:\\Users\\Pezhy\\Music\\SongGrabber\\Karaoke",
+      offline: !!S.settings.kara_offline, starters: [["Genre", "Party-Hits"], ["Genre", "Schlager"], ["Genre", "80er"], ["Genre", "90er"], ["Genre", "2000er"], ["Genre", "Rock-Klassiker"], ["Genre", "Pop aktuell"], ["Genre", "Disney"], ["Genre", "Kinderlieder"], ["Genre", "Weihnachten"], ["Sprache", "Deutsche Songs"], ["Sprache", "Englische Hits"], ["Sprache", "Spanisch & Latin"], ["Sprache", "Italienisch"], ["Sprache", "Französisch"], ["Sprache", "Türkisch"], ["Stimmung", "Zum Mitgrölen"], ["Stimmung", "Ruhige Balladen"], ["Stimmung", "Gute Laune"], ["Stimmung", "Herzschmerz"], ["Stimmung", "Après-Ski & Mallorca"], ["Duette", "Duette"], ["Duette", "Deutsche Duette"], ["Duette", "Disney-Duette"], ["Duette", "Musical-Duette"]].map(([g, n]) => ({ group: g, name: n, query: n.toLowerCase() + " karaoke playlist" })) }),
     kara_search: (q, long) => new Promise(r => setTimeout(() => r(long ? [["Love Rock – Best Of Karaoke Vol. 1 (1 Stunde)", 3712], ["Rock Balladen Karaoke Mix – Nonstop", 2950], ["80s Love Songs Karaoke Medley", 1890]].map(([t, d], i) => ({ id: "L" + i, title: t, channel: "Karaoke Hits DE", duration: d, thumb: kThumb(t, i + 2) })) : kSongs(q)), 500)),
     radio_quick: (src, st, mode) => { qrec = { t: performance.now(), song: mode === "song" }; return Mock.radio_quick_status(); },
     radio_quick_stop: () => { qrec = null; return { active: [], done: [{ file: "C:\\Musik\\Radio-Mitschnitte\\2026-11-01 Bon Jovi – Always.mp3" }] }; },
@@ -4107,6 +4217,7 @@ const Mock = (() => {
     kara_rec_stop: () => ({ id: "r" + Math.random(), singer: "Kathy", title: "Bon Jovi – It's My Life", mp3: "x.mp3", mp4: "x.mp4", duration: 226, voice: 0, note: "" }),
     kara_rec_remix: (id, v, h) => ({ ...(v != null ? { voice: v } : {}), ...(h ? { hall: h } : {}) }), kara_rec_delete: () => true,
     kara_score_start: () => true,
+    kara_score_split: () => ({ score: 60 + Math.floor(Math.random() * 35), inton: 60 + Math.floor(Math.random() * 35), presence: 70 + Math.floor(Math.random() * 30), stable: 70 + Math.floor(Math.random() * 25) }),
     kara_score_stop: rate => rate ? { score: 70 + Math.floor(Math.random() * 25), inton: 60 + Math.floor(Math.random() * 35), presence: 80 + Math.floor(Math.random() * 20), stable: 70 + Math.floor(Math.random() * 25) } : null,
     kara_history_add: h => { khist.unshift(h); return true; }, kara_history_clear: () => { khist = []; return true; },
     kara_tv: (on, anyway) => {

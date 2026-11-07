@@ -126,6 +126,22 @@ class Party:
             self.singers[sid] = {"name": name, "joined": time.time(), "pc": True}
             return sid
 
+    @staticmethod
+    def offline():
+        """Offline-Schalter im Karaoke: nur gespeicherte Songs anbieten."""
+        return bool(paths.settings().get("kara_offline"))
+
+    def _offline_songs(self, text=""):
+        words = text.lower().split()
+        out = []
+        for f in (self.favorites() if self.favorites else []):
+            if not f.get("file"):
+                continue
+            hay = f"{f.get('title', '')} {f.get('channel', '')}".lower()
+            if all(w in hay for w in words):
+                out.append(dict(self._song(f), offline=True))
+        return out
+
     def _singers(self):
         return [{"sid": k, "name": v["name"], "pc": bool(v.get("pc"))}
                 for k, v in sorted(self.singers.items(), key=lambda x: x[1]["joined"])]
@@ -163,11 +179,13 @@ class Party:
                          "youNext": bool(sid and nxt.get("sid") == sid), "mine": mine,
                          "queue": [{"title": e.get("title"), "singer": e.get("singer"), "mine": e.get("sid") == sid}
                                    for e in queue[:30]],
-                         "singers": len(self.singers)}
+                         "singers": len(self.singers), "offline": self.offline()}
         if not me:
             return 403, {"error": "Bitte zuerst den Namen eintragen.", "rejoin": True}
         if path == "search":
             text = (q.get("q") or [""])[0].strip()[:80]
+            if self.offline():
+                return 200, {"results": self._offline_songs(text)[:40], "offline": True}
             if not text:
                 return 200, {"results": self._favs()}
             if not self.search_sem.acquire(timeout=20):
@@ -183,6 +201,8 @@ class Party:
             song = body.get("song") or {}
             if not song.get("id"):
                 return 400, {"error": "Kein Song."}
+            if self.offline() and not any(f["id"] == song["id"] for f in self._offline_songs()):
+                return 400, {"error": "Gerade gibt es nur gespeicherte Songs – such dir einen aus der Liste aus."}
             with self.lock:
                 open_n = sum(1 for e in self.snap["queue"] if e.get("sid") == sid) + \
                     sum(1 for a in self.inbox if a.get("type") == "wish" and a.get("sid") == sid)

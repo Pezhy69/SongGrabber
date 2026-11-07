@@ -480,8 +480,10 @@
     <section class="page" id="page-karaoke">
       <header class="page-head">
         <div><h1>Karaoke</h1><p>Karaoke-Videos von YouTube – ohne Werbung. Mit ★ gemerkte Songs werden gespeichert und laufen auch ohne Internet, z. B. beim Camping.</p></div>
-        <div class="seg" id="kaTabs"><button data-t="songs" class="active">Songs</button><button data-t="lists">Playlists</button><button data-t="favs">★ Favoriten <b id="kaFavN"></b></button><button data-t="hist">Verlauf</button></div>
+        <div class="ka-headr"><button class="ka-offsw" id="kaOffline" role="switch" aria-checked="false" title="Nur gespeicherte Songs zeigen und spielen – auch die Handys sehen dann nur diese. Für Camping oder schlechtes WLAN."><i></i>Nur offline</button>
+        <div class="seg" id="kaTabs"><button data-t="songs" class="active">Songs</button><button data-t="lists">Playlists</button><button data-t="favs">★ Favoriten <b id="kaFavN"></b></button><button data-t="hist">Verlauf</button></div></div>
       </header>
+      <div class="ka-offnote" id="kaOffNote" hidden><svg><use href="#i-down"/></svg><span><b>Offline-Modus</b> – es laufen nur gespeicherte Songs, auch die Party-Handys sehen nur diese. Gespeichert wird mit ★, siehe <a href="#" id="kaOffFav">Favoriten</a>.</span></div>
 
       <div class="ka-layout">
         <div class="ka-main">
@@ -527,7 +529,8 @@
               <div class="search grow"><svg><use href="#i-search"/></svg><input id="kaPQ" placeholder="Playlist suchen – z. B. „Schlager“, „80er“, „Disney“ …"></div>
               <button class="primary" id="kaPGo">Suchen</button>
             </div>
-            <div class="chips rp-tags" id="kaStarters"></div>
+            <div class="ka-starters" id="kaStarters"></div>
+            <div class="ka-empty ka-offonly">Playlists kommen von YouTube und brauchen Internet. Im Offline-Modus findest du deine gespeicherten Songs unter „Songs“ und „★ Favoriten“.</div>
             <div class="ka-plhead" id="kaPlHead" hidden><button class="link" id="kaPlBack">← zurück zu den Playlists</button><b id="kaPlTitle"></b><div class="grow"></div><button class="ghost sm" id="kaPlAll"><svg><use href="#i-plus"/></svg>Alle in die Warteschlange</button></div>
             <div class="ka-grid" id="kaPl"></div>
           </div>
@@ -560,8 +563,10 @@
             </div>
           </div>
           <h4 id="kaWhoH">Wer singt?</h4>
+          <div class="seg ka-who" id="kaWho"><button data-w="solo" class="active">Solo</button><button data-w="duet" title="Zu zweit singen – gemeinsame Punkte">👥 Duett</button><button data-w="battle" title="Gegeneinander: Wechsel zur Hälfte, wer mehr Punkte hat, gewinnt">⚔️ Battle</button></div>
           <div class="ka-singer"><input id="kaSinger" list="kaSingers" placeholder="Name eingeben"><datalist id="kaSingers"></datalist></div>
-          <small class="muted">Neue Songs kommen mit diesem Namen in die Warteschlange.</small>
+          <div class="ka-singer ka-singer2" id="kaSinger2Wrap" hidden><span class="ka-and" id="kaAnd">&amp;</span><input id="kaSinger2" list="kaSingers" placeholder="Zweiter Name"></div>
+          <small class="muted" id="kaWhoHint">Neue Songs kommen mit diesem Namen in die Warteschlange.</small>
           <div class="ka-recopt">
             <label class="switch"><input type="checkbox" id="kaScoreOn"><i></i><span>🏆 Punkte nach jedem Song</span><small>hört aufs Mikrofon – nur zum Spaß</small></label>
             <label class="switch"><input type="checkbox" id="kaRecOn"><i></i><span>🔴 Beim Singen aufnehmen</span><small>Stimme + Musik als MP3</small></label>
@@ -970,7 +975,10 @@
 <article id="h-karaoke"><h2>Karaoke</h2>
 <p>Karaoke-Videos von YouTube singen – <b>ohne Werbung</b>, weil SongGrabber nur Bild und Ton holt und nicht den YouTube-Player lädt.</p>
 <ul><li><b>Songs</b>: Titel oder Interpret eingeben, z. B. „Atemlos“. „Karaoke“ hängt SongGrabber selbst an; Karaoke-Kanäle wie Sing King oder KaraFun kommen zuerst, normale Musikvideos ohne Text werden aussortiert. Klick aufs Bild oder <em>Singen</em> startet sofort.</li>
-<li><b>Playlists</b>: Fertige Listen zum Loslegen (Party-Hits, Schlager, 80er, Disney, Kinderlieder …) oder eigene Suche. <em>Alle in die Warteschlange</em> übernimmt die ganze Liste.</li>
+<li><b>Playlists</b>: Fertige Listen zum Loslegen, sortiert nach <em>Genre &amp; Jahrzehnt</em> (Party-Hits, Schlager, 80er, Disney …), <em>Sprache</em> (Deutsche Songs, Englische Hits, Spanisch, Italienisch …), <em>Stimmung</em> (Zum Mitgrölen, Ruhige Balladen, Gute Laune, Herzschmerz …) und <em>Duette</em> – oder eigene Suche. <em>Alle in die Warteschlange</em> übernimmt die ganze Liste.</li>
+<li><b>👥 Duett</b> (rechts unter <em>Wer singt?</em>): Zwei Namen eintragen – ihr singt den Song zusammen, die Punkte gelten für euch beide, und im Verlauf steht „Lea &amp; Tom“. Passende Songs gibt es unter <em>Playlists → Duette</em>.</li>
+<li><b>⚔️ Battle</b> (rechts unter <em>Wer singt?</em>): Zwei treten gegeneinander an und teilen sich einen Song. Eine Münze entscheidet, wer anfängt; kurz vor der Hälfte kommt „Gleich wechseln!“, dann singt der andere weiter. Am Ende zeigt SongGrabber beide Punktzahlen nebeneinander und krönt den Sieger 👑. Die Punkte laufen beim Battle immer mit, auch wenn „Punkte nach jedem Song“ aus ist. Am fairsten mit nur einem Mikrofon, das weitergereicht wird.</li>
+<li><b>Nur offline</b> (Schalter oben rechts): zeigt und spielt nur noch gespeicherte Songs (★ Favoriten mit „✓ offline“) – praktisch beim Camping oder bei schlechtem WLAN. Die Suche durchsucht dann nur die gespeicherten Songs, nicht gespeicherte Songs in der Warteschlange werden übersprungen, und im Party-Modus sehen die Handys auch nur die gespeicherten Songs. Nochmal klicken schaltet zurück.</li>
 <li><b>Wer singt?</b>: Namen eintragen – neue Songs kommen mit diesem Namen in die Warteschlange. Zu Beginn wird „Jetzt singt: …“ eingeblendet, kurz vor Schluss „Als Nächstes: …“. Nach dem Song geht es automatisch weiter.</li>
 <li><b>★ Favoriten & offline</b>: Ein Klick auf den Stern merkt den Song und speichert das Video (bis 720p) im Musik-Ordner unter <code>Karaoke</code>. Gespeicherte Favoriten laufen auch <b>ohne Internet</b> – praktisch beim Camping oder auf der Gartenparty. <em>Alle offline holen</em> lädt alle noch fehlenden auf einmal; der Fortschritt steht am Bild und in der Warteschlange.</li>
 <li><b>Vollbild</b>: Knopf, Doppelklick aufs Video oder <kbd>F11</kbd>; <kbd>Esc</kbd> beendet es. Im Vollbild verschwinden Mauszeiger und Bedienleiste nach kurzer Ruhe und kommen bei Mausbewegung zurück.</li>
@@ -1327,7 +1335,10 @@
 <article id="h-karaoke"><h2>Karaoke</h2>
 <p>Sing karaoke videos from YouTube – <b>without ads</b>, because SongGrabber only fetches picture and sound and doesn't load the YouTube player.</p>
 <ul><li><b>Songs</b>: enter a title or artist, e.g. “Dancing Queen”. SongGrabber adds “karaoke” itself; karaoke channels like Sing King or KaraFun come first, normal music videos without lyrics are filtered out. Click the picture or <em>Sing</em> to start right away.</li>
-<li><b>Playlists</b>: ready-made lists to get going (party hits, Schlager, 80s, Disney, children's songs …) or your own search. <em>Add all to queue</em> adds the whole list.</li>
+<li><b>Playlists</b>: ready-made lists to get going, sorted by <em>Genre &amp; decade</em> (party hits, Schlager, 80s, Disney …), <em>Language</em> (German songs, English hits, Spanish, Italian …), <em>Mood</em> (sing-along anthems, quiet ballads, feel-good, heartbreak …) and <em>Duets</em> – or your own search. <em>Add all to queue</em> adds the whole list.</li>
+<li><b>👥 Duet</b> (on the right under <em>Who's singing?</em>): enter two names – you sing the song together, the points count for both of you, and the history shows “Lea &amp; Tom”. Matching songs are under <em>Playlists → Duets</em>.</li>
+<li><b>⚔️ Battle</b> (on the right under <em>Who's singing?</em>): two people go head to head and share one song. A coin decides who starts; shortly before halfway “Switch coming up!” appears, then the other one takes over. At the end SongGrabber shows both scores side by side and crowns the winner 👑. Points always run in a battle, even if “Points after every song” is off. Fairest with a single microphone that gets passed on.</li>
+<li><b>Offline only</b> (switch at the top right): shows and plays only saved songs (★ favorites with “✓ offline”) – handy when camping or on bad Wi-Fi. Search then only looks through your saved songs, unsaved songs in the queue are skipped, and in party mode the phones see only the saved songs too. Click again to switch back.</li>
 <li><b>Who's singing?</b>: enter a name – new songs are added to the queue under this name. At the start “Now singing: …” is shown, shortly before the end “Up next: …”. After the song it continues automatically.</li>
 <li><b>★ Favorites &amp; offline</b>: a click on the star remembers the song and saves the video (up to 720p) in the music folder under <code>Karaoke</code>. Saved favorites also play <b>without internet</b> – handy when camping or at a garden party. <em>Make all available offline</em> downloads all missing ones at once; the progress is shown on the picture and in the queue.</li>
 <li><b>Fullscreen</b>: button, double-click on the video or <kbd>F11</kbd>; <kbd>Esc</kbd> exits. In fullscreen the mouse pointer and control bar disappear after a short while and come back when you move the mouse.</li>

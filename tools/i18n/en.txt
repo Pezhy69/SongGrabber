@@ -1266,3 +1266,70 @@ Schneller (])|Faster (])
 Original-Tempo|Original tempo
 langsamer – Tonart bleibt|slower – key stays the same
 schneller – Tonart bleibt|faster – key stays the same
+# 1.13: Duett/Battle, Offline-Schalter, Playlist-Gruppen
+Nur offline|Offline only
+Nur gespeicherte Songs zeigen und spielen – auch die Handys sehen dann nur diese. Für Camping oder schlechtes WLAN.|Show and play saved songs only – the phones see only these too. For camping or bad Wi-Fi.
+Offline-Modus|Offline mode
+– es laufen nur gespeicherte Songs, auch die Party-Handys sehen nur diese. Gespeichert wird mit ★, siehe|– only saved songs play, and the party phones see only these too. Save songs with ★, see
+Playlists kommen von YouTube und brauchen Internet. Im Offline-Modus findest du deine gespeicherten Songs unter „Songs“ und „★ Favoriten“.|Playlists come from YouTube and need internet. In offline mode you'll find your saved songs under “Songs” and “★ Favorites”.
+Heute nur gespeicherte Songs – such dir einen aus der Liste aus.|Saved songs only today – pick one from the list.
+Gerade gibt es nur gespeicherte Songs – such dir einen aus der Liste aus.|Right now there are only saved songs – pick one from the list.
+Gespeicherte Songs|Saved songs
+In den gespeicherten Songs suchen …|Search your saved songs …
+Nicht gespeichert – im Offline-Modus nicht spielbar|Not saved – can't play in offline mode
+Noch keine Songs gespeichert. Mit Internet bei einem Song auf ★ klicken – dann läuft er auch offline.|No songs saved yet. With internet, click ★ on a song – then it plays offline too.
+Offline-Modus an – aber noch kein Song gespeichert (★ bei einem Song).|Offline mode on – but no song saved yet (★ on a song).
+Offline-Modus aus – wieder alle Songs von YouTube.|Offline mode off – all songs from YouTube again.
+Offline-Modus: Dieser Song ist nicht gespeichert.|Offline mode: this song isn't saved.
+nicht gespeichert|not saved
+Solo|Solo
+👥 Duett|👥 Duet
+⚔️ Battle|⚔️ Battle
+Zu zweit singen – gemeinsame Punkte|Sing as a pair – shared points
+Gegeneinander: Wechsel zur Hälfte, wer mehr Punkte hat, gewinnt|Head to head: switch halfway, most points wins
+Erster Name|First name
+Zweiter Name|Second name
+Für ein Battle braucht es zwei Namen.|A battle needs two names.
+Für ein Duett braucht es zwei Namen.|A duet needs two names.
+Bitte zwei verschiedene Namen eintragen.|Please enter two different names.
+Ihr singt zusammen – die Punkte gelten für euch beide.|You sing together – the points count for both of you.
+Ihr teilt euch den Song: Die Münze entscheidet, wer anfängt, zur Hälfte wird gewechselt. Wer mehr Punkte hat, gewinnt.|You share the song: a coin decides who starts, you switch halfway. Most points wins.
+Tipp: Rechts unter „Wer singt?“ auf 👥 Duett stellen – dann singt ihr zu zweit.|Tip: on the right under “Who's singing?” choose 👥 Duet – then you sing as a pair.
+Es singen:|Singing:
+Jetzt singen:|Now singing:
+🪙 Die Münze sagt:|🪙 The coin says:
+fängt an – zur Hälfte wird gewechselt|starts – you switch halfway
+Gleich wechseln! 🔁|Switch coming up! 🔁
+mach dich bereit|get ready
+🔁 Wechsel! Jetzt:|🔁 Switch! Now:
+Unentschieden! 🤝|It's a tie! 🤝
+kaum Gesang erkannt|hardly any singing heard
+Genre & Jahrzehnt|Genre & decade
+Sprache|Language
+Stimmung|Mood
+Duette 👥|Duets 👥
+Deutsche Songs|German songs
+Englische Hits|English hits
+Spanisch & Latin|Spanish & Latin
+Italienisch|Italian
+Französisch|French
+Türkisch|Turkish
+Zum Mitgrölen|Sing-along anthems
+Ruhige Balladen|Quiet ballads
+Gute Laune|Feel-good
+Herzschmerz|Heartbreak
+Après-Ski & Mallorca|Après-ski & Mallorca
+Duette|Duets
+Deutsche Duette|German duets
+Disney-Duette|Disney duets
+Musical-Duette|Musical duets
+Offline-Modus: nur die|Offline mode: only your
+gespeicherten Songs – auch auf den Handys.|saved songs – on the phones too.
+Party-Hits|Party hits
+80er|80s
+90er|90s
+2000er|2000s
+Rock-Klassiker|Rock classics
+Pop aktuell|Current pop
+Weihnachten|Christmas
+1 Song in der Warteschlange ist nicht gespeichert – er wird übersprungen.|1 song in the queue isn't saved – it will be skipped.

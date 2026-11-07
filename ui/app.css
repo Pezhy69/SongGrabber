@@ -1418,3 +1418,47 @@ body.no-outbar .outbar{display:none}
   .ka-key span,.ka-tempo span{min-width:44px;font-size:11.5px}
   #kaVol{width:72px}
 }
+
+/* ---- 1.13: Offline-Schalter, Duett/Battle, Playlist-Gruppen */
+.ka-headr{display:flex;align-items:center;gap:12px;flex-wrap:wrap;justify-content:flex-end}
+.ka-offsw{display:inline-flex;align-items:center;gap:9px;height:36px;padding:0 14px 0 10px;border-radius:10px;border:1px solid var(--line);background:var(--panel);color:var(--muted);font-weight:600;font-size:13px;cursor:pointer;transition:color .15s,border-color .15s,background-color .15s}
+.ka-offsw i{width:30px;height:18px;border-radius:10px;background:rgba(255,255,255,.12);position:relative;transition:background-color .2s var(--ease-out)}
+.ka-offsw i::after{content:"";position:absolute;top:2px;left:2px;width:14px;height:14px;border-radius:50%;background:#C9CED8;transition:transform .2s var(--ease-out),background-color .2s}
+.ka-offsw:hover{color:var(--text)}
+.ka-offsw.on{color:var(--text);border-color:rgba(80,200,140,.55);background:rgba(80,200,140,.1)}
+.ka-offsw.on i{background:#2FA56E}
+.ka-offsw.on i::after{transform:translateX(12px);background:#fff}
+.ka-offsw:active{transform:scale(.97)}
+.ka-offnote{display:flex;align-items:center;gap:10px;margin:-8px 0 16px;padding:10px 14px;border-radius:12px;border:1px solid rgba(80,200,140,.35);background:rgba(80,200,140,.08);font-size:13px;color:var(--muted)}
+.ka-offnote svg{width:18px;height:18px;stroke:#5FD39A;flex:none}
+.ka-offnote b{color:var(--text)}
+.ka-offnote a{color:#7FE0B0}
+.ka-card.na{opacity:.42;filter:grayscale(.7)}
+.ka-card.na .ka-act button[data-a=sing],.ka-card.na .ka-act button[data-a=q]{pointer-events:none}
+.ka-offonly{display:none}
+.ka-offmode .ka-offonly{display:block}
+.ka-offmode #kaLists .rp-bar,.ka-offmode #kaStarters,.ka-offmode #kaPl,.ka-offmode #kaPlHead,.ka-offmode #kaMode{display:none!important}
+.ka-q small .warn{color:#F0A35E}
+.ka-starters{display:grid;gap:8px;margin-bottom:18px}
+.ka-stg{display:flex;align-items:baseline;gap:12px}
+.ka-stg>small{flex:none;width:128px;color:var(--dim);font-size:11px;font-weight:650;letter-spacing:.7px;text-transform:uppercase}
+.ka-stg .chips{margin:0}
+@media (max-width:1100px){.ka-stg{display:block}.ka-stg>small{display:block;margin-bottom:5px}}
+.ka-who{display:flex;margin:2px 0 10px}
+.ka-who button{flex:1;padding:7px 6px;font-size:12.5px;letter-spacing:.2px}
+.ka-singer2{display:flex;align-items:center;gap:8px;margin-top:8px}
+.ka-and{flex:none;width:28px;text-align:center;font:700 13px var(--disp);color:var(--accent2)}
+.ka-battle .sc-card{min-width:min(560px,90%)}
+.bt-cols{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:1.2em;margin:1.3em 0 .2em}
+.bt-col{position:relative;padding:1em .6em .9em;border-radius:1em;border:1px solid rgba(255,255,255,.08);background:rgba(255,255,255,.03);transition:border-color .3s}
+.bt-col small{display:block;color:var(--text);font:650 1.15em var(--disp);margin-bottom:.15em;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.bt-col .sc-n{font-size:3.6em}
+.bt-col .sc-stars{font-size:1.2em}
+.bt-col em{display:block;font-style:normal;color:var(--muted);font-size:.85em}
+.bt-col.win{border-color:rgba(255,181,71,.55);background:rgba(255,150,60,.08);box-shadow:0 0 40px -14px rgba(255,150,60,.7)}
+.bt-crown{position:absolute;top:-.85em;left:50%;transform:translateX(-50%);font-size:1.6em;font-style:normal;animation:sc-in .5s 1.4s ease-out both}
+.bt-vs{font:800 1.3em var(--disp);color:var(--dim)}
+.bt-res{display:block;font-size:1.35em!important;margin:.6em 0 1em!important;color:var(--text)!important}
+@media (prefers-reduced-motion:reduce){.bt-crown{animation:none}}
+.ka-offmode #kaHint{display:none}
+.ka-grid>.ka-empty{grid-column:1/-1}
