@@ -14,7 +14,8 @@
 - **Audio CD** – bit-exact ripping, track info and cover from MusicBrainz
 - **Recording** – vinyl, cassette, system sound or microphone with level meter, auto start and automatic track splitting
 - **Screen recording** – Zoom, Teams, webinars as MP4, whole screen, one window or a drawn area, with PC sound and/or microphone
-- **Karaoke** – sing karaoke videos from YouTube without ads, ★ favorites work offline, record your voice + music
+- **Karaoke** – sing karaoke videos from YouTube without ads, change key & tempo, TV mode, points & leaderboard, ⚔️ battle and 👥 duet, record your voice + music
+- **Karaoke party** – guests scan a QR code and request songs from their phone (no app), fair order, “Offline only” switch for camping
 - **Player** – nine light shows, equalizer, crossfade, synced lyrics, mini player, radio & podcasts, quick radio recording
 - **Library** – search, tag editor, clean-up of duplicates, playlists, transfer to USB stick/phone
 
@@ -26,10 +27,12 @@ Download: **[latest release](https://github.com/Pezhy69/SongGrabber/releases/lat
 
 | | |
 |---|---|
+| <img src="docs/screenshots/karaoke.png" alt="Karaoke"><br><sub><b>Karaoke</b> – Karaoke-Videos von YouTube ohne Werbung, Tonart & Tempo, Fernseher-Modus, „Wer singt?“-Warteschlange</sub> | <img src="docs/screenshots/party.png" alt="Karaoke-Party mit QR-Code und Handy"><br><sub><b>🎉 Party-Modus</b> – Gäste scannen den QR-Code und wünschen sich Songs vom Handy; Playlists nach Genre, Sprache, Stimmung und Duetten</sub> |
+| <img src="docs/screenshots/battle.png" alt="Karaoke-Battle mit Punkten"><br><sub><b>⚔️ Battle & 👥 Duett</b> – zwei gegeneinander oder zusammen, mit Punkten, Sieger und Bestenliste</sub> | <img src="docs/screenshots/lava.png" alt="Lichtshow Lava-Lampe"><br><sub><b>Lichtshow „Lava“</b> – eine von neun Lichtshows, alle im Takt der Musik</sub> |
 | <img src="docs/screenshots/links.png" alt="Links & Streams: YouTube-Album wird in Titel aufgeteilt"><br><sub><b>Links & Streams</b> – ganze Alben von YouTube & Co., automatisch in Titel geteilt und getaggt</sub> | <img src="docs/screenshots/cd.png" alt="Audio-CD mit Titeln von MusicBrainz"><br><sub><b>Audio-CD</b> – Bit für Bit gelesen, Titel und Cover von MusicBrainz</sub> |
-| <img src="docs/screenshots/rec.png" alt="Aufnahme mit Pegelanzeige"><br><sub><b>Aufnahme</b> – Schallplatte, Kassette, Systemsound oder Mikrofon mit Pegelanzeige</sub> | <img src="docs/screenshots/library.png" alt="Bibliothek"><br><sub><b>Bibliothek</b> – suchen, abspielen, aufräumen, Playlists erstellen</sub> |
-| <img src="docs/screenshots/screen.png" alt="Bildschirm aufnehmen"><br><sub><b>Bildschirm aufnehmen</b> – Zoom, Teams, Webinare als Video; klar sichtbar, ob PC-Ton und Mikrofon mit drauf sind</sub> | <img src="docs/screenshots/aurora.png" alt="Lichtshow Nordlicht"><br><sub><b>Lichtshow „Nordlicht“</b> – eine von neun Lichtshows, alle im Takt der Musik</sub> |
-| <img src="docs/screenshots/radio.png" alt="Radio & Podcasts"><br><sub><b>Radio & Podcasts</b> – über 30.000 Sender mit Songtext und Mitschnitt</sub> | <sub><b>Player</b> (oben) – Lichtshow mit 6 Stilen und eigenen Farben, Equalizer, mitlaufender Songtext, Mini-Player, Überblenden</sub> |
+| <img src="docs/screenshots/rec.png" alt="Aufnahme mit Pegelanzeige"><br><sub><b>Ton & Schallplatte</b> – Schallplatte, Kassette, Systemsound oder Mikrofon mit Pegelanzeige</sub> | <img src="docs/screenshots/library.png" alt="Bibliothek"><br><sub><b>Bibliothek</b> – suchen, abspielen, aufräumen, Playlists erstellen</sub> |
+| <img src="docs/screenshots/screen.png" alt="Bildschirm aufnehmen"><br><sub><b>Bildschirm aufnehmen</b> – Zoom, Teams, Webinare als Video; klar sichtbar, ob PC-Ton und Mikrofon mit drauf sind</sub> | <img src="docs/screenshots/aurora.png" alt="Lichtshow Nordlicht"><br><sub><b>Lichtshow „Nordlicht“</b> – Lichtschleier über Bergen, Bass hebt sie an</sub> |
+| <img src="docs/screenshots/radio.png" alt="Radio & Podcasts"><br><sub><b>Radio & Podcasts</b> – über 30.000 Sender mit Songtext und Sofort-Mitschnitt</sub> | <sub><b>Player</b> (oben) – neun Lichtshows mit eigenen Farben, Equalizer, mitlaufender Songtext, Mini-Player, Überblenden</sub> |
 
 Audio von **Audio-CD, Links/Streams, Schallplatte/Kassette/Systemsound und Dateien/DVD** – dazu **Bildschirmaufnahmen als Video** (Zoom, Teams, Webinare) – als
 **MP3 (LAME), WAV oder FLAC** – mit ID3-Tags, Cover und schöner Oberfläche. Läuft komplett autark
