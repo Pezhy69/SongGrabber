@@ -2672,100 +2672,70 @@ const Viz = (() => {
     x.fillStyle = glow; x.fillRect(cx - R * 3, cy - R * 3, R * 6, R * 6); x.restore();
   }
 
-  /* Lava-Lampe: eine echte Lampe – Glas, Metallsockel, Wachs von unten beleuchtet. Bass lässt das Wachs anschwellen */
+  /* Lava-Lampe: zähe Wachsblasen schweben frei, steigen und sinken, verschmelzen und teilen sich – Bass lässt sie anschwellen.
+     Scharfe Kante (Kantenglättung über den Abstand zur Kante), von unten angeleuchtet, leichter Glanz. */
   let lvC = null, lvX = null, lvImg = null, lvF = null, lvBlobs = [], lvE = 0, lvT = 0, lvTime = 0;
   function lava(p, bassV) {
     const now = performance.now() / 1000, dt = Math.min(.1, lvT ? now - lvT : 0); lvT = now;
     lvE += (energy - lvE) * .02;
     lvTime += dt * (.5 + lvE * .45);                        // lauter = etwas lebhafter, aber nie hektisch
     const c0 = hexRgb(p.c[0]), c1 = hexRgb(p.c[1]), c2 = hexRgb(p.c[2] || p.c[0]);
-    // Lampe: Maße
-    const LH = H * .86, top = H * .07, cx = W * .42;
-    const capH = LH * .1, glassT = top + capH, glassH = LH * .62, baseT = glassT + glassH, baseH = LH - capH - glassH;
-    const hw = t => LH * (.062 + .1 * Math.sin(Math.min(1, t * 1.05) * Math.PI * .82) ** 1.15);   // halbe Glasbreite, t = 0 oben … 1 unten
-    const hwMax = LH * .165;
-    // Raum: dunkel, warmer Schein der Lampe an der Wand
-    x.fillStyle = "#040308"; x.fillRect(0, 0, W, H);
-    const room = x.createRadialGradient(cx, glassT + glassH * .6, 0, cx, glassT + glassH * .6, Math.max(W, H) * .7);
-    room.addColorStop(0, rgba(p.c[0], .30 + lvE * .15 + beat * .08)); room.addColorStop(.35, rgba(p.c[1], .10)); room.addColorStop(1, "rgba(0,0,0,0)");
-    x.fillStyle = room; x.fillRect(0, 0, W, H);
-    const flo = x.createLinearGradient(0, top + LH, 0, H); flo.addColorStop(0, rgba(p.c[0], .14)); flo.addColorStop(1, "rgba(0,0,0,0)");
-    x.fillStyle = flo; x.fillRect(0, top + LH - 2, W, H);
-    // Wachs im Glas: Puffer nur so groß wie das Glas, halbe Auflösung
-    const sc = Math.min(1, 300 / Math.max(1, glassH));
-    const bw = Math.max(40, Math.round(hwMax * 2 * sc)), bh = Math.max(80, Math.round(glassH * sc));
+    // Hintergrund: dunkel, unten warm
+    const g0 = x.createLinearGradient(0, 0, 0, H);
+    g0.addColorStop(0, "#05030b"); g0.addColorStop(.6, p.sky[0]); g0.addColorStop(1, rgba(p.c[0], .28));
+    x.fillStyle = g0; x.fillRect(0, 0, W, H);
+    // Puffer: ein Drittel der Auflösung (höchstens 720 breit) – scharf genug, flüssig genug
+    const f3 = Math.max(3, W / 720), bw = Math.max(120, Math.round(W / f3)), bh = Math.max(70, Math.round(H / f3));
     if (!lvC || lvC.width !== bw || lvC.height !== bh) { lvC = document.createElement("canvas"); lvC.width = bw; lvC.height = bh; lvX = lvC.getContext("2d"); lvImg = lvX.createImageData(bw, bh); lvF = new Float32Array(bw * bh); }
-    if (lvBlobs.length !== 6) lvBlobs = Array.from({ length: 6 }, (_, i) => ({ x: .3 + (i % 3) * .2 + (Math.random() - .5) * .08, ph: Math.random() * 6.28, sp: .12 + Math.random() * .1, r: .085 + Math.random() * .05, wx: Math.random() * 6.28 }));
-    const swell = 1 + bassV * .18 + beat * .06;
-    const B = lvBlobs.map(b => {
-      const yy = .52 - .42 * Math.sin(lvTime * b.sp + b.ph), w = hw(yy) / hwMax;            // in der schmalen Spitze schmaler
-      return [(.5 + (b.x - .5) * w * .9 + Math.sin(lvTime * .21 + b.wx) * .05 * w) * bw, yy * bh, (b.r * bw * swell * (.75 + .25 * w) * (1 + .12 * Math.sin(lvTime * .7 + b.ph))) ** 2];
-    });
-    B.push([bw * .5, bh * 1.06, (bw * .5) ** 2 * .55]);                                        // Wachs am Boden
-    const F = lvF, d = lvImg.data;
-    for (let yy = 0, k = 0; yy < bh; yy++) {
-      const lim = hw(yy / bh) * sc;
-      for (let xx = 0; xx < bw; xx++, k++) {
-        if (Math.abs(xx + .5 - bw / 2) > lim) { F[k] = 0; continue; }
-        let f = 0; for (let i = 0; i < B.length; i++) { const dx = xx - B[i][0], dy = yy - B[i][1]; f += B[i][2] / (dx * dx + dy * dy + 1); }
-        F[k] = f;
-      }
+    if (lvBlobs.length !== 8) lvBlobs = Array.from({ length: 8 }, (_, i) => ({ x: .08 + (i / 7) * .84 + (Math.random() - .5) * .05, ph: Math.random() * 6.28, sp: .1 + Math.random() * .11, r: .055 + Math.random() * .045, wx: Math.random() * 6.28 }));
+    const swell = 1 + bassV * .2 + beat * .07, S = Math.min(bw, bh);
+    const B = lvBlobs.map(b => [
+      (b.x + Math.sin(lvTime * .23 + b.wx) * .05) * bw,
+      (.5 - .45 * Math.sin(lvTime * b.sp + b.ph)) * bh,
+      (b.r * S * swell * (1 + .14 * Math.sin(lvTime * .7 + b.ph))) ** 2]);
+    // Boden- und Deckenwachs, an dem die Blasen „andocken“
+    B.push([bw * .5, bh * 1.1, (bw * .55) ** 2 * .05], [bw * .5, -bh * .12, (bw * .5) ** 2 * .028]);
+    const F = lvF, d = lvImg.data, T0 = 1;
+    for (let yy = 0, k = 0; yy < bh; yy++) for (let xx = 0; xx < bw; xx++, k++) {
+      let f = 0; for (let i = 0; i < B.length; i++) { const dx = xx - B[i][0], dy = yy - B[i][1]; f += B[i][2] / (dx * dx + dy * dy + 1); }
+      F[k] = f;
     }
     const heat = .9 + beat * .2 + lvE * .1;
     for (let yy = 0, k = 0; yy < bh; yy++) {
-      const ty = yy / bh, lit = (.5 + ty * .75) * heat, lim = hw(ty) * sc;
+      const ty = yy / bh, lit = (.55 + ty * .7) * heat;
       const base = [c1[0] + (c0[0] - c1[0]) * ty, c1[1] + (c0[1] - c1[1]) * ty, c1[2] + (c0[2] - c1[2]) * ty];
       for (let xx = 0; xx < bw; xx++, k++) {
-        const o = k * 4, f = F[k], ex = Math.abs(xx + .5 - bw / 2) / Math.max(1, lim);
-        if (ex > 1) { d[o + 3] = 0; continue; }
-        // Flüssigkeit: leicht gefärbt, unten wärmer
-        let r = 12 + c0[0] * .10 * lit, g = 8 + c0[1] * .08 * lit, bl = 18 + c0[2] * .10 * lit, al = 205;
-        if (f > .82) {
-          const fx = (F[k + 1] || f) - (F[k - 1] || f), fy = (F[k + bw] || f) - (F[k - bw] || f), gl = Math.hypot(fx, fy), nl = gl || 1;
-          const nx = -fx / nl, ny = -fy / nl, sure = Math.min(1, gl * 6);                      // an Sattelpunkten (zwischen Blasen) kein Glanz
-          const edge = Math.min(1, (f - .82) / .2), a2 = edge * edge * (3 - 2 * edge);
-          const rim = Math.max(0, 1 - (f - .82) / .6);
-          const deep = Math.min(1, Math.max(0, (f - 1.05) / .9));                                  // tief in der Blase: kein Glanz mehr
-          const spec = Math.max(0, nx * -.55 + ny * -.83) ** 4 * (1 - rim * .5) * sure * (1 - deep) * .7;   // Glanz von oben links
-          const under = Math.max(0, ny) * .35 * sure;                                                      // von unten angeleuchtet
-          const wr = base[0] * lit * (1 + under) + rim * 60 + spec * 170, wg = base[1] * lit * (1 + under) + rim * 45 + spec * 160, wb = base[2] * lit * (1 + under) + rim * 60 + spec * 170;
-          r += (wr - r) * a2; g += (wg - g) * a2; bl += (wb - bl) * a2; al += (255 - al) * a2;
-        }
-        const side = ex ** 6;                                                                       // Glas wird zum Rand dunkler
-        d[o] = Math.min(255, r * (1 - side * .6)); d[o + 1] = Math.min(255, g * (1 - side * .6)); d[o + 2] = Math.min(255, bl * (1 - side * .6));
-        d[o + 3] = al * Math.min(1, (1 - ex) * lim * .9 + .2);
+        const o = k * 4, f = F[k];
+        if (f < T0 * .55) { d[o + 3] = 0; continue; }
+        const fx = ((xx < bw - 1 ? F[k + 1] : f) - (xx > 0 ? F[k - 1] : f)) * .5, fy = ((yy < bh - 1 ? F[k + bw] : f) - (yy > 0 ? F[k - bw] : f)) * .5;
+        const gl = Math.hypot(fx, fy);
+        // Abstand zur Kante in Pufferpixeln → glatte, aber scharfe Kante
+        const dist = (f - T0) / Math.max(gl, 1e-4), a = Math.max(0, Math.min(1, dist + .5));
+        if (a <= 0) { d[o + 3] = 0; continue; }
+        const nx = -fx / (gl || 1), ny = -fy / (gl || 1), sure = Math.min(1, gl * 8);
+        const rim = Math.max(0, 1 - dist / 6);                                                      // heller Rand, ein paar Pixel breit
+        const deep = Math.min(1, Math.max(0, (f - 1.1) / 1.2));
+        const spec = Math.max(0, nx * -.55 + ny * -.83) ** 4 * sure * (1 - deep) * .65;            // Glanz von oben links
+        const under = Math.max(0, ny) * .3 * sure;                                                  // von unten angeleuchtet
+        const core = deep * .1;
+        d[o] = Math.min(255, base[0] * lit * (1 + under - core) + c2[0] * core + rim * 70 + spec * 175);
+        d[o + 1] = Math.min(255, base[1] * lit * (1 + under - core) + c2[1] * core + rim * 55 + spec * 165);
+        d[o + 2] = Math.min(255, base[2] * lit * (1 + under - core) + c2[2] * core + rim * 70 + spec * 175);
+        d[o + 3] = a * 255;
       }
     }
     lvX.putImageData(lvImg, 0, 0);
-    // Leuchten des Wachses in den Raum
     x.save(); x.imageSmoothingEnabled = true; x.imageSmoothingQuality = "high";
-    x.globalCompositeOperation = "lighter"; x.globalAlpha = .22 + beat * .12; x.filter = "blur(" + Math.round(hwMax * .35) + "px)";
-    x.drawImage(lvC, cx - hwMax * 1.4, glassT - glassH * .1, hwMax * 2.8, glassH * 1.2);
+    // Leuchten: dieselben Blasen weich dahinter
+    x.globalCompositeOperation = "lighter"; x.globalAlpha = .28 + beat * .15; x.filter = "blur(" + Math.round(Math.min(W, H) * .03) + "px)";
+    x.drawImage(lvC, 0, 0, W, H);
     x.filter = "none"; x.globalCompositeOperation = "source-over"; x.globalAlpha = 1;
-    x.drawImage(lvC, cx - hwMax, glassT, hwMax * 2, glassH);
+    x.drawImage(lvC, 0, 0, W, H);
     x.restore();
-    // Glas: Spiegelung links, Kante
-    x.save();
-    x.beginPath();
-    for (let i = 0; i <= 40; i++) { const t = i / 40; x.lineTo(cx - hw(t), glassT + t * glassH); }
-    for (let i = 40; i >= 0; i--) { const t = i / 40; x.lineTo(cx + hw(t), glassT + t * glassH); }
-    x.closePath(); x.strokeStyle = "rgba(255,255,255,.14)"; x.lineWidth = 1.2 * D; x.stroke(); x.clip();
-    const sh = x.createLinearGradient(cx - hwMax, 0, cx + hwMax, 0);
-    sh.addColorStop(0, "rgba(255,255,255,0)"); sh.addColorStop(.16, "rgba(255,255,255,.13)"); sh.addColorStop(.24, "rgba(255,255,255,.02)"); sh.addColorStop(.8, "rgba(255,255,255,0)"); sh.addColorStop(.88, "rgba(255,255,255,.06)"); sh.addColorStop(1, "rgba(255,255,255,0)");
-    x.fillStyle = sh; x.fillRect(cx - hwMax, glassT, hwMax * 2, glassH);
-    const bulb = x.createRadialGradient(cx, baseT, 0, cx, baseT, hwMax * 1.3);
-    bulb.addColorStop(0, rgba("#fff1d0", .35 + beat * .15)); bulb.addColorStop(1, "rgba(0,0,0,0)");
-    x.globalCompositeOperation = "lighter"; x.fillStyle = bulb; x.fillRect(cx - hwMax * 1.5, baseT - hwMax * 1.4, hwMax * 3, hwMax * 1.6);
-    x.restore();
-    // Metall: Kappe oben, Sockel unten (spiegelt die Wachsfarbe)
-    const metal = (x0, x1) => { const m = x.createLinearGradient(x0, 0, x1, 0); m.addColorStop(0, "#15151c"); m.addColorStop(.25, "#5d5f6c"); m.addColorStop(.42, "#c9cbd6"); m.addColorStop(.55, "#6e7080"); m.addColorStop(.8, rgba(p.c[0], .55)); m.addColorStop(1, "#101016"); return m; };
-    const capTop = hw(0) * .7, capBot = hw(0) * 1.05;
-    x.fillStyle = metal(cx - capBot, cx + capBot);
-    x.beginPath(); x.moveTo(cx - capTop, top); x.lineTo(cx + capTop, top); x.lineTo(cx + capBot, glassT + 1); x.lineTo(cx - capBot, glassT + 1); x.closePath(); x.fill();
-    const bTop = hw(1) * 1.02, bMid = hw(1) * .86, bBot = LH * .2, waist = baseT + baseH * .32;
-    x.fillStyle = metal(cx - bBot, cx + bBot);
-    x.beginPath(); x.moveTo(cx - bTop, baseT - 1); x.lineTo(cx + bTop, baseT - 1); x.lineTo(cx + bMid, waist); x.lineTo(cx + bBot, top + LH); x.lineTo(cx - bBot, top + LH); x.lineTo(cx - bMid, waist); x.closePath(); x.fill();
-    x.fillStyle = "rgba(0,0,0,.35)"; x.fillRect(cx - bBot, top + LH - 2 * D, bBot * 2, 2 * D);
+    // Wärme von unten
+    const hb = x.createRadialGradient(W * .45, H * 1.05, 0, W * .45, H * 1.05, H * .7);
+    hb.addColorStop(0, rgba(p.c[0], .2 + lvE * .15 + beat * .08)); hb.addColorStop(1, "rgba(0,0,0,0)");
+    x.save(); x.globalCompositeOperation = "lighter"; x.fillStyle = hb; x.fillRect(0, 0, W, H); x.restore();
   }
 
   /* Feuerwerk: Raketen steigen im Takt auf – je lauter, desto größer die Explosion */
