@@ -1,5 +1,7 @@
 /* SongGrabber – Oberfläche */
 "use strict";
+// Windows/Browser: „Animationen reduzieren“ – dann startet die Lichtshow ruhig
+const REDUCED_MOTION = !!(window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches);
 const $ = (s, r = document) => r.querySelector(s);
 const $$ = (s, r = document) => [...r.querySelectorAll(s)];
 const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
@@ -39,6 +41,7 @@ function go(page) {
   if (page === "library") loadLibrary();
   if (page === "abos") loadAbos();
   document.body.classList.toggle("pp-active", page === "player");
+  document.body.classList.toggle("no-outbar", ["screen", "karaoke", "help"].includes(page));   // dort bewirken Format & Qualität nichts
   if (page === "player") { Viz.start(); SysMode.resume(); if (SysMode.on()) SysMode.lyrics(true); else if (!$("#ppLyBody").hidden) { LY.path = ""; loadLyrics(Player.lyricsTrack()); } }
   if (page === "radio") loadRadio();
   if (page === "screen") Scr.enter();
@@ -2702,12 +2705,12 @@ const Viz = (() => {
   const MODES = ["synth", "bars", "ring", "wave", "aurora", "disco", "lava", "fireworks", "off"];
   return {
     start, setMode, setTheme, setCover, setFx, fx: () => fx, redraw() { if (!fx) drawStill(); }, mode: () => mode, theme: () => theme, external(f) { ext = f; },
-    cycle() { const m = MODES[(MODES.indexOf(mode) + 1) % MODES.length]; setMode(m); call("save_settings", { viz_mode: m }); },
+    cycle() { const m = MODES[(MODES.indexOf(mode) + 1) % MODES.length]; setMode(m); call("save_settings", { viz_mode: m, viz_chosen: true }); },
   };
 })();
 $("#vizThemes").innerHTML = Object.entries(THEMES).filter(([k]) => k !== "custom").map(([k, t]) => `<button data-t="${k}" title="${t.name}" style="background:${k === "cover" ? "conic-gradient(#FF2EA6,#FFD319,#00E5FF,#7B2FF7,#FF2EA6)" : `linear-gradient(135deg,${t.c[0]},${t.c[1]})`}"></button>`).join("");
 $$("#vizThemes button").forEach(b => b.onclick = () => { Viz.setTheme(b.dataset.t); if (b.dataset.t === "cover") { const c = Player.current(); if (c && c.art) { const i = new Image(); i.crossOrigin = "anonymous"; i.onload = () => Viz.setCover(i); i.src = c.art; } } call("save_settings", { viz_theme: b.dataset.t }); });
-$$("#vizModes button").forEach(b => b.onclick = () => { Viz.setMode(b.dataset.v); call("save_settings", { viz_mode: b.dataset.v }); });
+$$("#vizModes button").forEach(b => b.onclick = () => { Viz.setMode(b.dataset.v); call("save_settings", { viz_mode: b.dataset.v, viz_chosen: true }); });
 /* Cover & Titel: groß in der Mitte ↔ klein oben links (Klick darauf) */
 const InfoMin = (() => {
   const page = () => $("#page-player");
@@ -3868,7 +3871,7 @@ async function boot() {
   S.presets = i.presets; S.settings = i.settings; S.sysLang = i.sys_lang || "";
   Player.setVolume(S.settings.volume ?? .8);
   $("#xfSel").value = String(S.settings.xfade ?? 4); $("#normPlay").checked = S.settings.norm_play !== false;
-  Colors.load(S.settings); SideBar.load(S.settings); Viz.setMode({ tesla: "aurora", laser: "lava" }[S.settings.viz_mode] || S.settings.viz_mode || "synth"); Viz.setTheme(THEMES[S.settings.viz_theme] ? S.settings.viz_theme : "synth"); Viz.setFx(S.settings.viz_fx !== false); InfoMin.set(S.settings.pp_info_min !== false); EQ.load(S.settings);
+  Colors.load(S.settings); SideBar.load(S.settings); Viz.setMode(REDUCED_MOTION && !S.settings.viz_chosen ? "off" : ({ tesla: "aurora", laser: "lava" }[S.settings.viz_mode] || S.settings.viz_mode || "synth")); Viz.setTheme(THEMES[S.settings.viz_theme] ? S.settings.viz_theme : "synth"); Viz.setFx(S.settings.viz_fx !== false); InfoMin.set(S.settings.pp_info_min !== false); EQ.load(S.settings);
   Player.refresh(); Player.restore();
   fillPresets(presetFmt(S.settings.preset), S.settings.preset);
   $("#aboutVer").textContent = "Version " + i.version;
