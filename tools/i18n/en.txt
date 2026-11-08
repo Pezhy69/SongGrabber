@@ -1333,3 +1333,7 @@ Rock-Klassiker|Rock classics
 Pop aktuell|Current pop
 Weihnachten|Christmas
 1 Song in der Warteschlange ist nicht gespeichert – er wird übersprungen.|1 song in the queue isn't saved – it will be skipped.
+Fair abwechseln|Take turns fairly
+wer noch nicht dran war, kommt zuerst – sonst gilt: wer zuerst wünscht, singt zuerst|whoever hasn't sung yet goes first – otherwise first requested, first sung
+Ziehen zum Verschieben|Drag to move
+Reihenfolge von Hand festgelegt – „Fair abwechseln“ ist jetzt aus.|Order set by hand – “Take turns fairly” is now off.
