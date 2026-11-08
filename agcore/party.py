@@ -41,8 +41,8 @@ def lan_ip():
 
 
 class Party:
-    def __init__(self, search, thumb_file=None, favorites=None):
-        self.search, self.thumb_file, self.favorites = search, thumb_file, favorites
+    def __init__(self, search, thumb_file=None, favorites=None, likes=None):
+        self.search, self.thumb_file, self.favorites, self.likes = search, thumb_file, favorites, likes
         self.srv = None
         self.lock = threading.Lock()
         self.search_sem = threading.Semaphore(2)
@@ -215,10 +215,31 @@ class Party:
             with self.lock:
                 self.inbox.append({"type": "remove", "sid": sid, "qid": body.get("qid")})
             return 200, {"ok": True}
+        if path == "unwish":                      # versehentlich gewünscht: über die Song-ID wieder raus
+            vid = str(body.get("id") or "")
+            with self.lock:
+                for i in range(len(self.inbox) - 1, -1, -1):
+                    a = self.inbox[i]
+                    if a.get("type") == "wish" and a.get("sid") == sid and (a.get("song") or {}).get("id") == vid:
+                        del self.inbox[i]
+                        return 200, {"ok": True}
+                self.inbox.append({"type": "remove", "sid": sid, "id": vid})
+            return 200, {"ok": True}
+        if path == "move":                        # eigenen Song in der eigenen Reihenfolge hoch/runter
+            d = -1 if str(body.get("dir")) in ("-1", "up") else 1
+            with self.lock:
+                self.inbox.append({"type": "move", "sid": sid, "qid": body.get("qid"), "dir": d})
+            return 200, {"ok": True}
+        if path == "likes":
+            ids = [i for i in (q.get("ids") or [""])[0].split(",") if i][:12]
+            try:
+                return 200, {"likes": self.likes(ids) if self.likes else {}}
+            except Exception:  # noqa: BLE001 – Likes sind nur Zusatz
+                return 200, {"likes": {}}
         return 404, {"error": "Unbekannt."}
 
     def _song(self, s):
-        keep = {k: s.get(k) for k in ("id", "title", "channel", "duration", "thumb")}
+        keep = {k: s.get(k) for k in ("id", "title", "channel", "duration", "thumb", "views")}
         keep["title"] = str(keep.get("title") or "")[:160]
         keep["channel"] = str(keep.get("channel") or "")[:80]
         if self.thumb_file and keep.get("id") and self.thumb_file(keep["id"]):

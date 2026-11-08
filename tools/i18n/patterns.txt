@@ -84,3 +84,4 @@ Du hast schon (\d+) Songs in der Warteschlange – erst mal singen! 🎤|You alr
 ^⚔️ Battle: (.+) gegen (.+)$|⚔️ Battle: $1 vs. $2
 ^⚔️ (.+) gegen (.+)$|⚔️ $1 vs. $2
 ^🏆 (.+) gewinnt!$|🏆 $1 wins!
+^Wer ist wann dran\? \((\d+)\)$|Who's up when? ($1)

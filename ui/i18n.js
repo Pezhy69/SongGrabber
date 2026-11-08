@@ -129,6 +129,7 @@ const I18N = (() => {
 "Aufnahmen": "Recordings",
 "Aufnahmen automatisch erkennen": "Recognize recordings automatically",
 "Aufnehmen": "Record",
+"Aufrufe": "views",
 "Aufräumen": "Clean up",
 "Aufteilen": "Split",
 "Auftrag": "Job",
@@ -171,6 +172,7 @@ const I18N = (() => {
 "Beim Abonnieren laden": "When subscribing, download",
 "Beim Start nach Updates suchen": "Check for updates at startup",
 "Beliebt": "Popular",
+"Beliebteste Version": "Most popular version",
 "Bereich zeichnen": "Draw an area",
 "Bereich ändern": "Change area",
 "Bereit": "Ready",
@@ -256,6 +258,7 @@ const I18N = (() => {
 "Dein Mikrofon": "Your microphone",
 "Dein Mikrofon – nein": "Your microphone – no",
 "Dein Name": "Your name",
+"Deine Songs": "Your songs",
 "Den angezeigten": "Copy the displayed",
 "Der Equalizer wirkt, sobald ein Titel aus SongGrabber läuft · Doppelklick setzt auf 0 dB": "The equalizer works as soon as a track from SongGrabber is playing · double-click sets 0 dB",
 "Der nächste Song startet auf diesem Bildschirm.": "The next song starts on this screen.",
@@ -479,6 +482,7 @@ const I18N = (() => {
 "Interpret, Titel oder Album …": "Artist, title or album …",
 "Interpret/Singles/": "Artist/Singles/",
 "Ist drin! 🎉 Du siehst ihn unter „Meine Songs“.": "You're in! 🎉 You'll find it under “My songs”.",
+"Ist drin! 🎉 Nochmal tippen nimmt ihn wieder raus.": "You're in! 🎉 Tap again to take it out.",
 "Italien": "Italy",
 "Italienisch": "Italian",
 "Jahr": "Year",
@@ -669,6 +673,8 @@ const I18N = (() => {
 "Musikerkennung einrichten": "Set up music recognition",
 "Nach Updates suchen": "Check for updates",
 "Nach diesem Titel": "After this track",
+"Nach hinten": "Move down",
+"Nach vorne": "Move up",
 "Nachtmodus (leise Lautheit)": "Night mode (quiet loudness)",
 "Name eingeben": "Enter name",
 "Name ändern": "Change name",
@@ -683,6 +689,7 @@ const I18N = (() => {
 "Neue Länge": "New length",
 "Neue Songs kommen mit diesem Namen in die Warteschlange.": "New songs are added to the queue under this name.",
 "Neue Version": "New version",
+"Neuer Wunsch": "New request",
 "Neueste": "Newest",
 "Nicht gespeichert – im Offline-Modus nicht spielbar": "Not saved – can't play in offline mode",
 "Nicht jedes Lied ist bei lrclib.net eingetragen – bei Wortbeiträgen, Werbung oder Nachrichten gibt es keinen.": "Not every song is listed on lrclib.net – there are none for talk, ads or news.",
@@ -816,6 +823,7 @@ const I18N = (() => {
 "Radio hören": "Listen to radio",
 "Radiosender …": "Radio station …",
 "Raum": "Room",
+"Rausgenommen.": "Taken out.",
 "Reihenfolge": "Order",
 "Reihenfolge von Hand festgelegt – „Fair abwechseln“ ist jetzt aus.": "Order set by hand – “Take turns fairly” is now off.",
 "Rock-Klassiker": "Rock classics",
@@ -1050,11 +1058,14 @@ const I18N = (() => {
 "Welle": "Wave",
 "Wellen für Bass, Mitten und Höhen": "Waves for bass, mids and highs",
 "Wenn ein Link nicht mehr funktioniert, hilft meist „Aktualisieren“ – Webseiten ändern sich häufig.": "If a link stops working, “Update” usually helps – websites change often.",
+"Wer ist wann dran?": "Who's up when?",
 "Wer singt?": "Who's singing?",
 "Werkzeuge": "Tools",
 "Wie heißt du?": "What's your name?",
 "Wieder entfernen": "Remove again",
 "Wieder hier zeigen": "Show here again",
+"Wieder rausgenommen.": "Taken out again.",
+"Wieder rausnehmen": "Take out",
 "Wiedergabe beenden": "Stop playback",
 "Wiedergabeliste": "Playlist",
 "Wiederholen: alle (R)": "Repeat: all (R)",
@@ -1302,6 +1313,7 @@ const I18N = (() => {
 "→ Name „SongGrabber“, Version „1“ → speichern.": "→ name “SongGrabber”, version “1” → save.",
 "★ Favorit – wird für unterwegs gespeichert (Karaoke-Ordner).": "★ Favorite – saved for offline use (Karaoke folder).",
 "★ Favoriten": "★ Favorites",
+"✓ Drin": "✓ Added",
 "✓ Gefunden": "✓ Found",
 "✓ Musikdaten gefunden": "✓ Music data found",
 "🎉 Party-Modus": "🎉 Party mode",
@@ -1313,7 +1325,7 @@ const I18N = (() => {
 "🔴 Beim Singen aufnehmen": "🔴 Record while singing",
 "🪙 Die Münze sagt:": "🪙 The coin says:"
 };
-  const PATS = [["Lese Titel (\\d+) von CD …", "Reading track $1 from CD …"], ["Titel (\\d+) umwandeln", "Converting track $1"], ["Erkenne Titel (\\d+)/(\\d+) …", "Recognizing track $1/$2 …"], ["Fertig · (\\d+) von (\\d+)", "Done · $1 of $2"], ["Fertig · ", "Done · "], ["Fertig: ", "Done: "], ["Fehler: ", "Error: "], ["(\\d+) Fehler\\b", "$1 errors"], ["Lädt herunter … ([\\d.]+) MB", "Downloading … $1 MB"], ["Lädt … ([\\d.]+) MB", "Loading … $1 MB"], ["Tags von (\\d+) Titeln bearbeiten", "Edit tags of $1 tracks"], ["(\\d+) von (\\d+) Titeln", "$1 of $2 tracks"], ["(\\d+) von (\\d+) ausgewählt", "$1 of $2 selected"], ["(\\d+) von (\\d+) Favoriten offline gespeichert", "$1 of $2 favorites saved offline"], ["(\\d+) werden geladen", "$1 loading"], ["Song (\\d+) von (\\d+)", "Song $1 of $2"], ["ca\\. (\\d+) MB als", "approx. $1 MB as"], ["vor (\\d+) Min\\.", "$1 min ago"], ["vor (\\d+) Std\\.", "$1 h ago"], ["vor (\\d+) Tagen", "$1 days ago"], ["vor 1 Tag", "1 day ago"], ["(\\d+) Titel geladen", "$1 tracks downloaded"], ["Geprüft ", "Checked "], ["zuletzt neu", "last new"], ["ohne Live", "without live"], ["gehört ✓", "played ✓"], ["Stimme ([+\\-]?\\d+) dB", "Voice $1 dB"], ["🔊 Systemsound – ", "🔊 System sound – "], ["DVD-Titel (\\d+)", "DVD title $1"], ["Übertragen: ", "Transfer: "], ["Tags für (.+?) werden nicht unterstützt\\.", "Tags are not supported for $1."], ["Zu wenig Platz: ([\\d.,]+) GB nötig, ([\\d.,]+) GB frei\\.", "Not enough space: $1 GB needed, $2 GB free."], ["Laufwerk (\\S+) kann nicht geöffnet werden", "Drive $1 can't be opened"], ["Ist dein Benutzer in der Gruppe „cdrom“ bzw\\. „optical“\\?", "Is your user in the group “cdrom” or “optical”?"], ["Titel enthält „(.+?)“", "Title contains “$1”"], ["yt-dlp ist aktuell", "yt-dlp is up to date"], ["\\((\\d+) Titel\\)", "($1 tracks)"], ["(\\d+) Titel\\b", "$1 tracks"], ["(\\d+) Dateien\\b", "$1 files"], ["\\bTitel (\\d+)/(\\d+)", "Track $1/$2"], ["\\bTitel (\\d+)\\b", "Track $1"], ["(\\d+) Eingänge, (\\d+) Ausgänge", "$1 inputs, $2 outputs"], ["Aufnahme (\\d+)", "Recording $1"], ["^Laufwerk ", "Drive "], ["\\(empfohlen\\)", "(recommended)"], ["· maximal$", "· maximum"], ["\\(leise\\)", "(quiet)"], ["\\(Rauschen\\)", "(noise)"], ["\\(Seitenende\\)", "(end of side)"], ["Bildschirm (\\d+)", "Screen $1"], ["min aufgenommen", "min recorded"], ["über (iTunes|MusicBrainz|Deezer)", "via $1"], ["^Gefunden: ", "Found: "], ["^Abbild: ", "Image: "], ["· minimiert", "· minimized"], ["([\\d.,]+ \\w?B) bisher", "$1 so far"], ["lädt (\\d+) %", "loading $1 %"], ["Playlist „(.+?)“ erstellt", "Playlist “$1” created"], ["(\\d+) Playlists erstellt", "$1 playlists created"], ["· noch ", "· remaining "], ["… und (\\d+) weitere", "… and $1 more"], ["^Abonniert: ", "Subscribed: "], ["“ abonniert", "” subscribed"], ["Empfohlen · ", "Recommended · "], ["GB frei ·", "GB free ·"], ["· Live-Auftritt", "· live performance"], ["· klein$", "· small"], ["(\\d+) Bit\\b", "$1 bit"], ["44,1 kHz", "44.1 kHz"], ["\\(CD-Qualität\\)", "(CD quality)"], ["Abtastrate wie Quelle", "sample rate as source"], ["· verlustfrei", "· lossless"], ["\\(Hauptbildschirm\\)", "(main screen)"], ["^Tonart ([+−]\\d)$", "Key $1"], ["^Jetzt singt (.+)$", "Now singing: $1"], ["^noch (\\d+) vor dir$", "$1 ahead of you"], ["^Tempo (\\d+) %$", "Tempo $1 %"], ["Du hast schon (\\d+) Songs in der Warteschlange – erst mal singen! 🎤", "You already have $1 songs in the queue – sing first! 🎤"], ["^Unter den gespeicherten Songs ist nichts mit „(.+)“\\.$", "Nothing matching “$1” among your saved songs."], ["^Offline-Modus: nur die (\\d+) gespeicherten Songs – auch auf den Handys\\.$", "Offline mode: only your $1 saved songs – on the phones too."], ["^(\\d+) Songs in der Warteschlange sind nicht gespeichert – sie werden übersprungen\\.$", "$1 songs in the queue aren't saved – they'll be skipped."], ["^Übersprungen \\(nicht gespeichert\\): (.+)$", "Skipped (not saved): $1"], ["^⚔️ Battle: (.+) gegen (.+)$", "⚔️ Battle: $1 vs. $2"], ["^⚔️ (.+) gegen (.+)$", "⚔️ $1 vs. $2"], ["^🏆 (.+) gewinnt!$", "🏆 $1 wins!"]].map(([re, to]) => [new RegExp(re, "gu"), to]);
+  const PATS = [["Lese Titel (\\d+) von CD …", "Reading track $1 from CD …"], ["Titel (\\d+) umwandeln", "Converting track $1"], ["Erkenne Titel (\\d+)/(\\d+) …", "Recognizing track $1/$2 …"], ["Fertig · (\\d+) von (\\d+)", "Done · $1 of $2"], ["Fertig · ", "Done · "], ["Fertig: ", "Done: "], ["Fehler: ", "Error: "], ["(\\d+) Fehler\\b", "$1 errors"], ["Lädt herunter … ([\\d.]+) MB", "Downloading … $1 MB"], ["Lädt … ([\\d.]+) MB", "Loading … $1 MB"], ["Tags von (\\d+) Titeln bearbeiten", "Edit tags of $1 tracks"], ["(\\d+) von (\\d+) Titeln", "$1 of $2 tracks"], ["(\\d+) von (\\d+) ausgewählt", "$1 of $2 selected"], ["(\\d+) von (\\d+) Favoriten offline gespeichert", "$1 of $2 favorites saved offline"], ["(\\d+) werden geladen", "$1 loading"], ["Song (\\d+) von (\\d+)", "Song $1 of $2"], ["ca\\. (\\d+) MB als", "approx. $1 MB as"], ["vor (\\d+) Min\\.", "$1 min ago"], ["vor (\\d+) Std\\.", "$1 h ago"], ["vor (\\d+) Tagen", "$1 days ago"], ["vor 1 Tag", "1 day ago"], ["(\\d+) Titel geladen", "$1 tracks downloaded"], ["Geprüft ", "Checked "], ["zuletzt neu", "last new"], ["ohne Live", "without live"], ["gehört ✓", "played ✓"], ["Stimme ([+\\-]?\\d+) dB", "Voice $1 dB"], ["🔊 Systemsound – ", "🔊 System sound – "], ["DVD-Titel (\\d+)", "DVD title $1"], ["Übertragen: ", "Transfer: "], ["Tags für (.+?) werden nicht unterstützt\\.", "Tags are not supported for $1."], ["Zu wenig Platz: ([\\d.,]+) GB nötig, ([\\d.,]+) GB frei\\.", "Not enough space: $1 GB needed, $2 GB free."], ["Laufwerk (\\S+) kann nicht geöffnet werden", "Drive $1 can't be opened"], ["Ist dein Benutzer in der Gruppe „cdrom“ bzw\\. „optical“\\?", "Is your user in the group “cdrom” or “optical”?"], ["Titel enthält „(.+?)“", "Title contains “$1”"], ["yt-dlp ist aktuell", "yt-dlp is up to date"], ["\\((\\d+) Titel\\)", "($1 tracks)"], ["(\\d+) Titel\\b", "$1 tracks"], ["(\\d+) Dateien\\b", "$1 files"], ["\\bTitel (\\d+)/(\\d+)", "Track $1/$2"], ["\\bTitel (\\d+)\\b", "Track $1"], ["(\\d+) Eingänge, (\\d+) Ausgänge", "$1 inputs, $2 outputs"], ["Aufnahme (\\d+)", "Recording $1"], ["^Laufwerk ", "Drive "], ["\\(empfohlen\\)", "(recommended)"], ["· maximal$", "· maximum"], ["\\(leise\\)", "(quiet)"], ["\\(Rauschen\\)", "(noise)"], ["\\(Seitenende\\)", "(end of side)"], ["Bildschirm (\\d+)", "Screen $1"], ["min aufgenommen", "min recorded"], ["über (iTunes|MusicBrainz|Deezer)", "via $1"], ["^Gefunden: ", "Found: "], ["^Abbild: ", "Image: "], ["· minimiert", "· minimized"], ["([\\d.,]+ \\w?B) bisher", "$1 so far"], ["lädt (\\d+) %", "loading $1 %"], ["Playlist „(.+?)“ erstellt", "Playlist “$1” created"], ["(\\d+) Playlists erstellt", "$1 playlists created"], ["· noch ", "· remaining "], ["… und (\\d+) weitere", "… and $1 more"], ["^Abonniert: ", "Subscribed: "], ["“ abonniert", "” subscribed"], ["Empfohlen · ", "Recommended · "], ["GB frei ·", "GB free ·"], ["· Live-Auftritt", "· live performance"], ["· klein$", "· small"], ["(\\d+) Bit\\b", "$1 bit"], ["44,1 kHz", "44.1 kHz"], ["\\(CD-Qualität\\)", "(CD quality)"], ["Abtastrate wie Quelle", "sample rate as source"], ["· verlustfrei", "· lossless"], ["\\(Hauptbildschirm\\)", "(main screen)"], ["^Tonart ([+−]\\d)$", "Key $1"], ["^Jetzt singt (.+)$", "Now singing: $1"], ["^noch (\\d+) vor dir$", "$1 ahead of you"], ["^Tempo (\\d+) %$", "Tempo $1 %"], ["Du hast schon (\\d+) Songs in der Warteschlange – erst mal singen! 🎤", "You already have $1 songs in the queue – sing first! 🎤"], ["^Unter den gespeicherten Songs ist nichts mit „(.+)“\\.$", "Nothing matching “$1” among your saved songs."], ["^Offline-Modus: nur die (\\d+) gespeicherten Songs – auch auf den Handys\\.$", "Offline mode: only your $1 saved songs – on the phones too."], ["^(\\d+) Songs in der Warteschlange sind nicht gespeichert – sie werden übersprungen\\.$", "$1 songs in the queue aren't saved – they'll be skipped."], ["^Übersprungen \\(nicht gespeichert\\): (.+)$", "Skipped (not saved): $1"], ["^⚔️ Battle: (.+) gegen (.+)$", "⚔️ Battle: $1 vs. $2"], ["^⚔️ (.+) gegen (.+)$", "⚔️ $1 vs. $2"], ["^🏆 (.+) gewinnt!$", "🏆 $1 wins!"], ["^Wer ist wann dran\\? \\((\\d+)\\)$", "Who's up when? ($1)"]].map(([re, to]) => [new RegExp(re, "gu"), to]);
   const SKIP_TAGS = new Set(["SCRIPT", "STYLE", "TEXTAREA", "CODE", "KBD", "INPUT"]);
   const ATTRS = ["title", "placeholder", "aria-label"];
   const reEsc = s => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");

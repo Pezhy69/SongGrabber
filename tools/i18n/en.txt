@@ -1337,3 +1337,15 @@ Fair abwechseln|Take turns fairly
 wer noch nicht dran war, kommt zuerst – sonst gilt: wer zuerst wünscht, singt zuerst|whoever hasn't sung yet goes first – otherwise first requested, first sung
 Ziehen zum Verschieben|Drag to move
 Reihenfolge von Hand festgelegt – „Fair abwechseln“ ist jetzt aus.|Order set by hand – “Take turns fairly” is now off.
+Deine Songs|Your songs
+Wer ist wann dran?|Who's up when?
+✓ Drin|✓ Added
+Wieder rausgenommen.|Taken out again.
+Ist drin! 🎉 Nochmal tippen nimmt ihn wieder raus.|You're in! 🎉 Tap again to take it out.
+Rausgenommen.|Taken out.
+Nach vorne|Move up
+Nach hinten|Move down
+Wieder rausnehmen|Take out
+Beliebteste Version|Most popular version
+Aufrufe|views
+Neuer Wunsch|New request

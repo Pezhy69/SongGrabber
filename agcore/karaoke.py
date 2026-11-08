@@ -6,6 +6,7 @@ Favoriten werden als MP4 (bis 720p) im Musik-Ordner unter „Karaoke“ gespeich
 """
 import glob
 import json
+import math
 import os
 import re
 import shutil
@@ -22,6 +23,12 @@ CHANNELS = ("sing king", "karafun", "zoom karaoke", "karaoke version", "singsong
             "lugn karaoke", "singer's edge", "musisi karaoke", "sing2music", "karaokey", "the karaoke channel")
 GOOD = re.compile(r"karaoke|instrumental with lyrics|sing ?along|mitsing", re.I)
 BAD = re.compile(r"reaction|tutorial|how to sing|live|cover by|vocal coach|react|lesson|gesangsunterricht", re.I)
+# Nachgemachte oder veränderte Fassungen fliegen raus – außer man sucht ausdrücklich danach
+NOT_ORIGINAL = re.compile(r"acoustic|akustik|unplugged|piano|klavier|guitar|gitarre|ukulele|cover|8d|nightcore|slowed|sped ?up|"
+                          r"reverb|lo-?fi|remix|rmx|bachata|reggae version|jazz version|cello|violin|orchestral", re.I)
+# Hinweise auf die Original-Musik im Titel
+ORIGINAL = re.compile(r"original|official instrumental|with backing vocals|mit original|originalversion", re.I)
+LOWER = re.compile(r"(lower|higher|male|female|men|women)[ '’s]*(key|version)|\b[+-]\d ?(key|st|semitone)", re.I)
 
 # Fertige Playlists zum Losstarten (YouTube-Suchen nach Playlists), in Gruppen
 STARTERS = [
@@ -58,15 +65,23 @@ def _thumb(e):
 
 def _song(e):
     return {"id": e["id"], "title": (e.get("title") or "").strip(), "channel": e.get("channel") or e.get("uploader") or "",
-            "duration": int(e.get("duration") or 0), "thumb": _thumb(e)}
+            "duration": int(e.get("duration") or 0), "thumb": _thumb(e), "views": int(e.get("view_count") or 0)}
 
 
 LONG = re.compile(r"best of|mix|medley|non ?stop|compilation|playlist|hits|1 ?(std|stunde|hour)|vol\.? ?\d", re.I)
 
 
-def _score(s, long=False):
+def _score(s, long=False, query=""):
     t, ch = s["title"].lower(), s["channel"].lower()
     sc = 0
+    if NOT_ORIGINAL.search(t) and not NOT_ORIGINAL.search(query):
+        sc -= 12
+    if ORIGINAL.search(t):
+        sc += 2
+    if LOWER.search(t) and not LOWER.search(query):
+        sc -= 2
+    if s.get("views"):                          # beliebt = meist gut gemacht
+        sc += 1.6 * math.log10(s["views"] + 1) - 5
     if any(c in ch for c in CHANNELS):
         sc += 4
     if GOOD.search(t):
@@ -97,10 +112,50 @@ def search(query, limit=30, long=False):
     info = _run_json([f"ytsearch{int(limit)}:{q}"])
     out = [_song(e) for e in info.get("entries") or [] if e and e.get("id")]
     for s in out:
-        s["score"] = _score(s, long)
-    keep = [s for s in out if s["score"] > 0] or out
+        s["score"] = _score(s, long, query.lower())
+    # Nur echte Karaoke-Videos (mit Text zum Mitlesen und Ablauf), keine Musikvideos und keine Lyrics-Videos
+    kara = [s for s in out if GOOD.search(s["title"]) or "karaoke" in s["channel"].lower()]
+    qq = query.lower()
+    keep = [s for s in kara if not (NOT_ORIGINAL.search(s["title"]) and not NOT_ORIGINAL.search(qq)) and not BAD.search(s["title"])]
+    keep = keep or kara or [s for s in out if s["score"] > 0]
     keep.sort(key=lambda s: -s["score"])
     return keep
+
+
+_likes = {}
+_likes_sem = threading.Semaphore(4)
+
+
+def likes(ids):
+    """Daumen hoch von YouTube für einige Videos (dauert pro Video 1–3 s, daher parallel und gemerkt)."""
+    out, todo = {}, []
+    for i in ids:
+        i = str(i)
+        if not re.fullmatch(r"[\w-]{11}", i):
+            continue
+        if i in _likes:
+            out[i] = _likes[i]
+        else:
+            todo.append(i)
+
+    def one(vid):
+        with _likes_sem:
+            try:
+                r = paths.run([links._ytdlp(), "-J", "--skip-download", "--no-playlist", "--no-warnings",
+                               "https://www.youtube.com/watch?v=" + vid], timeout=40)
+                d = json.loads(r.stdout.decode("utf-8", "replace")) if r.returncode == 0 and r.stdout else {}
+                _likes[vid] = {"likes": int(d.get("like_count") or 0), "views": int(d.get("view_count") or 0)}
+            except Exception:  # noqa: BLE001
+                _likes[vid] = {"likes": 0, "views": 0}
+    ts = [threading.Thread(target=one, args=(v,), daemon=True) for v in todo]
+    for t in ts:
+        t.start()
+    for t in ts:
+        t.join(45)
+    for v in todo:
+        if v in _likes:
+            out[v] = _likes[v]
+    return out
 
 
 def playlists(query):

@@ -1010,8 +1010,19 @@ const Kara = (() => {
     const f = favOf(s.id), badge = f ? (f.offline ? `<span class="badge2 off">✓ offline</span>` : f.loading != null ? `<span class="badge2 load">lädt ${Math.round(f.loading * 100)} %</span>` : f.error ? `<span class="badge2">Fehler</span>` : `<span class="badge2">nur online</span>`) : "";
     const na = K.offline && !(f && f.offline);
     return `<div class="ka-card${na ? " na" : ""}" data-id="${esc(s.id)}"${na ? ` title="${esc(T("Nicht gespeichert – im Offline-Modus nicht spielbar"))}"` : ""}><div class="ka-th" style="background-image:url('${esc(s.thumb || "")}')">${badge}<em>${durTxt(s.duration)}</em><div class="play"><svg><use href="#i-play"/></svg></div></div>
-      <div class="ka-info"><b title="${esc(s.title)}">${esc(s.title)}</b><small>${esc(s.channel || "")}</small></div>
+      <div class="ka-info"><b title="${esc(s.title)}">${esc(s.title)}</b><small>${esc(s.channel || "")}${statsHtml(s)}</small></div>
       <div class="ka-act"><button class="primary sm" data-a="sing"><svg><use href="#i-stage"/></svg>Singen</button><button class="ghost sm" data-a="q" title="In die Warteschlange"><svg><use href="#i-plus"/></svg></button><div class="grow"></div>${extra}<button class="ghost sm star ${f ? "on" : ""}" data-a="fav" title="${f ? "Favorit – gespeichert für offline" : "Als Favorit merken und offline speichern"}"><svg><use href="#i-star"/></svg></button></div></div>`;
+  }
+  /* Aufrufe und Daumen hoch von YouTube – damit man die guten Versionen findet */
+  const big = n => new Intl.NumberFormat(document.documentElement.lang === "en" ? "en" : "de", { notation: "compact", maximumFractionDigits: 1 }).format(n);
+  const statsHtml = s => (s.views ? ` · <span class="ka-st">${big(s.views)} <i>Aufrufe</i></span>` : "") + `<span class="ka-lk" data-lk="${esc(s.id)}">${s.likes ? ` · 👍 ${big(s.likes)}` : ""}</span>`;
+  async function loadLikes(list) {
+    const ids = list.filter(x => x.likes == null).slice(0, 10).map(x => x.id); if (!ids.length) return;
+    let r; try { r = await call("kara_likes", ids); } catch { return; }
+    for (const [id, v] of Object.entries(r || {})) {
+      list.filter(x => x.id === id).forEach(x => { x.likes = v.likes; if (v.views) x.views = v.views; });
+      if (v.likes) $$(`[data-lk="${CSS.escape(id)}"]`).forEach(e => { e.textContent = " · 👍 " + big(v.likes); });
+    }
   }
   function bind(box, list) {
     $$(".ka-card", box).forEach(c => {
@@ -1034,7 +1045,7 @@ const Kara = (() => {
     try { K.results = await call("kara_search", q, !!K.long); }
     catch (e) { K.results = []; $("#kaList").innerHTML = `<div class="ka-empty">${esc(String(e.message || e))}<br>Kein Internet? Deine <a href="#" id="kaToFav">★ Favoriten</a> laufen auch offline.</div>`; const l = $("#kaToFav"); if (l) l.onclick = ev => { ev.preventDefault(); tab("favs"); }; return; }
     $("#kaList").innerHTML = K.results.length ? K.results.map(s => card(s)).join("") : `<div class="ka-empty">Nichts gefunden – anders schreiben oder nur den Interpreten suchen.</div>`;
-    bind($("#kaList"), K.results);
+    bind($("#kaList"), K.results); loadLikes(K.results);
   }
   function findOffline(q) {
     const w = q.toLowerCase().split(/\s+/).filter(Boolean);
@@ -1490,6 +1501,15 @@ const Kara = (() => {
     call("party_sync", snap).catch(() => { });
     partyUi();
   }
+  /* Großer Hinweis bei neuen Handy-Wünschen (statt kleiner Meldung) */
+  function wishPop(a) {
+    let box = $("#kaWishes"); if (!box) { box = document.createElement("div"); box.id = "kaWishes"; box.setAttribute("aria-live", "polite"); document.body.appendChild(box); }
+    const el = document.createElement("div"); el.className = "ka-wish";
+    el.innerHTML = `<div class="kw-th" style="background-image:url('${esc(a.song.thumb && /^https:/.test(a.song.thumb) ? a.song.thumb : "")}')"></div><div class="kw-tx"><small>🎤 ${esc(T("Neuer Wunsch"))}</small><b>${esc(a.name)}</b><span>${esc(a.song.title)}</span></div>`;
+    box.appendChild(el); while (box.children.length > 3) box.firstChild.remove();
+    requestAnimationFrame(() => el.classList.add("on"));
+    setTimeout(() => { el.classList.remove("on"); setTimeout(() => el.remove(), 400); }, 7000);
+  }
   async function partyPoll() {
     if (!P.on) return;
     let r; try { r = await call("party_poll"); } catch { r = null; }
@@ -1498,8 +1518,19 @@ const Kara = (() => {
       const before = P.singers.length; P.singers = r.singers || P.singers; let changed = false;
       for (const a of r.actions || []) {
         if (a.type === "join") toast(`${a.name} macht mit 🎉`);
-        else if (a.type === "wish" && a.song) { P.n = Math.max(P.n, ...K.queue.map(e => e.n || 0)); K.queue.push({ song: a.song, singer: a.name, sid: a.sid, n: ++P.n }); changed = true; toast(`${a.name} wünscht sich: ${a.song.title}`); if (K.queue.length === 1 && K.cur) call("kara_prepare", a.song).catch(() => { }); }
-        else if (a.type === "remove") { const i = K.queue.findIndex(e => e.qid === a.qid && e.sid === a.sid); if (i >= 0) { K.queue.splice(i, 1); changed = true; } }
+        else if (a.type === "wish" && a.song) { P.n = Math.max(P.n, ...K.queue.map(e => e.n || 0)); K.queue.push({ song: a.song, singer: a.name, sid: a.sid, n: ++P.n }); changed = true; wishPop(a); if (K.queue.length === 1 && K.cur) call("kara_prepare", a.song).catch(() => { }); }
+        else if (a.type === "remove") {
+          let i = a.qid ? K.queue.findIndex(e => e.qid === a.qid && e.sid === a.sid) : -1;
+          if (i < 0 && a.id) for (let j = K.queue.length - 1; j >= 0; j--) if (K.queue[j].sid === a.sid && K.queue[j].song.id === a.id) { i = j; break; }
+          if (i >= 0) { K.queue.splice(i, 1); changed = true; }
+        }
+        else if (a.type === "move") {                // Gast schiebt einen eigenen Song vor/zurück – nur zwischen seinen eigenen Songs
+          const i = K.queue.findIndex(e => e.qid === a.qid && e.sid === a.sid);
+          if (i >= 0) {
+            let j = i + a.dir; while (j >= 0 && j < K.queue.length && K.queue[j].sid !== a.sid) j += a.dir;
+            if (j >= 0 && j < K.queue.length) { const A = K.queue[i], B = K.queue[j]; [A.n, B.n] = [B.n, A.n]; K.queue[i] = B; K.queue[j] = A; changed = true; }
+          }
+        }
       }
       if (changed) { fair(); save(); renderQueue(); }
       if (changed || before !== P.singers.length) { partyUi(); lobbyTv(); }
@@ -1798,7 +1829,7 @@ $("#btnKeepLive").onclick = () => {
 
 /* ---------------------------------------------------------------- Neu in dieser Version (bei jeder Version ergänzen!) */
 const CHANGES = [
-  ["1.13.1", ["Party: Wünsche vom Handy kommen jetzt in der Reihenfolge, in der sie gewünscht wurden – „Fair abwechseln“ gibt es als Schalter", "Warteschlange lässt sich mit der Maus umsortieren", "Karaoke-Vollbild: Die Leiste unten erscheint wieder, sobald sich die Maus bewegt"]],
+  ["1.14.0", ["<b>Party-Handy einfacher</b>: alles auf einer Seite – deine Songs oben, darunter die Suche", "Versehentlich gewünscht? <b>Nochmal auf „✓ Drin“ tippen</b> nimmt den Song wieder raus", "Eigene Songs <b>mit ↑ ↓ umsortieren</b> – direkt am Handy", "<b>Nur echte Karaoke-Videos</b> in der Suche – keine Lyrics-Videos, keine Akustik-, Klavier- oder Cover-Fassungen", "<b>Aufrufe und 👍 Likes</b> von YouTube bei jedem Treffer, die beliebteste Version steht oben", "Neue Wünsche erscheinen <b>groß</b> oben rechts mit Bild und Namen", "Wünsche kommen in der Reihenfolge, in der sie gewünscht wurden – „Fair abwechseln“ gibt es als Schalter", "Warteschlange am Rechner mit der Maus umsortieren", "Karaoke-Vollbild: Die Leiste erscheint wieder, sobald sich die Maus bewegt"]],
   ["1.13.0", ["<b>⚔️ Battle</b>: Zwei singen gegeneinander – Münzwurf, Wechsel zur Hälfte, am Ende beide Punktzahlen und ein Sieger 👑", "<b>👥 Duett</b>: zu zweit singen mit gemeinsamen Punkten", "<b>Playlists nach Sprache, Stimmung und Duetten</b>: Deutsche Songs, Zum Mitgrölen, Ruhige Balladen, Herzschmerz, Duette …", "<b>Nur offline</b>: ein Klick, und es laufen nur gespeicherte Songs – auch die Party-Handys sehen nur diese"]],
   ["1.12.0", ["<b>English</b>: SongGrabber gibt es jetzt auch auf Englisch – automatisch wie Windows oder unter Einstellungen → Sprache umschalten (mit englischer Hilfe)", "<b>Karaoke</b>: Karaoke-Videos von YouTube suchen und singen – ohne Werbung, mit fertigen Playlists (Schlager, 80er, Disney …)", "<b>Wer singt?</b> Sänger-Warteschlange mit „Jetzt singt …“ und „Als Nächstes …“", "<b>★ Favoriten offline</b>: werden im Ordner „Karaoke“ gespeichert und laufen auch ohne Internet – z. B. beim Camping", "<b>Mich aufnehmen</b>: Stimme + Musik als MP3 (auf Wunsch MP4), Stimme nachträglich lauter/leiser", "<b>🎉 Party-Modus</b>: Gäste scannen einen QR-Code und wünschen sich Songs vom Handy – faire Reihenfolge, „Als Nächstes“-Bildschirm und „Du bist dran!“ aufs Handy", "<b>Tonart ändern</b> (♭/♯): Song tiefer oder höher singen, das Tempo bleibt gleich – je Song gemerkt", "<b>Tempo</b> 75–125 %, die Tonart bleibt gleich", "Linke Leiste übersichtlich in Gruppen: Musik holen · Hören & Singen · Aufnehmen", "Besser lesbar, ruhigere Animationen – und „Animationen reduzieren“ von Windows wird beachtet", "Lichtshows schöner: Lava-Lampe mit scharfen, glänzenden Blasen, Feuerwerk explodiert im Bild, Polarlicht gestochen scharf", "<b>Fernseher-Modus</b>: Video im Vollbild auf dem zweiten Bildschirm, Bedienung bleibt auf dem Laptop", "<b>🏆 Punkte</b> nach jedem Song mit Sternen, dazu <b>Verlauf & Bestenliste</b>", "<b>Hall auf der Stimme</b> für die Aufnahme: Raum, Bühne oder Konzerthalle – auch nachträglich", "<b>Best-of &amp; Mixe</b>: lange Karaoke-Videos mit Songliste – ⏭ bzw. N springt zum nächsten Song im Video", "Zeitleiste mit Restzeit, Tasten (Leertaste, ←/→, ↑/↓, N)", "Radio: <b>Sofort mitschneiden</b> – der laufende Song von Anfang an (stoppt am Songende) oder ab jetzt, auch im Mini-Player"]],
   ["1.11.0", ["<b>Bildschirm aufnehmen</b>: Zoom, Teams, Webinar oder Live-Coaching als MP4-Video – ganzer Bildschirm oder nur ein Fenster, mit Vorschau", "Neue Lichtshows: <b>Nordlicht</b>, <b>Disco-Kugel</b>, <b>Lava-Lampe</b> und <b>Feuerwerk</b> (statt Tesla)", "Player: <b>rechte Leiste hochrollen</b> wie ein Rollo (Q) und <b>Bedienung einklappen</b> zu kleinen Knöpfen (H) – Drüberfahren zeigt alles, nach 1 Minute Ruhe passiert es von selbst", "<b>Bereich zeichnen</b>: nur einen Ausschnitt aufnehmen – z. B. nur das Video in YouTube, Zoom oder Teams", "Klar sichtbar, welcher Ton mit drauf ist: <b>Ton vom PC</b> und/oder <b>dein Mikrofon</b> – mit Pegelanzeige", "<b>Mikrofon während der Aufnahme an/aus</b> – z. B. nur kurz einschalten, um etwas zu sagen", "<b>Kleine Aufnahme-Leiste</b> oben rechts mit Uhr, Pause und Stopp – unter Windows im Video unsichtbar", "Fertiges Video direkt in SongGrabber ansehen – saubere Dateinamen ohne Emojis", "Pause, Verwerfen, auf Wunsch zusätzlich als MP3 – und beim Schließen geht keine laufende Aufnahme verloren"]],
@@ -1821,7 +1852,7 @@ const CHANGES = [
 ];
 // English change notes (recent versions only – older ones are summarized)
 const CHANGES_EN = [
-  ["1.13.1", ["Party: phone requests now play in the order they were made – “Take turns fairly” is available as a switch", "Drag songs in the queue to reorder them", "Karaoke fullscreen: the bar at the bottom comes back as soon as the mouse moves"]],
+  ["1.14.0", ["<b>Simpler party phone</b>: everything on one page – your songs at the top, search below", "Requested by mistake? <b>Tap “✓ Added” again</b> to take the song out", "<b>Reorder your own songs with ↑ ↓</b> right on the phone", "<b>Only real karaoke videos</b> in search – no lyric videos, no acoustic, piano or cover versions", "<b>Views and 👍 likes</b> from YouTube on every result, the most popular version comes first", "New requests appear <b>large</b> at the top right with picture and name", "Requests play in the order they were made – “Take turns fairly” is available as a switch", "Reorder the queue on the computer by dragging", "Karaoke fullscreen: the bar comes back as soon as the mouse moves"]],
   ["1.13.0", ["<b>⚔️ Battle</b>: two sing head to head – coin toss, switch halfway, both scores and a winner 👑 at the end", "<b>👥 Duet</b>: sing as a pair with shared points", "<b>Playlists by language, mood and duets</b>: German songs, sing-along anthems, quiet ballads, heartbreak, duets …", "<b>Offline only</b>: one click and only saved songs play – the party phones see only these too"]],
   ["1.12.0", ["<b>English</b>: SongGrabber now speaks English – automatically like Windows, or switch under Settings → Language (help included)", "<b>Karaoke</b>: search and sing karaoke videos from YouTube – without ads, with ready-made playlists (party hits, 80s, Disney …)", "<b>Who's singing?</b> Singer queue with “Now singing …” and “Up next …”", "<b>★ Favorites offline</b>: saved in the “Karaoke” folder and play without internet too – e.g. when camping", "<b>Record me</b>: voice + music as MP3 (optionally MP4), make the voice louder/quieter afterwards", "<b>🎉 Party mode</b>: guests scan a QR code and request songs from their phone – fair order, “Up next” screen and “You're up!” on the phone", "<b>Change the key</b> (♭/♯): sing a song lower or higher, the tempo stays the same – remembered per song", "<b>Tempo</b> 75–125 %, the key stays the same", "Sidebar neatly grouped: Get music · Listen & sing · Record", "Easier to read, calmer animations – and Windows “reduce animations” is respected", "Nicer light shows: lava lamp with crisp, glossy blobs, fireworks burst on screen, sharp northern lights", "<b>TV mode</b>: video fullscreen on the second screen, controls stay on the laptop", "<b>🏆 Points</b> after every song with stars, plus <b>history & leaderboard</b>", "<b>Reverb on the voice</b> for recordings: room, stage or concert hall – also afterwards", "<b>Best-of &amp; mixes</b>: long karaoke videos with a song list – ⏭ or N jumps to the next song within the video", "Timeline with remaining time, keys (space, ←/→, ↑/↓, N)", "Radio: <b>Record right away</b> – the current song from its beginning (stops at the end of the song) or from now on, also in the mini player"]],
   ["1.11.0", ["<b>Record screen</b>: Zoom, Teams, webinars or live coaching as MP4 video – whole screen or just one window, with preview", "New light shows: <b>Aurora</b>, <b>Disco ball</b>, <b>Lava lamp</b> and <b>Fireworks</b> (instead of Tesla)", "Player: <b>roll up the right bar</b> like a blind (Q) and <b>collapse the controls</b> into small buttons (H) – hovering shows everything, after 1 minute of inactivity it happens by itself", "<b>Draw an area</b>: record only part of the screen – e.g. just the video in YouTube, Zoom or Teams", "Clearly visible which sound is included: <b>PC sound</b> and/or <b>your microphone</b> – with level meter", "<b>Microphone on/off during recording</b>", "<b>Small recording bar</b> at the top right with clock, pause and stop – invisible in the video on Windows", "Watch the finished video right in SongGrabber – clean file names without emojis", "Pause, discard, optionally also as MP3 – and a running recording is never lost when closing"]],
@@ -4246,7 +4277,8 @@ const Mock = (() => {
     },
     kara_state: () => (kfav.forEach(f => { if (f.loading != null) { f.loading += .3; if (f.loading >= 1) { f.loading = null; f.offline = true; } } }), { favorites: kfav, history: khist, singers: ["Kathy", "Pezhy"], queue: [], folder: "C:\\Users\\Pezhy\\Music\\SongGrabber\\Karaoke",
       offline: !!S.settings.kara_offline, starters: [["Genre", "Party-Hits"], ["Genre", "Schlager"], ["Genre", "80er"], ["Genre", "90er"], ["Genre", "2000er"], ["Genre", "Rock-Klassiker"], ["Genre", "Pop aktuell"], ["Genre", "Disney"], ["Genre", "Kinderlieder"], ["Genre", "Weihnachten"], ["Sprache", "Deutsche Songs"], ["Sprache", "Englische Hits"], ["Sprache", "Spanisch & Latin"], ["Sprache", "Italienisch"], ["Sprache", "Französisch"], ["Sprache", "Türkisch"], ["Stimmung", "Zum Mitgrölen"], ["Stimmung", "Ruhige Balladen"], ["Stimmung", "Gute Laune"], ["Stimmung", "Herzschmerz"], ["Stimmung", "Après-Ski & Mallorca"], ["Duette", "Duette"], ["Duette", "Deutsche Duette"], ["Duette", "Disney-Duette"], ["Duette", "Musical-Duette"]].map(([g, n]) => ({ group: g, name: n, query: n.toLowerCase() + " karaoke playlist" })) }),
-    kara_search: (q, long) => new Promise(r => setTimeout(() => r(long ? [["Love Rock – Best Of Karaoke Vol. 1 (1 Stunde)", 3712], ["Rock Balladen Karaoke Mix – Nonstop", 2950], ["80s Love Songs Karaoke Medley", 1890]].map(([t, d], i) => ({ id: "L" + i, title: t, channel: "Karaoke Hits DE", duration: d, thumb: kThumb(t, i + 2) })) : kSongs(q)), 500)),
+    kara_search: (q, long) => new Promise(r => setTimeout(() => r(long ? [["Love Rock – Best Of Karaoke Vol. 1 (1 Stunde)", 3712], ["Rock Balladen Karaoke Mix – Nonstop", 2950], ["80s Love Songs Karaoke Medley", 1890]].map(([t, d], i) => ({ id: "L" + i, title: t, channel: "Karaoke Hits DE", duration: d, thumb: kThumb(t, i + 2), views: 240000 + i * 91000 })) : kSongs(q).map((x, i) => ({ ...x, views: [4200000, 1300000, 860000, 310000, 95000, 42000][i % 6] }))), 500)),
+    kara_likes: ids => new Promise(r => setTimeout(() => r(Object.fromEntries(ids.map((id, i) => [id, { likes: [38000, 12500, 7400, 2100, 640, 310][i % 6] }]))), 900)),
     radio_quick: (src, st, mode) => { qrec = { t: performance.now(), song: mode === "song" }; return Mock.radio_quick_status(); },
     radio_quick_stop: () => { qrec = null; return { active: [], done: [{ file: "C:\\Musik\\Radio-Mitschnitte\\2026-11-01 Bon Jovi – Always.mp3" }] }; },
     radio_quick_status: () => ({ active: qrec ? [{ id: "1", elapsed: Math.round((performance.now() - qrec.t) / 1000) + (qrec.song ? 74 : 0), song: qrec.song, title: "Bon Jovi - Always", finishing: false }] : [], done: [] }),

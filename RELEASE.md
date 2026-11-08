@@ -1,13 +1,23 @@
-## SongGrabber 1.13.1 – Korrekturen für die Karaoke-Party
+## SongGrabber 1.14.0 – Party-Handy einfacher, bessere Karaoke-Suche 🎤
 
-**Windows:** `SongGrabber-Setup-1.13.1.exe` herunterladen und starten (einfach über die alte Version installieren).
-**Linux:** `SongGrabber-1.13.1-linux.tar.gz` herunterladen, entpacken, im Ordner `./install.sh` ausführen. *(Erscheint hier automatisch ein paar Minuten nach der Veröffentlichung.)*
+**Windows:** `SongGrabber-Setup-1.14.0.exe` herunterladen und starten (einfach über die alte Version installieren).
+**Linux:** `SongGrabber-1.14.0-linux.tar.gz` herunterladen, entpacken, im Ordner `./install.sh` ausführen. *(Erscheint hier automatisch ein paar Minuten nach der Veröffentlichung.)*
 
-### Behoben
-- **Party-Warteschlange**: Wünsche vom Handy kommen jetzt in der Reihenfolge, in der sie gewünscht wurden – nichts wird mehr nach hinten geschoben. Wer es anders will, schaltet **Fair abwechseln** ein (wer noch nicht gesungen hat, kommt zuerst).
-- **Warteschlange umsortieren**: Songs lassen sich mit der Maus an eine andere Stelle ziehen.
-- **Karaoke-Vollbild**: Die Leiste unten erscheint wieder, sobald sich die Maus bewegt, und verschwindet nach 2,5 Sekunden Ruhe.
+### Party-Handy – einfacher (getestet auf einer echten Party 🎉)
+- **Alles auf einer Seite**: oben die eigenen Songs, darunter die Suche – keine Reiter mehr
+- **Aus Versehen gewünscht?** Nochmal auf „✓ Drin“ tippen nimmt den Song wieder raus
+- **Eigene Songs umsortieren** mit ↑ ↓ direkt am Handy, ✕ nimmt sie raus
+- **Reihenfolge wie gewünscht**: wer zuerst wünscht, singt zuerst – „Fair abwechseln“ gibt es als Schalter
 
-*English:* Party requests now play in the order they were made (optional “Take turns fairly” switch), the queue can be reordered by dragging, and in karaoke fullscreen the bottom bar comes back when the mouse moves.
+### Bessere Karaoke-Suche
+- **Nur echte Karaoke-Videos**: keine Lyrics-Videos, keine Akustik-, Klavier-, Cover- oder Remix-Fassungen
+- **Aufrufe und 👍 Likes** von YouTube bei jedem Treffer – die beliebteste Version steht oben und ist markiert
+
+### Am Rechner
+- Neue Wünsche erscheinen **groß** oben rechts mit Bild und Namen
+- Warteschlange mit der Maus umsortieren
+- Karaoke-Vollbild: Die Leiste erscheint wieder, sobald sich die Maus bewegt
+
+*English:* Simpler party phone page (everything on one page, tap again to take a song out, reorder your songs with ↑ ↓), requests play in the order they were made, karaoke search shows only real karaoke videos with YouTube views and likes, big request pop-ups on the computer, drag to reorder the queue, and the fullscreen bar comes back on mouse move.
 
 Windows zeigt beim ersten Start evtl. „Der Computer wurde durch Windows geschützt“ → *Weitere Informationen* → *Trotzdem ausführen*.

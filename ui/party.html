@@ -35,11 +35,6 @@
   .join p{color:var(--muted);margin:0 0 22px}
   .join form{display:grid;gap:12px;text-align:left}
   .err{color:#FF7B7B;font-size:13.5px;min-height:1.2em;margin-top:6px;text-align:center}
-  .tabs{position:fixed;left:0;right:0;bottom:0;display:grid;grid-template-columns:repeat(3,1fr);background:rgba(19,22,28,.96);backdrop-filter:blur(12px);border-top:1px solid var(--line);padding:6px 8px calc(6px + env(safe-area-inset-bottom));z-index:5}
-  .tabs button{padding:9px 4px;border-radius:12px;color:var(--muted);font-size:12.5px;font-weight:600;display:flex;flex-direction:column;align-items:center;gap:3px}
-  .tabs button span{font-size:19px;line-height:1}
-  .tabs button.on{color:var(--text);background:rgba(255,122,48,.12)}
-  .tabs b{background:var(--accent);color:#1B0C03;border-radius:9px;padding:0 6px;font-size:11px;margin-left:2px}
   .sbar{position:sticky;top:0;z-index:2;background:var(--bg);padding:2px 0 10px}
   .seg{display:flex;gap:6px;margin-top:8px}
   .seg button{flex:1;padding:8px;border-radius:10px;font-size:13px;font-weight:600;color:var(--muted);background:rgba(255,255,255,.04);border:1px solid var(--line)}
@@ -60,11 +55,29 @@
   .empty{color:var(--muted);text-align:center;padding:26px 10px;font-size:14px}
   .spin{width:22px;height:22px;border:3px solid rgba(255,255,255,.15);border-top-color:var(--accent);border-radius:50%;animation:sp .7s linear infinite;margin:24px auto}
   @keyframes sp{to{transform:rotate(360deg)}}
-  .toast{position:fixed;left:16px;right:16px;bottom:calc(84px + env(safe-area-inset-bottom));background:#20252E;border:1px solid rgba(255,255,255,.12);border-radius:13px;padding:12px 14px;font-size:14px;text-align:center;opacity:0;transform:translateY(8px);transition:opacity .2s var(--ease),transform .2s var(--ease);pointer-events:none;z-index:9}
+  .toast{position:fixed;left:16px;right:16px;bottom:calc(18px + env(safe-area-inset-bottom));background:#20252E;border:1px solid rgba(255,255,255,.12);border-radius:13px;padding:12px 14px;font-size:14px;text-align:center;opacity:0;transform:translateY(8px);transition:opacity .2s var(--ease),transform .2s var(--ease);pointer-events:none;z-index:9}
   .toast.on{opacity:1;transform:none}
   .me-name{color:var(--muted);font-size:12.5px;text-align:right;margin-top:-6px}
   .me-name button{color:var(--accent2);font-size:12.5px;padding:4px;text-decoration:underline}
   [hidden]{display:none!important}
+  body{padding-bottom:calc(40px + env(safe-area-inset-bottom))}
+  .row .sing.done{background:rgba(61,220,151,.15);color:var(--ok);font-size:13px}
+  .row .tx .st{color:var(--muted);font-size:12px;display:block;margin-top:1px}
+  .row .tx .rec{display:inline-block;margin-bottom:3px;padding:1px 7px;border-radius:7px;background:rgba(255,181,71,.16);color:var(--accent2);font-size:11.5px;font-weight:700}
+  #mine .row{border-color:rgba(255,122,48,.45);background:rgba(255,122,48,.07);padding:8px 6px 8px 4px}
+  #mine .row .tx small{color:var(--accent2);font-weight:600}
+  .mv{display:flex;gap:4px;flex:none}
+  .mv button,.row .x{width:44px;height:44px;border-radius:11px;background:rgba(255,255,255,.06);color:var(--text);font-size:18px;font-weight:700}
+  .mv button:disabled{opacity:.25}
+  .row .x{color:#FF8B8B}
+  .qbox{margin:4px 0 6px;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:0 12px}
+  .qbox summary{list-style:none;cursor:pointer;padding:13px 2px;font-weight:600;font-size:14.5px;display:flex;gap:8px;align-items:center}
+  .qbox summary::-webkit-details-marker{display:none}
+  .qbox summary::after{content:"›";margin-left:auto;font-size:22px;color:var(--muted);transition:transform .2s}
+  .qbox[open] summary::after{transform:rotate(90deg)}
+  .qbox .list{padding-bottom:12px}
+  .qbox .row{padding:6px 8px}
+  .me-name{text-align:center;margin:22px 0 0}
   @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
   .offnote{display:flex;gap:9px;align-items:center;margin:4px 0 10px;padding:11px 13px;border-radius:12px;background:rgba(80,200,140,.1);border:1px solid rgba(80,200,140,.35);font-size:14px}
 </style>
@@ -83,7 +96,12 @@
 <section id="vMain" hidden>
   <div class="you" id="you">Du bist als Nächstes dran! 🎤</div>
   <div class="card now"><div class="ic">🎶</div><div style="min-width:0"><small id="nowL">Gerade läuft</small><b id="nowT">Noch nichts – wünsch dir einen Song!</b></div></div>
-  <div class="me-name"><span id="meName"></span> · <button id="bRename">Name ändern</button></div>
+
+  <div id="mineBox" hidden>
+    <h3>Deine Songs</h3>
+    <div class="list" id="mine"></div>
+  </div>
+  <details class="qbox" id="qBox"><summary><span>📋</span> <span id="qSum">Wer ist wann dran?</span></summary><div class="list q" id="queue"></div></details>
 
   <div id="pSearch">
     <div class="sbar">
@@ -94,22 +112,7 @@
     <h3 id="resHead">Schon gespeichert – geht auch ohne Internet</h3>
     <div class="list" id="res"></div>
   </div>
-
-  <div id="pMine" hidden>
-    <h3>Meine Songs</h3>
-    <div class="list" id="mine"></div>
-  </div>
-
-  <div id="pQueue" class="q" hidden>
-    <h3>So geht's weiter</h3>
-    <div class="list" id="queue"></div>
-  </div>
-
-  <nav class="tabs">
-    <button class="on" data-p="pSearch"><span>🔎</span>Suchen</button>
-    <button data-p="pMine"><span>🎤</span><em style="font-style:normal">Meine Songs</em></button>
-    <button data-p="pQueue"><span>📋</span>Reihenfolge</button>
-  </nav>
+  <div class="me-name"><span id="meName"></span> · <button id="bRename">Name ändern</button></div>
 </section>
 <div class="toast" id="toast"></div>
 
@@ -147,39 +150,57 @@ $("#fJoin").onsubmit = async e => {
 };
 $("#bRename").onclick = () => { $("#name").value = me.name || ""; me.sid ? (me.renaming = true) : 0; $("#vJoin").hidden = false; $("#vMain").hidden = true; };
 
-// Tabs
-document.querySelectorAll(".tabs button").forEach(b => b.onclick = () => {
-  document.querySelectorAll(".tabs button").forEach(x => x.classList.toggle("on", x === b));
-  ["pSearch", "pMine", "pQueue"].forEach(id => $("#" + id).hidden = id !== b.dataset.p);
-  window.scrollTo(0, 0);
-});
+const big = n => new Intl.NumberFormat(document.documentElement.lang === "en" ? "en" : "de", { notation: "compact", maximumFractionDigits: 1 }).format(n);
+const pending = new Map();   // gerade gewünscht, aber noch nicht in der Warteschlange angekommen
 
 // Suche
+function stats(s) {
+  const p = [];
+  if (s.views) p.push(`${big(s.views)} ${T("Aufrufe")}`);
+  if (s.likes) p.push(`👍 ${big(s.likes)}`);
+  return p.join(" · ");
+}
 function rowHtml(s, i) {
+  const on = wished.has(s.id), rec = i === 0 && $("#q").value.trim() && s.views;
   return `<div class="row"><div class="th" style="background-image:url('${esc(s.thumb || "")}')">${s.duration ? `<i>${dur(s.duration)}</i>` : ""}</div>
-    <div class="tx"><b>${esc(s.title)}</b><small>${esc(s.channel || "")}${s.offline ? " · ✓ offline" : ""}</small></div>
-    <button class="sing ${wished.has(s.id) ? "done" : ""}" data-i="${i}">${wished.has(s.id) ? "✓" : esc(T("Singen"))}</button></div>`;
+    <div class="tx">${rec ? `<span class="rec">⭐ ${esc(T("Beliebteste Version"))}</span>` : ""}<b>${esc(s.title)}</b><small>${esc(s.channel || "")}${s.offline ? " · ✓ offline" : ""}</small><span class="st" data-st="${esc(s.id)}">${esc(stats(s))}</span></div>
+    <button class="sing ${on ? "done" : ""}" data-i="${i}" aria-pressed="${on}">${esc(T(on ? "✓ Drin" : "Singen"))}</button></div>`;
 }
 function renderRes() {
   $("#res").innerHTML = results.length ? results.map(rowHtml).join("") : `<div class="empty">${esc(T($("#q").value.trim() ? "Nichts gefunden – anders schreiben oder nur den Interpreten suchen." : "Such oben nach deinem Lieblingssong."))}</div>`;
   document.querySelectorAll("#res .sing").forEach(b => b.onclick = () => wish(results[+b.dataset.i], b));
+}
+async function loadLikes(n) {
+  const ids = results.filter(x => x.likes == null && !x.offline).slice(0, 10).map(x => x.id); if (!ids.length) return;
+  let d; try { d = await api("likes?ids=" + ids.join(",")); } catch (e) { return; }
+  if (n !== sq) return;
+  for (const [id, v] of Object.entries(d.likes || {})) results.filter(x => x.id === id).forEach(x => { x.likes = v.likes; if (v.views) x.views = v.views; });
+  results.forEach(x => { const e = document.querySelector(`[data-st="${CSS.escape(x.id)}"]`); if (e) e.textContent = stats(x); });
 }
 let sq = 0;
 async function loadRes(text) {
   const n = ++sq;
   $("#resHead").textContent = T(text ? "Ergebnisse" : offline ? "Gespeicherte Songs" : "Schon gespeichert – geht auch ohne Internet");
   if (text) $("#res").innerHTML = `<div class="spin"></div>`;
-  try { const d = await api("search?q=" + encodeURIComponent(text) + "&long=" + (long ? 1 : 0)); if (n !== sq) return; results = d.results || []; renderRes(); }
+  try { const d = await api("search?q=" + encodeURIComponent(text) + "&long=" + (long ? 1 : 0)); if (n !== sq) return; results = d.results || []; renderRes(); if (text) loadLikes(n); }
   catch (err) { if (n === sq) $("#res").innerHTML = `<div class="empty">${esc(T(err.message))}</div>`; }
 }
 $("#fSearch").onsubmit = e => { e.preventDefault(); $("#q").blur(); loadRes($("#q").value.trim()); };
 $("#mSingle").onclick = () => { long = false; $("#mSingle").classList.add("on"); $("#mLong").classList.remove("on"); if ($("#q").value.trim()) loadRes($("#q").value.trim()); };
 $("#mLong").onclick = () => { long = true; $("#mLong").classList.add("on"); $("#mSingle").classList.remove("on"); if ($("#q").value.trim()) loadRes($("#q").value.trim()); };
 async function wish(s, btn) {
-  if (!s || wished.has(s.id)) return;
+  if (!s) return;
   btn.disabled = true;
-  try { await api("wish", { song: s }); wished.add(s.id); btn.classList.add("done"); btn.textContent = "✓"; toast("Ist drin! 🎉 Du siehst ihn unter „Meine Songs“."); setTimeout(refresh, 1300); }
-  catch (err) { toast(err.message); }
+  try {
+    if (wished.has(s.id)) {                        // nochmal tippen = wieder raus
+      await api("unwish", { id: s.id }); wished.delete(s.id); pending.delete(s.id);
+      btn.classList.remove("done"); btn.textContent = T("Singen"); toast("Wieder rausgenommen.");
+    } else {
+      await api("wish", { song: s }); wished.add(s.id); pending.set(s.id, Date.now());
+      btn.classList.add("done"); btn.textContent = T("✓ Drin"); toast("Ist drin! 🎉 Nochmal tippen nimmt ihn wieder raus.");
+    }
+    setTimeout(refresh, 1300);
+  } catch (err) { toast(err.message); }
   btn.disabled = false;
 }
 
@@ -199,11 +220,20 @@ async function refresh() {
   if (state.youNext && !lastYou && navigator.vibrate) navigator.vibrate([120, 80, 120]);
   lastYou = !!state.youNext;
   const mine = state.mine || [];
-  document.querySelector('.tabs [data-p=pMine] em').innerHTML = esc(T("Meine Songs")) + (mine.length ? ` <b>${mine.length}</b>` : "");
-  $("#mine").innerHTML = mine.length ? mine.map((e, i) => `<div class="row"><span class="pos">${e.pos}.</span><div class="th" style="background-image:url('${esc(e.thumb || "")}')"></div><div class="tx"><b>${esc(e.title)}</b><small>${esc(T(e.pos === 1 ? "Du bist als Nächstes dran" : `noch ${e.pos - 1} vor dir`))}</small></div><button class="x" data-q="${esc(e.qid)}" title="${esc(T("Wieder entfernen"))}">✕</button></div>`).join("")
-    : `<div class="empty">${esc(T("Noch keine Songs – unter „Suchen“ einfach auf Singen tippen."))}</div>`;
-  document.querySelectorAll("#mine .x").forEach(b => b.onclick = async () => { b.disabled = true; try { await api("remove", { qid: b.dataset.q }); toast("Entfernt."); setTimeout(refresh, 1200); } catch (err) { toast(err.message); } });
+  for (const [id, t] of pending) if (mine.some(e => e.id === id) || Date.now() - t > 15000) pending.delete(id);
+  const ws = new Set([...mine.map(e => e.id), ...pending.keys()]);
+  if ([...ws].join() !== [...wished].join()) { wished = ws; if (results.length) renderRes(); }
+  $("#mineBox").hidden = !mine.length;
+  $("#mine").innerHTML = mine.map((e, i) => `<div class="row"><span class="pos">${e.pos}.</span><div class="tx"><b>${esc(e.title)}</b><small>${esc(T(e.pos === 1 ? "Du bist als Nächstes dran" : `noch ${e.pos - 1} vor dir`))}</small></div>
+    ${mine.length > 1 ? `<div class="mv"><button data-m="-1" data-q="${esc(e.qid)}" ${i === 0 ? "disabled" : ""} aria-label="${esc(T("Nach vorne"))}">↑</button><button data-m="1" data-q="${esc(e.qid)}" ${i === mine.length - 1 ? "disabled" : ""} aria-label="${esc(T("Nach hinten"))}">↓</button></div>` : ""}
+    <button class="x" data-q="${esc(e.qid)}" aria-label="${esc(T("Wieder rausnehmen"))}">✕</button></div>`).join("");
+  document.querySelectorAll("#mine .x").forEach(b => b.onclick = async () => { b.disabled = true; try { await api("remove", { qid: b.dataset.q }); b.closest(".row").style.opacity = ".35"; toast("Rausgenommen."); setTimeout(refresh, 1200); } catch (err) { toast(err.message); } });
+  document.querySelectorAll("#mine .mv button").forEach(b => b.onclick = async () => {
+    document.querySelectorAll("#mine .mv button").forEach(x => x.disabled = true);
+    try { await api("move", { qid: b.dataset.q, dir: +b.dataset.m }); setTimeout(refresh, 1100); } catch (err) { toast(err.message); refresh(); }
+  });
   const q = state.queue || [];
+  $("#qSum").textContent = q.length ? T(`Wer ist wann dran? (${q.length})`) : T("Wer ist wann dran?");
   $("#queue").innerHTML = q.length ? q.map((e, i) => `<div class="row ${e.mine ? "me" : ""}"><span class="pos">${i + 1}.</span><div class="tx"><b>${esc(e.title)}</b><small>${esc(e.singer || "")}</small></div></div>`).join("")
     : `<div class="empty">${esc(T("Die Warteschlange ist leer."))}</div>`;
 }

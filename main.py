@@ -45,7 +45,8 @@ class Api:
         self._krec = karaoke.KaraRec()
         self._kscore = karaoke.KaraScore()
         from agcore import party
-        self._party = party.Party(lambda q, long=False: karaoke.search(q, long=long), self._kara.party_thumb, self._kara.party_favorites)
+        self._party = party.Party(lambda q, long=False: karaoke.search(q, long=long), self._kara.party_thumb, self._kara.party_favorites,
+                                  karaoke.likes)
         self._tv = None
         self._close_ok = False
         self._ly_cache = {}
@@ -388,6 +389,9 @@ class Api:
 
     def kara_search(self, q, long=False):
         return karaoke.search(q, long=bool(long))
+
+    def kara_likes(self, ids):
+        return karaoke.likes(list(ids or [])[:12])
 
     def kara_rec_start(self, meta):
         self._mon.stop()
