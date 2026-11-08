@@ -85,3 +85,6 @@ Du hast schon (\d+) Songs in der Warteschlange – erst mal singen! 🎤|You alr
 ^⚔️ (.+) gegen (.+)$|⚔️ $1 vs. $2
 ^🏆 (.+) gewinnt!$|🏆 $1 wins!
 ^Wer ist wann dran\? \((\d+)\)$|Who's up when? ($1)
+^Nicht gehört \((\d+) von (\d+) Klicks\)$|Not heard ($1 of $2 clicks)
+^schwankt um (\d+) ms$|varies by $1 ms
+^„(.+)“ braucht (\d+) ms länger als „(.+)“\.$|“$1” takes $2 ms longer than “$3”.

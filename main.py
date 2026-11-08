@@ -17,7 +17,7 @@ import sys
 import threading
 import time
 
-from agcore import (bridge, cleanup, karaoke, loudness, screenrec, cdrip, encoder, export, files, identify, library, links, lyrics, mediaserver, metadata,
+from agcore import (bridge, cleanup, karaoke, latency, loudness, screenrec, cdrip, encoder, export, files, identify, library, links, lyrics, mediaserver, metadata,
                     musicbrainz, paths, pipeline, podcasts, radio, recorder, streaming, subs, sysaudio, tags, trim)
 from agcore.jobs import JobManager
 
@@ -392,6 +392,14 @@ class Api:
 
     def kara_likes(self, ids):
         return karaoke.likes(list(ids or [])[:12])
+
+    def latency_devices(self):
+        """Lautsprecher und Mikrofone für die Messung der Ton-Verzögerung."""
+        mics = [d for d in recorder.devices() if not d["loopback"]]
+        return {"speakers": latency.speakers(), "mics": mics}
+
+    def latency_measure(self, speaker=None, mic=None):
+        return latency.measure(speaker or None, mic or None)
 
     def kara_rec_start(self, meta):
         self._mon.stop()

@@ -1349,3 +1349,23 @@ Wieder rausnehmen|Take out
 Beliebteste Version|Most popular version
 Aufrufe|views
 Neuer Wunsch|New request
+📏 Ton-Verzögerung messen (Fernseher / Boxen)|📏 Measure sound delay (TV / speakers)
+Wie lange braucht der Ton bis aus dem Fernseher? Vorstufe fürs Handy als Mikrofon.|How long does the sound take to come out of the TV? First step towards phones as microphones.
+Ton-Verzögerung messen|Measure sound delay
+Wie lange braucht der Ton vom Programm bis aus dem Lautsprecher? Wichtig, bevor Handys als Mikrofon über die Boxen singen sollen. SongGrabber spielt 7 kurze Klicks, das Mikrofon am Rechner hört mit.|How long does the sound take from the program to come out of the speaker? Important before phones are used as microphones through the speakers. SongGrabber plays 7 short clicks while the computer's microphone listens.
+Lautsprecher|Speaker
+Mikrofon am Rechner|Computer microphone
+Lautstärke auf normale Party-Lautstärke.|Set the volume to normal party level.
+Kurz leise sein, dann|Be quiet for a moment, then
+Messen|Measure
+Danach den anderen Lautsprecher wählen (z. B. PC-Boxen statt Fernseher) und nochmal messen – dann siehst du, was der Fernseher extra kostet.|Then pick the other speaker (e.g. PC speakers instead of the TV) and measure again – that shows how much extra the TV costs.
+Die Werte enthalten auch die kleine Verzögerung des Rechner-Mikrofons (meist 10–30 ms) – echte Werte sind also eher etwas besser. Tipp: Am Fernseher den|The values also include the small delay of the computer microphone (usually 10–30 ms) – so the real values are slightly better. Tip: switch on the TV's
+Spiel-Modus|game mode
+(Game Mode) einschalten und nochmal messen.|and measure again.
+Hör zu …|Listening …
+7 Klicks – bitte kurz leise sein (etwa 9 Sekunden)|7 clicks – please be quiet for a moment (about 9 seconds)
+Schnell – gute Grundlage für Live-Gesang.|Fast – a good basis for live singing.
+Knapp – mit Handy-Mikro kommen noch mindestens 40 ms dazu.|Borderline – a phone mic adds at least another 40 ms.
+Zu langsam für Live-Gesang über diesen Lautsprecher.|Too slow for live singing through this speaker.
+lauter stellen oder Mikro näher an den Lautsprecher|turn it up or move the mic closer to the speaker
+Kein Mikrofon am Rechner gefunden – für die Messung braucht es ein Laptop-, Webcam- oder USB-Mikro.|No microphone found on the computer – the measurement needs a laptop, webcam or USB mic.
