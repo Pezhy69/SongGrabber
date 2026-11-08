@@ -17,6 +17,7 @@ Verwendete Bibliotheken
 - mutagen – GPL-2.0-or-later · https://github.com/quodlibet/mutagen
 - SoundCard – BSD-3-Clause · https://github.com/bastibe/SoundCard
 - NumPy – BSD-3-Clause · https://numpy.org
+- cryptography – Apache-2.0 / BSD-3-Clause · https://cryptography.io (eigenes Zertifikat fürs Handy-Mikro)
 - Python – PSF-Lizenz · https://www.python.org
 
 Weil GPL-Bestandteile enthalten sind, steht auch SongGrabber selbst unter der GPL-3.0:

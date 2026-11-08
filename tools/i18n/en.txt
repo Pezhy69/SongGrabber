@@ -1369,3 +1369,42 @@ Knapp – mit Handy-Mikro kommen noch mindestens 40 ms dazu.|Borderline – a ph
 Zu langsam für Live-Gesang über diesen Lautsprecher.|Too slow for live singing through this speaker.
 lauter stellen oder Mikro näher an den Lautsprecher|turn it up or move the mic closer to the speaker
 Kein Mikrofon am Rechner gefunden – für die Messung braucht es ein Laptop-, Webcam- oder USB-Mikro.|No microphone found on the computer – the measurement needs a laptop, webcam or USB mic.
+Handy-Mikro|Phone mic
+SongGrabber Karaoke-Party · Test|SongGrabber karaoke party · test
+Dein Handy wird gleich zum Mikrofon.|Your phone is about to become a microphone.
+Tippe unten, dann fragt das Handy nach dem Mikrofon – „Zulassen“.|Tap below, then the phone asks for the microphone – tap “Allow”.
+🎤 Mikro einschalten|🎤 Turn on mic
+Bildschirm bitte anlassen. Das Handy nicht direkt vor den Lautsprecher halten – sonst pfeift es.|Please keep the screen on. Don't hold the phone right in front of the speaker – it will squeal.
+Gut – Live-Gesang über die Boxen kann klappen.|Good – live singing through the speakers can work.
+Hörbar verzögert – für Punkte und Battle gut, live über die Boxen grenzwertig.|Noticeably delayed – fine for points and battle, borderline live through the speakers.
+Zu langsam für Live-Gesang – Handy-Mikro für Punkte und Battle nutzen.|Too slow for live singing – use the phone mic for points and battle.
+📱 Mit Handy als Mikrofon testen|📱 Test with a phone as microphone
+Misst den ganzen Weg der Stimme: Handy → Rechner → Lautsprecher. Und du kannst probehalber über die Boxen singen.|Measures the voice's whole path: phone → computer → speaker. And you can try singing through the speakers.
+📱 Handy-Mikro|📱 Phone mic
+Warte auf das Handy …|Waiting for the phone …
+Handy in normalem Abstand zum Lautsprecher halten – 7 Klicks, kurz leise sein|Hold the phone at a normal distance from the speaker – 7 clicks, be quiet for a moment
+Verzögerung messen (über Handy)|Measure delay (via phone)
+Das Mikrofon geht nur über die sichere Adresse (https). Bitte den QR-Code vom Rechner nochmal scannen.|The microphone only works via the secure address (https). Please scan the QR code on the computer again.
+Mikro wird eingeschaltet …|Turning on mic …
+Kein Zugriff aufs Mikrofon – bitte „Zulassen“ tippen (oder in den Browser-Einstellungen erlauben).|No microphone access – please tap “Allow” (or allow it in the browser settings).
+Deine Stimme geht jetzt an den Rechner.|Your voice is now going to the computer.
+Nochmal auf „Mikro einschalten“ tippen.|Tap “Turn on mic” again.
+Verbinde mit dem Rechner …|Connecting to the computer …
+Stummschaltung aus|Unmute
+Stumm schalten|Mute
+Beenden|Stop
+Bereit|Ready
+Verbunden – sing los! 🎶|Connected – start singing! 🎶
+Verbindung verloren|Connection lost
+Der Rechner antwortet nicht – ist dort „Ton-Verzögerung messen“ geöffnet?|The computer doesn't answer – is “Measure sound delay” open there?
+Mit dem Handy scannen|Scan with the phone
+Das Handy zeigt einmal eine Sicherheitswarnung, weil SongGrabber sich das Zertifikat selbst ausstellt. Android: „Erweitert“ → „Weiter zu …“. iPhone: „Details einblenden“ → „Diese Website besuchen“. Dann „Mikro einschalten“ und „Zulassen“.|The phone shows a security warning once, because SongGrabber issues its own certificate. Android: “Advanced” → “Proceed to …”. iPhone: “Show Details” → “visit this website”. Then “Turn on mic” and “Allow”.
+Verbunden|Connected
+Verbindung fehlgeschlagen|Connection failed
+verbinde …|connecting …
+Stimme über Lautsprecher|Voice through speakers
+Lautstärke der Stimme|Voice volume
+📱 Handy → Lautsprecher|📱 Phone → speaker
+Kein Handy verbunden.|No phone connected.
+Vom Handy kommt kein Ton an.|No sound is arriving from the phone.
+Nicht verfügbar – die sichere Verbindung (https) ließ sich nicht starten. Details im Protokoll.|Not available – the secure connection (https) could not be started. Details in the log.

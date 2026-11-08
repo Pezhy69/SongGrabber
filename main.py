@@ -393,6 +393,9 @@ class Api:
     def kara_likes(self, ids):
         return karaoke.likes(list(ids or [])[:12])
 
+    def party_rtc_answer(self, sid, sdp):
+        return self._party.rtc_answer(sid, sdp)
+
     def latency_devices(self):
         """Lautsprecher und Mikrofone für die Messung der Ton-Verzögerung."""
         mics = [d for d in recorder.devices() if not d["loopback"]]

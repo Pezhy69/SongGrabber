@@ -18,6 +18,7 @@
 - Warteschlange mit der Maus umsortieren
 - Karaoke-Vollbild: Die Leiste erscheint wieder, sobald sich die Maus bewegt
 - **📏 Ton-Verzögerung messen**: 7 Klicks über Fernseher oder Boxen, das Rechner-Mikro hört mit – zeigt in Millisekunden, wie schnell der Ton ist (Vorstufe fürs Handy als Mikrofon)
+- **📱 Handy-Mikro (Test)**: Im selben Fenster das Handy per QR-Code als Mikrofon verbinden – misst den ganzen Weg der Stimme (Handy → Rechner → Lautsprecher) und lässt dich probehalber über die Boxen singen. Das Handy zeigt einmal eine Zertifikats-Warnung (SongGrabber stellt sich das Zertifikat selbst aus).
 
 *English:* Simpler party phone page (everything on one page, tap again to take a song out, reorder your songs with ↑ ↓), requests play in the order they were made, karaoke search shows only real karaoke videos with YouTube views and likes, big request pop-ups on the computer, drag to reorder the queue, and the fullscreen bar comes back on mouse move.
 

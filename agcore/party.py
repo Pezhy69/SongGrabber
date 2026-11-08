@@ -9,12 +9,13 @@ import json
 import os
 import secrets
 import socket
+import ssl
 import threading
 import time
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from urllib.parse import parse_qs, urlparse
 
-from . import paths
+from . import paths, tlscert
 
 MAX_BODY = 8 * 1024
 MAX_SINGERS = 60
@@ -44,6 +45,7 @@ class Party:
     def __init__(self, search, thumb_file=None, favorites=None, likes=None):
         self.search, self.thumb_file, self.favorites, self.likes = search, thumb_file, favorites, likes
         self.srv = None
+        self.tls = None                 # zweiter Server mit https – nur für die Handy-Mikro-Seite
         self.lock = threading.Lock()
         self.search_sem = threading.Semaphore(2)
         self._reset()
@@ -54,6 +56,7 @@ class Party:
         self.inbox = []             # Wünsche/Löschungen für das Hauptfenster
         self.snap = {"queue": [], "now": None, "next": None, "ts": 0}
         self.seq = 0
+        self.rtc = {}                   # sid → Antwort des Rechners (SDP) für das Handy-Mikro
 
     # ------------------------------------------------------------ Steuerung (Hauptfenster)
     def start(self):
@@ -74,12 +77,39 @@ class Party:
         self.srv.daemon_threads = True
         threading.Thread(target=self.srv.serve_forever, daemon=True, name="party").start()
         paths.log.info("Party gestartet auf Port %s", self.srv.server_address[1])
+        self._start_tls()
         return self.info()
 
+    def _start_tls(self):
+        """https-Server fürs Handy-Mikro (Browser geben das Mikrofon nur über https frei)."""
+        try:
+            pair = tlscert.ensure(lan_ip())
+            if not pair:
+                return
+            ctx = ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER)
+            ctx.load_cert_chain(*pair)
+            for port in list(range(8960, 8980)) + [0]:
+                try:
+                    srv = ThreadingHTTPServer(("0.0.0.0", port), self._handler())
+                    break
+                except OSError:
+                    srv = None
+            if not srv:
+                return
+            srv.socket = ctx.wrap_socket(srv.socket, server_side=True, do_handshake_on_connect=False)
+            srv.daemon_threads = True
+            self.tls = srv
+            threading.Thread(target=srv.serve_forever, daemon=True, name="party-tls").start()
+        except Exception as e:  # noqa: BLE001 – ohne https geht alles außer dem Handy-Mikro
+            paths.log.warning("Handy-Mikro (https) nicht verfügbar: %s", e)
+            self.tls = None
+
     def stop(self):
-        srv, self.srv = self.srv, None
-        if srv:
-            threading.Thread(target=lambda: (srv.shutdown(), srv.server_close()), daemon=True).start()
+        for attr in ("srv", "tls"):
+            srv = getattr(self, attr)
+            setattr(self, attr, None)
+            if srv:
+                threading.Thread(target=lambda s=srv: (s.shutdown(), s.server_close()), daemon=True).start()
         self._reset()
         return True
 
@@ -87,8 +117,15 @@ class Party:
         if not self.srv:
             return {"on": False}
         ip, port = lan_ip(), self.srv.server_address[1]
-        return {"on": True, "url": f"http://{ip}:{port}/p/{self.token}/", "ip": ip, "port": port,
+        mic = f"https://{ip}:{self.tls.server_address[1]}/p/{self.token}/mic" if self.tls else ""
+        return {"on": True, "url": f"http://{ip}:{port}/p/{self.token}/", "ip": ip, "port": port, "mic_url": mic,
                 "singers": self._singers()}
+
+    def rtc_answer(self, sid, sdp):
+        """Antwort des Rechners fürs Handy-Mikro hinterlegen; das Handy holt sie ab."""
+        with self.lock:
+            self.rtc[str(sid)] = str(sdp or "")
+        return True
 
     def poll(self):
         """Neue Wünsche abholen (vom Hauptfenster etwa jede Sekunde)."""
@@ -230,6 +267,22 @@ class Party:
             with self.lock:
                 self.inbox.append({"type": "move", "sid": sid, "qid": body.get("qid"), "dir": d})
             return 200, {"ok": True}
+        if path == "rtc_offer":                   # Handy-Mikro: Verbindungsangebot des Handys an den Rechner
+            sdp = str(body.get("sdp") or "")
+            if not sdp.startswith("v=0") or len(sdp) > 6000:
+                return 400, {"error": "Ungültig."}
+            with self.lock:
+                self.rtc.pop(sid, None)
+                self.inbox.append({"type": "rtc_offer", "sid": sid, "name": me["name"], "sdp": sdp})
+            return 200, {"ok": True}
+        if path == "rtc_answer":
+            with self.lock:
+                return 200, {"sdp": self.rtc.get(sid) or None}
+        if path == "rtc_bye":
+            with self.lock:
+                self.rtc.pop(sid, None)
+                self.inbox.append({"type": "rtc_bye", "sid": sid})
+            return 200, {"ok": True}
         if path == "likes":
             ids = [i for i in (q.get("ids") or [""])[0].split(",") if i][:12]
             try:
@@ -255,7 +308,8 @@ class Party:
     def _handler(self):
         party = self
         ui = os.path.join(paths.res_dir(), "ui")
-        files = {"": ("party.html", "text/html; charset=utf-8"), "i18n.js": ("i18n.js", "text/javascript; charset=utf-8"),
+        files = {"": ("party.html", "text/html; charset=utf-8"), "mic": ("mic.html", "text/html; charset=utf-8"),
+                 "i18n.js": ("i18n.js", "text/javascript; charset=utf-8"),
                  "logo.png": ("logo.png", "image/png")}
 
         class H(BaseHTTPRequestHandler):

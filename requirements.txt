@@ -1,6 +1,7 @@
 pywebview>=5.0
 soundcard>=0.4.3
 numpy>=1.24
+cryptography>=42
 mutagen>=1.47
 send2trash>=1.8
 jeepney>=0.8; sys_platform == "linux"

@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#0B0D11">
+<title>Handy-Mikro</title>
+<style>
+  :root{--bg:#0B0D11;--card:#181C23;--line:rgba(255,255,255,.08);--text:#ECEEF3;--muted:#9AA2B1;--accent:#FF7A30;--accent2:#FFB547;--grad:linear-gradient(135deg,#FFB547,#FF7A30 55%,#FF5A3C);--ok:#3DDC97;--ease:cubic-bezier(.23,1,.32,1)}
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html,body{margin:0;background:var(--bg);color:var(--text);font:16px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+  body{padding:max(18px,env(safe-area-inset-top)) 18px 30px;min-height:100vh;display:flex;flex-direction:column}
+  button,input{font:inherit;color:inherit}
+  button{cursor:pointer;border:0;background:none;touch-action:manipulation;transition:transform .12s var(--ease),opacity .15s}
+  button:active{transform:scale(.97)}
+  .top{display:flex;align-items:center;gap:10px;margin-bottom:22px}
+  .top img{width:34px;height:34px;border-radius:9px}
+  .top b{font-size:17px}.top small{display:block;color:var(--muted);font-size:12.5px}
+  h1{font-size:25px;margin:6px 0 8px;text-align:center}
+  p{color:var(--muted);text-align:center;margin:0 0 22px}
+  .primary{background:var(--grad);color:#1B0C03;font-weight:800;border-radius:16px;padding:18px;width:100%;font-size:18px}
+  .ghost{background:rgba(255,255,255,.07);border:1px solid var(--line);border-radius:14px;padding:14px;width:100%;font-weight:700}
+  input{width:100%;background:#0F1217;border:1px solid rgba(255,255,255,.14);border-radius:14px;padding:15px;font-size:17px;outline:none;margin-bottom:12px}
+  .big{flex:1;display:flex;flex-direction:column;justify-content:center;gap:14px}
+  .mic{width:150px;height:150px;border-radius:50%;margin:0 auto 6px;display:grid;place-items:center;font-size:62px;background:rgba(255,122,48,.12);border:2px solid rgba(255,122,48,.35);position:relative}
+  .mic.on{background:rgba(61,220,151,.12);border-color:rgba(61,220,151,.55)}
+  .mic i{position:absolute;inset:-10px;border-radius:50%;border:3px solid var(--ok);opacity:0;transform:scale(var(--l,1));transition:transform .08s linear,opacity .2s}
+  .mic.on i{opacity:.8}
+  .st{text-align:center;font-weight:700;font-size:17px}
+  .st small{display:block;color:var(--muted);font-weight:400;font-size:14px;margin-top:4px}
+  .err{color:#FF8B8B;text-align:center;font-size:14.5px;min-height:1.3em}
+  .muted{opacity:.45}
+  [hidden]{display:none!important}
+</style>
+</head>
+<body>
+<div class="top"><img src="logo.png" alt=""><div><b>Handy-Mikro</b><small>SongGrabber Karaoke-Party · Test</small></div></div>
+
+<section id="vJoin" class="big" hidden>
+  <div style="font-size:46px;text-align:center">🎤</div>
+  <h1>Wie heißt du?</h1>
+  <p>Dein Handy wird gleich zum Mikrofon.</p>
+  <form id="fJoin"><input id="name" maxlength="40" autocomplete="nickname" placeholder="Dein Name" enterkeyhint="go"><button class="primary">Weiter</button></form>
+</section>
+
+<section id="vMic" class="big" hidden>
+  <div class="mic" id="micIc"><i></i>🎤</div>
+  <div class="st" id="st">Bereit<small id="stS">Tippe unten, dann fragt das Handy nach dem Mikrofon – „Zulassen“.</small></div>
+  <button class="primary" id="bStart">🎤 Mikro einschalten</button>
+  <button class="ghost" id="bMute" hidden>Stumm schalten</button>
+  <button class="ghost" id="bStop" hidden>Beenden</button>
+  <div class="err" id="err"></div>
+  <p style="font-size:13.5px;margin:6px 0 0">Bildschirm bitte anlassen. Das Handy nicht direkt vor den Lautsprecher halten – sonst pfeift es.</p>
+</section>
+
+<script src="i18n.js"></script>
+<script>
+"use strict";
+const $ = s => document.querySelector(s);
+const BASE = location.pathname.replace(/[^/]*$/, "");
+const KEY = "sgMic:" + BASE;
+let me = {}; try { me = JSON.parse(localStorage.getItem(KEY) || "{}"); } catch (e) { me = {}; }
+let pc = null, stream = null, lock = null, raf = 0, actx = null;
+const t = s => (window.T ? T(s) : s);
+
+async function api(path, body) {
+  const url = BASE + "api/" + path + (path.includes("?") ? "&" : "?") + "sid=" + encodeURIComponent(me.sid || "");
+  const r = await fetch(url, body ? { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(Object.assign({ sid: me.sid }, body)) } : {});
+  let d = {}; try { d = await r.json(); } catch (e) { }
+  if (!r.ok) { if (d.rejoin) { me = {}; save(); show(); } throw new Error(d.error || ("Fehler " + r.status)); }
+  return d;
+}
+function save() { try { localStorage.setItem(KEY, JSON.stringify(me)); } catch (e) { } }
+function show() { $("#vJoin").hidden = !!me.sid; $("#vMic").hidden = !me.sid; }
+function status(a, b) { $("#st").firstChild.textContent = t(a); $("#stS").textContent = b ? t(b) : ""; }
+
+$("#fJoin").onsubmit = async e => {
+  e.preventDefault(); const name = $("#name").value.trim(); if (!name) return;
+  try { const d = await api("join", { name }); me = { sid: d.sid, name: d.name }; save(); show(); } catch (err) { alert(err.message); }
+};
+
+// Opus mit kurzen Paketen (10 ms) und ohne Extras – so wenig Verzögerung wie möglich
+function fast(sdp) {
+  const m = sdp.match(/a=rtpmap:(\d+) opus\/48000/i); if (!m) return sdp;
+  const pt = m[1];
+  sdp = sdp.replace(new RegExp("a=fmtp:" + pt + " ([^\\r\\n]*)"), (_, p) => "a=fmtp:" + pt + " " + p.replace(/;?(minptime|useinbandfec|stereo|maxplaybackrate)=[^;]*/g, "") + ";minptime=10;useinbandfec=0;stereo=0");
+  if (!/a=ptime:/.test(sdp)) sdp = sdp.replace(/(m=audio[^\r\n]*\r\n)/, "$1a=ptime:10\r\n");
+  return sdp.replace(/;;+/g, ";").replace(/ ;/g, " ");
+}
+function iceDone(p) {
+  return new Promise(ok => {
+    if (p.iceGatheringState === "complete") return ok();
+    const f = () => { if (p.iceGatheringState === "complete") { p.removeEventListener("icegatheringstatechange", f); ok(); } };
+    p.addEventListener("icegatheringstatechange", f); setTimeout(ok, 2500);
+  });
+}
+function meter() {
+  if (!stream) return;
+  actx = actx || new (window.AudioContext || window.webkitAudioContext)();
+  const an = actx.createAnalyser(); an.fftSize = 512; actx.createMediaStreamSource(stream).connect(an);
+  const buf = new Float32Array(an.fftSize);
+  const tick = () => { an.getFloatTimeDomainData(buf); let p = 0; for (const x of buf) p = Math.max(p, Math.abs(x)); $("#micIc").style.setProperty("--l", 1 + Math.min(.35, p * .8)); raf = requestAnimationFrame(tick); };
+  tick();
+}
+async function start() {
+  $("#err").textContent = "";
+  if (!window.isSecureContext || !navigator.mediaDevices) { $("#err").textContent = t("Das Mikrofon geht nur über die sichere Adresse (https). Bitte den QR-Code vom Rechner nochmal scannen."); return; }
+  $("#bStart").disabled = true; status("Mikro wird eingeschaltet …");
+  try {
+    stream = await navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: false, noiseSuppression: false, autoGainControl: false, channelCount: 1, latency: 0 }, video: false });
+  } catch (e) { $("#bStart").disabled = false; status("Bereit"); $("#err").textContent = t("Kein Zugriff aufs Mikrofon – bitte „Zulassen“ tippen (oder in den Browser-Einstellungen erlauben)."); return; }
+  try {
+    pc = new RTCPeerConnection({ iceServers: [] });
+    pc.addTransceiver(stream.getAudioTracks()[0], { direction: "sendonly", streams: [stream] });
+    pc.onconnectionstatechange = () => {
+      const s = pc && pc.connectionState;
+      if (s === "connected") { status("Verbunden – sing los! 🎶", "Deine Stimme geht jetzt an den Rechner."); $("#micIc").classList.add("on"); }
+      else if (s === "failed" || s === "disconnected") { status("Verbindung verloren", "Nochmal auf „Mikro einschalten“ tippen."); stop(true); }
+    };
+    const off = await pc.createOffer(); off.sdp = fast(off.sdp);
+    await pc.setLocalDescription(off); await iceDone(pc);
+    status("Verbinde mit dem Rechner …");
+    await api("rtc_offer", { sdp: pc.localDescription.sdp });
+    let ans = null;
+    for (let i = 0; i < 40 && !ans; i++) { await new Promise(ok => setTimeout(ok, 500)); const d = await api("rtc_answer"); ans = d.sdp; }
+    if (!ans) throw new Error(t("Der Rechner antwortet nicht – ist dort „Ton-Verzögerung messen“ geöffnet?"));
+    await pc.setRemoteDescription({ type: "answer", sdp: ans });
+    $("#bStart").hidden = true; $("#bMute").hidden = false; $("#bStop").hidden = false;
+    meter();
+    try { if (navigator.wakeLock) lock = await navigator.wakeLock.request("screen"); } catch (e) { }
+  } catch (e) { $("#err").textContent = e.message || String(e); stop(true); }
+}
+function stop(keepMsg) {
+  cancelAnimationFrame(raf);
+  if (pc) { try { pc.close(); } catch (e) { } pc = null; }
+  if (stream) { stream.getTracks().forEach(x => x.stop()); stream = null; }
+  if (lock) { try { lock.release(); } catch (e) { } lock = null; }
+  api("rtc_bye", {}).catch(() => { });
+  $("#micIc").classList.remove("on"); $("#bStart").hidden = false; $("#bStart").disabled = false; $("#bMute").hidden = true; $("#bStop").hidden = true;
+  if (!keepMsg) status("Bereit", "Tippe unten, dann fragt das Handy nach dem Mikrofon – „Zulassen“.");
+}
+$("#bStart").onclick = start;
+$("#bStop").onclick = () => stop();
+$("#bMute").onclick = () => {
+  const tr = stream && stream.getAudioTracks()[0]; if (!tr) return;
+  tr.enabled = !tr.enabled; $("#bMute").textContent = t(tr.enabled ? "Stumm schalten" : "Stummschaltung aus"); $("#micIc").classList.toggle("muted", !tr.enabled);
+};
+document.addEventListener("visibilitychange", async () => { if (!document.hidden && pc && navigator.wakeLock && !lock) { try { lock = await navigator.wakeLock.request("screen"); } catch (e) { } } });
+show();
+if (window.I18N) I18N.start();
+</script>
+</body>
+</html>

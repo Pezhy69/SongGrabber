@@ -1518,6 +1518,8 @@ const Kara = (() => {
       const before = P.singers.length; P.singers = r.singers || P.singers; let changed = false;
       for (const a of r.actions || []) {
         if (a.type === "join") toast(`${a.name} macht mit 🎉`);
+        else if (a.type === "rtc_offer") { if (window.MicRx) MicRx.offer(a); }
+        else if (a.type === "rtc_bye") { if (window.MicRx) MicRx.bye(a); }
         else if (a.type === "wish" && a.song) { P.n = Math.max(P.n, ...K.queue.map(e => e.n || 0)); K.queue.push({ song: a.song, singer: a.name, sid: a.sid, n: ++P.n }); changed = true; wishPop(a); if (K.queue.length === 1 && K.cur) call("kara_prepare", a.song).catch(() => { }); }
         else if (a.type === "remove") {
           let i = a.qid ? K.queue.findIndex(e => e.qid === a.qid && e.sid === a.sid) : -1;
@@ -1539,7 +1541,7 @@ const Kara = (() => {
   }
   async function partyStart() {
     let r; try { r = await call("party_start"); } catch (e) { toast(String(e.message || e), "err"); return; }
-    Object.assign(P, { on: true, url: r.url, singers: r.singers || [], synced: "" });
+    Object.assign(P, { on: true, url: r.url, micUrl: r.mic_url || "", singers: r.singers || [], synced: "" });
     P.fair = !!(S.settings && S.settings.kara_fair); $("#kaFair").checked = P.fair;
     $("#kaQr").innerHTML = qrSvg(P.url, 220);
     fair(); renderQueue(); partyUi(); lobbyTv(); partyPoll();
@@ -1686,7 +1688,8 @@ const Kara = (() => {
   $("#kaLatTest").onclick = () => Latency.open();
   $("#kaOffFav").onclick = ev => { ev.preventDefault(); tab("favs"); };
   $("#kaHistClear").onclick = () => { if (!confirm("Verlauf und Bestenliste löschen?")) return; K.hist = []; call("kara_history_clear").catch(() => { }); renderHist(); };
-  return { enter, tvEvent, party: P };
+  async function partyEnsure() { if (!P.on) await partyStart(); return P; }
+  return { enter, tvEvent, party: P, partyEnsure, qrSvg };
 })();
 window.Kara = Kara;
 
@@ -1830,7 +1833,7 @@ $("#btnKeepLive").onclick = () => {
 
 /* ---------------------------------------------------------------- Neu in dieser Version (bei jeder Version ergänzen!) */
 const CHANGES = [
-  ["1.14.0", ["<b>Party-Handy einfacher</b>: alles auf einer Seite – deine Songs oben, darunter die Suche", "Versehentlich gewünscht? <b>Nochmal auf „✓ Drin“ tippen</b> nimmt den Song wieder raus", "Eigene Songs <b>mit ↑ ↓ umsortieren</b> – direkt am Handy", "<b>Nur echte Karaoke-Videos</b> in der Suche – keine Lyrics-Videos, keine Akustik-, Klavier- oder Cover-Fassungen", "<b>Aufrufe und 👍 Likes</b> von YouTube bei jedem Treffer, die beliebteste Version steht oben", "Neue Wünsche erscheinen <b>groß</b> oben rechts mit Bild und Namen", "Wünsche kommen in der Reihenfolge, in der sie gewünscht wurden – „Fair abwechseln“ gibt es als Schalter", "Warteschlange am Rechner mit der Maus umsortieren", "Karaoke-Vollbild: Die Leiste erscheint wieder, sobald sich die Maus bewegt", "<b>📏 Ton-Verzögerung messen</b>: zeigt, wie lange der Ton bis aus Fernseher oder Boxen braucht – Vorstufe fürs Handy als Mikrofon"]],
+  ["1.14.0", ["<b>Party-Handy einfacher</b>: alles auf einer Seite – deine Songs oben, darunter die Suche", "Versehentlich gewünscht? <b>Nochmal auf „✓ Drin“ tippen</b> nimmt den Song wieder raus", "Eigene Songs <b>mit ↑ ↓ umsortieren</b> – direkt am Handy", "<b>Nur echte Karaoke-Videos</b> in der Suche – keine Lyrics-Videos, keine Akustik-, Klavier- oder Cover-Fassungen", "<b>Aufrufe und 👍 Likes</b> von YouTube bei jedem Treffer, die beliebteste Version steht oben", "Neue Wünsche erscheinen <b>groß</b> oben rechts mit Bild und Namen", "Wünsche kommen in der Reihenfolge, in der sie gewünscht wurden – „Fair abwechseln“ gibt es als Schalter", "Warteschlange am Rechner mit der Maus umsortieren", "Karaoke-Vollbild: Die Leiste erscheint wieder, sobald sich die Maus bewegt", "<b>📏 Ton-Verzögerung messen</b>: zeigt, wie lange der Ton bis aus Fernseher oder Boxen braucht – Vorstufe fürs Handy als Mikrofon", "<b>📱 Handy-Mikro (Test)</b>: Handy per QR-Code als Mikrofon verbinden, die ganze Verzögerung messen und probehalber über die Boxen singen"]],
   ["1.13.0", ["<b>⚔️ Battle</b>: Zwei singen gegeneinander – Münzwurf, Wechsel zur Hälfte, am Ende beide Punktzahlen und ein Sieger 👑", "<b>👥 Duett</b>: zu zweit singen mit gemeinsamen Punkten", "<b>Playlists nach Sprache, Stimmung und Duetten</b>: Deutsche Songs, Zum Mitgrölen, Ruhige Balladen, Herzschmerz, Duette …", "<b>Nur offline</b>: ein Klick, und es laufen nur gespeicherte Songs – auch die Party-Handys sehen nur diese"]],
   ["1.12.0", ["<b>English</b>: SongGrabber gibt es jetzt auch auf Englisch – automatisch wie Windows oder unter Einstellungen → Sprache umschalten (mit englischer Hilfe)", "<b>Karaoke</b>: Karaoke-Videos von YouTube suchen und singen – ohne Werbung, mit fertigen Playlists (Schlager, 80er, Disney …)", "<b>Wer singt?</b> Sänger-Warteschlange mit „Jetzt singt …“ und „Als Nächstes …“", "<b>★ Favoriten offline</b>: werden im Ordner „Karaoke“ gespeichert und laufen auch ohne Internet – z. B. beim Camping", "<b>Mich aufnehmen</b>: Stimme + Musik als MP3 (auf Wunsch MP4), Stimme nachträglich lauter/leiser", "<b>🎉 Party-Modus</b>: Gäste scannen einen QR-Code und wünschen sich Songs vom Handy – faire Reihenfolge, „Als Nächstes“-Bildschirm und „Du bist dran!“ aufs Handy", "<b>Tonart ändern</b> (♭/♯): Song tiefer oder höher singen, das Tempo bleibt gleich – je Song gemerkt", "<b>Tempo</b> 75–125 %, die Tonart bleibt gleich", "Linke Leiste übersichtlich in Gruppen: Musik holen · Hören & Singen · Aufnehmen", "Besser lesbar, ruhigere Animationen – und „Animationen reduzieren“ von Windows wird beachtet", "Lichtshows schöner: Lava-Lampe mit scharfen, glänzenden Blasen, Feuerwerk explodiert im Bild, Polarlicht gestochen scharf", "<b>Fernseher-Modus</b>: Video im Vollbild auf dem zweiten Bildschirm, Bedienung bleibt auf dem Laptop", "<b>🏆 Punkte</b> nach jedem Song mit Sternen, dazu <b>Verlauf & Bestenliste</b>", "<b>Hall auf der Stimme</b> für die Aufnahme: Raum, Bühne oder Konzerthalle – auch nachträglich", "<b>Best-of &amp; Mixe</b>: lange Karaoke-Videos mit Songliste – ⏭ bzw. N springt zum nächsten Song im Video", "Zeitleiste mit Restzeit, Tasten (Leertaste, ←/→, ↑/↓, N)", "Radio: <b>Sofort mitschneiden</b> – der laufende Song von Anfang an (stoppt am Songende) oder ab jetzt, auch im Mini-Player"]],
   ["1.11.0", ["<b>Bildschirm aufnehmen</b>: Zoom, Teams, Webinar oder Live-Coaching als MP4-Video – ganzer Bildschirm oder nur ein Fenster, mit Vorschau", "Neue Lichtshows: <b>Nordlicht</b>, <b>Disco-Kugel</b>, <b>Lava-Lampe</b> und <b>Feuerwerk</b> (statt Tesla)", "Player: <b>rechte Leiste hochrollen</b> wie ein Rollo (Q) und <b>Bedienung einklappen</b> zu kleinen Knöpfen (H) – Drüberfahren zeigt alles, nach 1 Minute Ruhe passiert es von selbst", "<b>Bereich zeichnen</b>: nur einen Ausschnitt aufnehmen – z. B. nur das Video in YouTube, Zoom oder Teams", "Klar sichtbar, welcher Ton mit drauf ist: <b>Ton vom PC</b> und/oder <b>dein Mikrofon</b> – mit Pegelanzeige", "<b>Mikrofon während der Aufnahme an/aus</b> – z. B. nur kurz einschalten, um etwas zu sagen", "<b>Kleine Aufnahme-Leiste</b> oben rechts mit Uhr, Pause und Stopp – unter Windows im Video unsichtbar", "Fertiges Video direkt in SongGrabber ansehen – saubere Dateinamen ohne Emojis", "Pause, Verwerfen, auf Wunsch zusätzlich als MP3 – und beim Schließen geht keine laufende Aufnahme verloren"]],
@@ -1853,7 +1856,7 @@ const CHANGES = [
 ];
 // English change notes (recent versions only – older ones are summarized)
 const CHANGES_EN = [
-  ["1.14.0", ["<b>Simpler party phone</b>: everything on one page – your songs at the top, search below", "Requested by mistake? <b>Tap “✓ Added” again</b> to take the song out", "<b>Reorder your own songs with ↑ ↓</b> right on the phone", "<b>Only real karaoke videos</b> in search – no lyric videos, no acoustic, piano or cover versions", "<b>Views and 👍 likes</b> from YouTube on every result, the most popular version comes first", "New requests appear <b>large</b> at the top right with picture and name", "Requests play in the order they were made – “Take turns fairly” is available as a switch", "Reorder the queue on the computer by dragging", "Karaoke fullscreen: the bar comes back as soon as the mouse moves", "<b>📏 Measure sound delay</b>: shows how long the sound takes to come out of the TV or speakers – first step towards phones as microphones"]],
+  ["1.14.0", ["<b>Simpler party phone</b>: everything on one page – your songs at the top, search below", "Requested by mistake? <b>Tap “✓ Added” again</b> to take the song out", "<b>Reorder your own songs with ↑ ↓</b> right on the phone", "<b>Only real karaoke videos</b> in search – no lyric videos, no acoustic, piano or cover versions", "<b>Views and 👍 likes</b> from YouTube on every result, the most popular version comes first", "New requests appear <b>large</b> at the top right with picture and name", "Requests play in the order they were made – “Take turns fairly” is available as a switch", "Reorder the queue on the computer by dragging", "Karaoke fullscreen: the bar comes back as soon as the mouse moves", "<b>📏 Measure sound delay</b>: shows how long the sound takes to come out of the TV or speakers – first step towards phones as microphones", "<b>📱 Phone mic (test)</b>: connect a phone as a microphone via QR code, measure the whole delay and try singing through the speakers"]],
   ["1.13.0", ["<b>⚔️ Battle</b>: two sing head to head – coin toss, switch halfway, both scores and a winner 👑 at the end", "<b>👥 Duet</b>: sing as a pair with shared points", "<b>Playlists by language, mood and duets</b>: German songs, sing-along anthems, quiet ballads, heartbreak, duets …", "<b>Offline only</b>: one click and only saved songs play – the party phones see only these too"]],
   ["1.12.0", ["<b>English</b>: SongGrabber now speaks English – automatically like Windows, or switch under Settings → Language (help included)", "<b>Karaoke</b>: search and sing karaoke videos from YouTube – without ads, with ready-made playlists (party hits, 80s, Disney …)", "<b>Who's singing?</b> Singer queue with “Now singing …” and “Up next …”", "<b>★ Favorites offline</b>: saved in the “Karaoke” folder and play without internet too – e.g. when camping", "<b>Record me</b>: voice + music as MP3 (optionally MP4), make the voice louder/quieter afterwards", "<b>🎉 Party mode</b>: guests scan a QR code and request songs from their phone – fair order, “Up next” screen and “You're up!” on the phone", "<b>Change the key</b> (♭/♯): sing a song lower or higher, the tempo stays the same – remembered per song", "<b>Tempo</b> 75–125 %, the key stays the same", "Sidebar neatly grouped: Get music · Listen & sing · Record", "Easier to read, calmer animations – and Windows “reduce animations” is respected", "Nicer light shows: lava lamp with crisp, glossy blobs, fireworks burst on screen, sharp northern lights", "<b>TV mode</b>: video fullscreen on the second screen, controls stay on the laptop", "<b>🏆 Points</b> after every song with stars, plus <b>history & leaderboard</b>", "<b>Reverb on the voice</b> for recordings: room, stage or concert hall – also afterwards", "<b>Best-of &amp; mixes</b>: long karaoke videos with a song list – ⏭ or N jumps to the next song within the video", "Timeline with remaining time, keys (space, ←/→, ↑/↓, N)", "Radio: <b>Record right away</b> – the current song from its beginning (stops at the end of the song) or from now on, also in the mini player"]],
   ["1.11.0", ["<b>Record screen</b>: Zoom, Teams, webinars or live coaching as MP4 video – whole screen or just one window, with preview", "New light shows: <b>Aurora</b>, <b>Disco ball</b>, <b>Lava lamp</b> and <b>Fireworks</b> (instead of Tesla)", "Player: <b>roll up the right bar</b> like a blind (Q) and <b>collapse the controls</b> into small buttons (H) – hovering shows everything, after 1 minute of inactivity it happens by itself", "<b>Draw an area</b>: record only part of the screen – e.g. just the video in YouTube, Zoom or Teams", "Clearly visible which sound is included: <b>PC sound</b> and/or <b>your microphone</b> – with level meter", "<b>Microphone on/off during recording</b>", "<b>Small recording bar</b> at the top right with clock, pause and stop – invisible in the video on Windows", "Watch the finished video right in SongGrabber – clean file names without emojis", "Pause, discard, optionally also as MP3 – and a running recording is never lost when closing"]],
@@ -3592,7 +3595,9 @@ const Latency = (() => {
     const rows = runs.map(r => {
       if (!r.ok) return `<div class="lt-row"><b>${esc(r.speaker)}</b><span class="lt-miss">${esc(T(`Nicht gehört (${r.heard} von ${r.of} Klicks)`))} – ${esc(T("lauter stellen oder Mikro näher an den Lautsprecher"))}</span></div>`;
       const [c, txt] = verdict(r.ms);
-      return `<div class="lt-row ${c}"><b>${esc(r.speaker)}</b><div class="lt-bar"><i style="width:${Math.min(100, r.ms / max * 100)}%"></i></div><span class="lt-ms">${r.ms} ms</span><small>${esc(T(txt))}${r.spread > 15 ? ` · ${esc(T(`schwankt um ${r.spread} ms`))}` : ""}</small></div>`;
+      const [c2, txt2] = r.phone ? (r.ms < 50 ? ["good", "Gut – Live-Gesang über die Boxen kann klappen."] : r.ms < 90 ? ["mid", "Hörbar verzögert – für Punkte und Battle gut, live über die Boxen grenzwertig."] : ["bad", "Zu langsam für Live-Gesang – Handy-Mikro für Punkte und Battle nutzen."]) : [c, txt];
+      const det = r.phone && r.net != null ? ` · ${esc(T(`davon Netzwerk etwa ${Math.round(r.net / 2)} ms`))}` : "";
+      return `<div class="lt-row ${c2}"><b>${esc(r.speaker)}</b><div class="lt-bar"><i style="width:${Math.min(100, r.ms / max * 100)}%"></i></div><span class="lt-ms">${r.ms} ms</span><small>${esc(T(txt2))}${r.spread > 15 ? ` · ${esc(T(`schwankt um ${r.spread} ms`))}` : ""}${det}</small></div>`;
     }).join("");
     const ok = runs.filter(r => r.ok), names = [...new Set(ok.map(r => r.speaker))];
     let cmp = "";
@@ -3614,9 +3619,50 @@ const Latency = (() => {
         <div class="lt-form"><label>Lautsprecher<select id="ltSpk">${opt(spk)}</select></label><label>Mikrofon am Rechner<select id="ltMic">${opt(mics)}</select></label></div>
         <ol class="lt-steps"><li>Lautstärke auf normale Party-Lautstärke.</li><li>Kurz leise sein, dann <b>Messen</b>.</li><li>Danach den anderen Lautsprecher wählen (z. B. PC-Boxen statt Fernseher) und nochmal messen – dann siehst du, was der Fernseher extra kostet.</li></ol>
         <div class="lt-res" id="ltRes">${results()}</div>
+        <div class="lt-phone" id="ltPhone"><div class="lt-ph-tx"><b>📱 Mit Handy als Mikrofon testen</b><small>Misst den ganzen Weg der Stimme: Handy → Rechner → Lautsprecher. Und du kannst probehalber über die Boxen singen.</small></div><button class="ghost sm" id="ltPhGo">Handy verbinden</button></div>
         <p class="lt-note">Die Werte enthalten auch die kleine Verzögerung des Rechner-Mikrofons (meist 10–30 ms) – echte Werte sind also eher etwas besser. Tipp: Am Fernseher den <b>Spiel-Modus</b> (Game Mode) einschalten und nochmal messen.</p>`,
-      buttons: [{ label: "Schließen" }, { label: "Messen", cls: "primary", id: "ltGo", fn: run }]
+      buttons: [{ label: "Schließen" }, { label: "Messen", cls: "primary", id: "ltGo", fn: run }],
+      onClose: () => { clearInterval(meterT); if (window.MicRx) MicRx.monitor(false); }
     });
+    $("#ltPhGo").onclick = phone;
+    if (window.MicRx && MicRx.state()) phone();
+  }
+  let meterT = 0;
+  async function phone() {
+    let P; try { P = await Kara.partyEnsure(); } catch (e) { return toast(String(e.message || e), "err"); }
+    const box = $("#ltPhone"); if (!box) return;
+    if (!P.micUrl) { box.innerHTML = `<div class="lt-ph-tx"><b>📱 Handy-Mikro</b><small>${esc(T("Nicht verfügbar – die sichere Verbindung (https) ließ sich nicht starten. Details im Protokoll."))}</small></div>`; return; }
+    box.classList.add("on");
+    box.innerHTML = `<div class="lt-ph-qr">${Kara.qrSvg(P.micUrl, 150)}</div>
+      <div class="lt-ph-tx"><b>${esc(T("Mit dem Handy scannen"))}</b>
+        <small>${esc(T("Das Handy zeigt einmal eine Sicherheitswarnung, weil SongGrabber sich das Zertifikat selbst ausstellt. Android: „Erweitert“ → „Weiter zu …“. iPhone: „Details einblenden“ → „Diese Website besuchen“. Dann „Mikro einschalten“ und „Zulassen“."))}</small>
+        <code>${esc(P.micUrl.replace(/^https:\/\//, ""))}</code>
+        <div class="lt-ph-st" id="ltPhSt">${esc(T("Warte auf das Handy …"))}</div>
+        <div class="lt-lvl"><i id="ltLvl"></i></div>
+        <div class="lt-ph-act"><button class="primary sm" id="ltPhMeasure" disabled>${esc(T("Verzögerung messen (über Handy)"))}</button>
+          <label class="switch"><input type="checkbox" id="ltMon"><i></i><span>${esc(T("Stimme über Lautsprecher"))}</span></label>
+          <input type="range" id="ltVol" min="0" max="100" value="60" aria-label="${esc(T("Lautstärke der Stimme"))}"></div></div>`;
+    const upd = c => {
+      const st = $("#ltPhSt"); if (!st) return;
+      const ok = c && c.state === "connected";
+      st.textContent = !c ? T("Warte auf das Handy …") : ok ? `✓ ${T("Verbunden")}: ${c.name}` : c.state === "failed" ? `${T("Verbindung fehlgeschlagen")}${c.error ? " – " + c.error : ""}` : `${c.name}: ${T("verbinde …")}`;
+      st.className = "lt-ph-st " + (ok ? "ok" : c && c.state === "failed" ? "bad" : "");
+      $("#ltPhMeasure").disabled = !ok;
+    };
+    MicRx.onState(upd); upd(MicRx.state());
+    const mon = () => MicRx.monitor($("#ltMon").checked, $("#ltVol").value / 100);
+    $("#ltMon").onchange = mon; $("#ltVol").oninput = mon;
+    clearInterval(meterT); meterT = setInterval(() => { const l = $("#ltLvl"); if (!l) return clearInterval(meterT); l.style.width = Math.min(100, MicRx.level() * 140) + "%"; }, 80);
+    $("#ltPhMeasure").onclick = async () => {
+      const b = $("#ltPhMeasure"), was = $("#ltMon").checked; b.disabled = true; b.textContent = T("Hör zu …");
+      MicRx.monitor(false);                          // sonst kommt der Klick über die Boxen zurück
+      $("#dlgBox [data-foot]").textContent = T("Handy in normalem Abstand zum Lautsprecher halten – 7 Klicks, kurz leise sein");
+      try { const r = await MicRx.measure(); runs.push({ ...r, speaker: T("📱 Handy → Lautsprecher"), phone: true }); }
+      catch (e) { toast(String(e.message || e), "err"); }
+      b.disabled = false; b.textContent = T("Verzögerung messen (über Handy)"); $("#dlgBox [data-foot]").textContent = "";
+      if (was) mon();
+      const box2 = $("#ltRes"); if (box2) box2.innerHTML = results();
+    };
   }
   async function run(btn) {
     const sel = $("#ltSpk"), spk = sel.value, name = sel.options[sel.selectedIndex] ? sel.options[sel.selectedIndex].text : "";
@@ -4347,7 +4393,7 @@ const Mock = (() => {
       const w = ktv, iv = setInterval(() => { if (!w || w.closed) { clearInterval(iv); if (ktv === w) { ktv = null; window.postMessage({ sgtv: "closed" }, "*"); } } }, 500);
       return { ok: true };
     },
-    party_start: () => { kparty = { n: 0, singers: [] }; return { on: true, url: "http://192.168.178.24:8930/p/Xk3fP9aQ2LmW/", ip: "192.168.178.24", port: 8930, singers: [] }; },
+    party_start: () => { kparty = { n: 0, singers: [] }; return { on: true, url: "http://192.168.178.24:8930/p/Xk3fP9aQ2LmW/", mic_url: "https://192.168.178.24:8960/p/Xk3fP9aQ2LmW/mic", ip: "192.168.178.24", port: 8930, singers: [] }; },
     party_stop: () => { kparty = null; return true; }, party_sync: () => true, party_add_singer: n => "pc-" + n,
     party_poll: () => {
       if (!kparty) return { actions: [], singers: [] };

@@ -77,7 +77,9 @@ def analyze(rec, sched, offset):
         i = int(np.argmax(win >= top * 0.5))
         j = min(len(win), i + int(0.003 * FS))
         i += int(np.argmax(win[i:j]))
-        out.append(round(i / FS * 1000, 1))
+        seg = rec[a + i:a + i + len(ch)]
+        ncc = win[i] / (np.sqrt(float(np.dot(seg, seg)) * float(np.dot(ch, ch))) + 1e-12)
+        out.append(round(i / FS * 1000, 1) if ncc > 0.35 else None)   # Form muss zum Klick passen
     return out
 
 
