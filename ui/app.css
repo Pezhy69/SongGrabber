@@ -1510,3 +1510,9 @@ body.no-outbar .outbar{display:none}
 .lt-lvl i{display:block;height:100%;width:0;background:#2FA56E;transition:width .08s linear}
 .lt-ph-act{display:flex;flex-wrap:wrap;gap:10px 14px;align-items:center;margin-top:4px}
 .lt-ph-act input[type=range]{width:120px}
+.ka-micsel{display:grid;grid-template-columns:auto 1fr;gap:6px 10px;align-items:center;margin-bottom:12px}
+.ka-micsel label{font-size:13px;font-weight:600}
+.ka-micsel select{min-width:0;width:100%}
+.ka-miclvl{grid-column:1/-1;height:6px;border-radius:4px;background:rgba(255,255,255,.07);overflow:hidden}
+.ka-miclvl i{display:block;height:100%;width:0;background:#2FA56E;transition:width .12s linear}
+.ka-miclvl i.err{background:#E2554B;width:100%!important}

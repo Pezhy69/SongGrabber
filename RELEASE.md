@@ -17,6 +17,7 @@
 - Neue Wünsche erscheinen **groß** oben rechts mit Bild und Namen
 - Warteschlange mit der Maus umsortieren
 - Karaoke-Vollbild: Die Leiste erscheint wieder, sobald sich die Maus bewegt
+- **🎤 Mikrofon im Karaoke wählbar** (mit Pegelanzeige) – Headset-Mikros funktionieren jetzt auch für Punkte und Aufnahme
 - **📏 Ton-Verzögerung messen**: 7 Klicks über Fernseher oder Boxen, das Rechner-Mikro hört mit – zeigt in Millisekunden, wie schnell der Ton ist (Vorstufe fürs Handy als Mikrofon)
 - **📱 Handy-Mikro (Test)**: Im selben Fenster das Handy per QR-Code als Mikrofon verbinden – misst den ganzen Weg der Stimme (Handy → Rechner → Lautsprecher) und lässt dich probehalber über die Boxen singen. Das Handy zeigt einmal eine Zertifikats-Warnung (SongGrabber stellt sich das Zertifikat selbst aus).
 

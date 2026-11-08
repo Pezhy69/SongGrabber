@@ -1408,3 +1408,8 @@ Lautstärke der Stimme|Voice volume
 Kein Handy verbunden.|No phone connected.
 Vom Handy kommt kein Ton an.|No sound is arriving from the phone.
 Nicht verfügbar – die sichere Verbindung (https) ließ sich nicht starten. Details im Protokoll.|Not available – the secure connection (https) could not be started. Details in the log.
+🎤 Mikrofon|🎤 Microphone
+Windows-Standard|Windows default
+Mit diesem Mikrofon werden Punkte vergeben und Aufnahmen gemacht|This microphone is used for points and recordings
+Pegel – sprich kurz rein, der Balken muss sich bewegen|Level – say something, the bar has to move
+Windows blockiert das Mikrofon – Einstellungen → Datenschutz → Mikrofon|Windows is blocking the microphone – Settings → Privacy → Microphone

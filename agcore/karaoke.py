@@ -545,7 +545,7 @@ class KaraRec:
             rid = time.strftime("%Y%m%d_%H%M%S")
             folder = os.path.join(self.base, rid)
             os.makedirs(folder, exist_ok=True)
-            mic_dev = (paths.settings().get("screen_opts") or {}).get("mic_device") or ""
+            mic_dev = paths.settings().get("kara_mic") or ""          # leer = Windows-Standardmikrofon
             r = dict(meta, id=rid, folder=folder, t_start=time.time(), dirty=False, hall=meta.get("hall") if meta.get("hall") in HALL else "stage",
                      sys=_Audio("sys", "", os.path.join(folder, "musik.wav")),
                      mic=_Audio("mic", mic_dev, os.path.join(folder, "stimme.wav")))
@@ -750,7 +750,7 @@ class KaraScore:
         from .screenrec import _Audio
         self.stop(False)
         with self.lock:
-            mic_dev = (paths.settings().get("screen_opts") or {}).get("mic_device") or ""
+            mic_dev = paths.settings().get("kara_mic") or ""          # leer = Windows-Standardmikrofon
             a = _Audio("mic", mic_dev, os.path.join(self.base, time.strftime("%H%M%S") + ".wav"))
             a.start()
             self.cur = a

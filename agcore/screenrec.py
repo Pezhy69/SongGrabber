@@ -313,8 +313,16 @@ class _Audio(threading.Thread):
                 if paths.IS_WIN:              # WASAPI-Loopback braucht bei Stille einen stummen Spieler
                     threading.Thread(target=recorder.Recorder._silence_player, args=(sc, spk.id, RATE, keep), daemon=True).start()
             else:
-                mic = sc.get_microphone(self.device, include_loopback=False) if self.device else sc.default_microphone()
-            with mic.recorder(samplerate=RATE, channels=2, blocksize=1024) as rec, wave.open(self.path, "wb") as w:
+                mic = None
+                if self.device:
+                    try:
+                        mic = sc.get_microphone(self.device, include_loopback=False)
+                    except Exception:             # gewähltes Mikro fehlt (z. B. Headset abgesteckt) → Windows-Standard
+                        paths.log.warning("Mikrofon %s nicht gefunden – nehme das Windows-Standardmikrofon", self.device)
+                mic = mic or sc.default_microphone()
+            # Mono-Mikrofone (Headsets) mit einem Kanal öffnen – manche Treiber lehnen sonst ab
+            ch = 2 if self.kind == "sys" or getattr(mic, "channels", 2) >= 2 else 1
+            with mic.recorder(samplerate=RATE, channels=ch, blocksize=1024) as rec, wave.open(self.path, "wb") as w:
                 w.setnchannels(2)
                 w.setsampwidth(2)
                 w.setframerate(RATE)
